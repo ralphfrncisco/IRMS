@@ -24,10 +24,10 @@ function Sidebar({ collapsed, darkMode }) { // Added darkMode prop
         <div className="flex items-center space-x-3">
           <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ${
             collapsed 
-              ? "bg-transparent shadow-none" 
-              : "bg-[#164E48] shadow-lg shadow-[#164E48]/20"
+              ? "bg-transparent shadow-none text-emerald-500" 
+              : "bg-[#164E48] text-white shadow-lg shadow-[#164E48]/20"
           }`}>
-            <Zap className="w-6 h-6 text-white" />
+            <Zap className= "w-6 h-6" />
           </div>
           {!collapsed && (
             <div>
