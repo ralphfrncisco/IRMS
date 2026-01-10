@@ -24,12 +24,12 @@ function Header({ onToggleSidebar, darkMode, setDarkMode }) {
         <button
           onClick={() => setDarkMode(!darkMode)}
           className={`p-2.5 rounded-xl transition-colors 
-            ${darkMode ? 'text-white hover:bg-slate-800' : 'text-black/50 hover:bg-gray-200/50'}`}
+            ${darkMode ? 'text-white hover:bg-slate-800' : 'hover:bg-gray-200/50'}`}
         >
           {darkMode ? (
-            <Sun className="w-5 h-5 text-yellow-400" />
+            <Moon className="w-5 h-5 text-blue-500" />
           ) : (
-            <Moon className="w-5 h-5" />
+            <Sun className="w-5 h-5 text-yellow-400" />
           )}
         </button>
 

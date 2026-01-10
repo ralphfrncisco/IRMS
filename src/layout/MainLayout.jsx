@@ -10,9 +10,9 @@ const MainLayout = () => {
   return (
     // YOU MUST APPLY THE DARK CLASS HERE TO THE WRAPPER
     <div className={`flex h-screen overflow-hidden transition-colors duration-300 ${
-      darkMode ? 'bg-slate-950' : 'bg-slate-50'
+      darkMode ? 'bg-slate-900' : 'bg-slate-50'
     }`}>
-      {/* Pass the darkMode prop to the Sidebar too! */}
+
       <Sidebar collapsed={collapsed} darkMode={darkMode} />
 
       <div className="flex-1 flex flex-col overflow-hidden">

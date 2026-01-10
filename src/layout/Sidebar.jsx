@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, WalletCards, ShoppingCart, 
-  Package, FileText, Users, Zap, LogOut
+  Package, FileText, Users, Zap, UserCog
 } from 'lucide-react';
 
 const menuItems = [
@@ -10,8 +10,9 @@ const menuItems = [
   { id: "purchasing", icon: WalletCards, label: "Purchasing" },
   { id: "orders", icon: ShoppingCart, label: "Orders" },
   { id: "inventory", icon: Package, label: "Inventory" },
+  { id: "suppliers", icon: Users, label: "Suppliers" },
   { id: "activityLog", icon: FileText, label: "Activity Logs" },
-  { id: "accounts", icon: Users, label: "Accounts" }
+  { id: "accounts", icon: UserCog, label: "Accounts" }
 ];
 
 function Sidebar({ collapsed, darkMode }) { // Added darkMode prop
