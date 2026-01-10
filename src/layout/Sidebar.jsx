@@ -21,7 +21,11 @@ function Sidebar({ collapsed, darkMode }) { // Added darkMode prop
       
       <div className={`p-6 border-b ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-[#164E48] rounded-xl flex items-center justify-center shadow-lg shadow-[#164E48]/20">
+          <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ${
+            collapsed 
+              ? "bg-transparent shadow-none" 
+              : "bg-[#164E48] shadow-lg shadow-[#164E48]/20"
+          }`}>
             <Zap className="w-6 h-6 text-white" />
           </div>
           {!collapsed && (
@@ -53,14 +57,7 @@ function Sidebar({ collapsed, darkMode }) { // Added darkMode prop
           </NavLink>
         ))}
       </nav>
-
-      <div className="p-4">
-        <button className={`w-full flex items-center text-center justify-center gap-3 p-3 rounded-lg hover:translate-y-[-2px] transition-all duration-200
-          ${darkMode ? 'bg-slate-800 text-white' : 'bg-[#164E48] text-white shadow-md'}`}>
-          <LogOut className="w-5 h-5" />
-          {!collapsed && <span className="text-sm font-medium mr-3">Log Out</span>}
-        </button>
-      </div>
+      
     </div>
   );
 }
