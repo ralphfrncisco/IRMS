@@ -2,7 +2,7 @@ import React from 'react'
 
 function Dashboard() {
   return (
-    <div className = "bg-[#F1F5F9] p-4">
+    <div className = "bg-[#F1F5F9]">
       Dashboard
     </div>
   )
