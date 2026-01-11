@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, WalletCards, ShoppingCart, 
-  Package, FileText, Users, Zap, UserCog,
+  LayoutDashboard, PiggyBank, ShoppingCart, 
+  Package, FileText, Users, UserCog,
   ArrowLeftRight, ChevronDown
 } from 'lucide-react';
+
+import pigLogo from './../assets/pig.png';
 
 // 1. Define the dynamic structure in one array
 const menuItems = [
@@ -49,8 +51,17 @@ function Sidebar({ collapsed, darkMode }) {
               ? "bg-transparent shadow-none text-emerald-500" 
               : "bg-[#164E48] text-white shadow-lg shadow-[#164E48]/20"
           }`}>
-            <Zap className= "w-6 h-6" />
+            <PiggyBank className= "w-6 h-6" />
           </div>
+          {/* <div className="flex-shrink-0">
+            <img 
+              src={pigLogo} 
+              alt="logo" 
+              className={`w-10 h-10 object-contain transition-all duration-300 ${
+                collapsed ? "scale-90" : "scale-100"
+              }`} 
+            />
+          </div> */}
           {!collapsed && (
             <div>
               <h1 className={`text-xl font-bold leading-none ${darkMode ? 'text-white' : 'text-slate-800'}`}>IRMS</h1>

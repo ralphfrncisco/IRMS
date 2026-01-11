@@ -4,7 +4,7 @@ import { PhilippinePeso, Wallet, ShoppingCart, PackageCheck, Package, Users } fr
 
 const statsData = [
   { title: "Total Item Sales (Qty)", value: "125", icon: PackageCheck, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" },
-  { title: "Total Profit", value: "₱ 15,240.00", icon: Wallet, bgColor: "bg-blue-500/10", textColor: "text-blue-500" },
+  { title: "Total Amount of Profit", value: "₱ 15,240.00", icon: Wallet, bgColor: "bg-blue-500/10", textColor: "text-blue-500" },
   { title: "Account Receivables", value: "₱ 15,240.00", icon: PhilippinePeso, bgColor: "bg-orange-500/10", textColor: "text-red-500" },
 ];
 
