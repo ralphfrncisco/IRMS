@@ -86,14 +86,18 @@ function Sidebar({ collapsed, darkMode }) {
                   </button>
 
                   {isOpen && !collapsed && (
-                    <div className= "ml-6 pl-4 space-y-1 mt-1">
+                    <div className="ml-6 pl-4 space-y-1 mt-1">
                       {item.submenu.map((sub) => (
                         <NavLink 
                           key={sub.id} 
                           to={sub.path} 
                           className={({ isActive }) =>
-                            `block p-2 text-sm rounded-lg transition-colors ${
-                              isActive ? "text-emerald-500 font-bold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-700"
+                            `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-200 text-sm
+                            ${isActive 
+                              ? "bg-[#164E48] text-white font-semibold" 
+                              : darkMode 
+                                ? "text-slate-400 hover:bg-slate-800 hover:text-white" 
+                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                             }`
                           }
                         >
