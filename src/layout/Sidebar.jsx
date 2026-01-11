@@ -20,7 +20,7 @@ const menuItems = [
       { id: "expenses", label: "Expenses", path: "/transactions/Expenses" },
     ]
   },
-  {id: "orders", icon: ShoppingCart, label: "Orders", path: "/orders" },
+  { id: "orders", icon: ShoppingCart, label: "Orders", path: "/orders" },
   { id: "inventory", icon: Package, label: "Inventory", path: "/inventory" },
   { id: "suppliers", icon: Users, label: "Suppliers", path: "/suppliers" },
   { id: "activityLog", icon: FileText, label: "Activity Logs", path: "/activityLog" },
@@ -40,32 +40,23 @@ function Sidebar({ collapsed, darkMode }) {
   };
 
   return (
-    <div className={`${collapsed ? "w-20" : "w-72"} transition-all duration-300 border-r h-screen flex flex-col
-      ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+    <div className={`${collapsed ? "w-20" : "w-72"} transition-all duration-300 border-r h-screen flex flex-col bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800`}>
       
       {/* Branding Section */}
-      <div className={`p-6 border-b ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+      <div className="p-6 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center space-x-3">
           <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ${
             collapsed 
               ? "bg-transparent shadow-none text-emerald-500" 
               : "bg-[#164E48] text-white shadow-lg shadow-[#164E48]/20"
           }`}>
-            <PiggyBank className= "w-6 h-6" />
+            <PiggyBank className="w-6 h-6" />
           </div>
-          {/* <div className="flex-shrink-0">
-            <img 
-              src={pigLogo} 
-              alt="logo" 
-              className={`w-10 h-10 object-contain transition-all duration-300 ${
-                collapsed ? "scale-90" : "scale-100"
-              }`} 
-            />
-          </div> */}
+          
           {!collapsed && (
             <div>
-              <h1 className={`text-xl font-bold leading-none ${darkMode ? 'text-white' : 'text-slate-800'}`}>IRMS</h1>
-              <p className={`text-xs mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Admin Panel</p>
+              <h1 className="text-xl font-bold leading-none text-slate-800 dark:text-white">IRMS</h1>
+              <p className="text-xs mt-1 text-slate-500 dark:text-slate-400">Admin Panel</p>
             </div>
           )}
         </div>
@@ -80,12 +71,10 @@ function Sidebar({ collapsed, darkMode }) {
           return (
             <div key={item.id} className="space-y-1">
               {hasSubmenu ? (
-                // 3. Render Collapsible Button for items with submenus
                 <>
                   <button
                     onClick={() => toggleMenu(item.id)}
-                    className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
-                      ${darkMode ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"}`}
+                    className="w-full flex items-center p-3 rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                   >
                     <item.icon className="w-5 h-5 min-w-[20px]" />
                     {!collapsed && (
@@ -97,7 +86,7 @@ function Sidebar({ collapsed, darkMode }) {
                   </button>
 
                   {isOpen && !collapsed && (
-                    <div className="ml-6 pl-4 space-y-1 mt-1">
+                    <div className="ml-6 pl-4 space-y-1 mt-1 border-l border-slate-100 dark:border-slate-800">
                       {item.submenu.map((sub) => (
                         <NavLink 
                           key={sub.id} 
@@ -106,9 +95,7 @@ function Sidebar({ collapsed, darkMode }) {
                             `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-200 text-sm
                             ${isActive 
                               ? "bg-[#164E48] text-white font-semibold" 
-                              : darkMode 
-                                ? "text-slate-400 hover:bg-slate-800 hover:text-white" 
-                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                             }`
                           }
                         >
@@ -119,16 +106,13 @@ function Sidebar({ collapsed, darkMode }) {
                   )}
                 </>
               ) : (
-                
                 <NavLink
                   to={item.path}
                   className={({ isActive }) =>
                     `w-full flex items-center p-3 rounded-xl transition-all duration-200
                     ${isActive 
                       ? "bg-[#164E48] text-white"
-                      : darkMode 
-                        ? "text-slate-300 hover:bg-slate-800 hover:text-white" 
-                        : "text-slate-600/90 hover:bg-slate-100 hover:text-slate-700"
+                      : "text-slate-600/90 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                     }`
                   }
                 >

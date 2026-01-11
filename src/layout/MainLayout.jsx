@@ -8,10 +8,10 @@ const MainLayout = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    // YOU MUST APPLY THE DARK CLASS HERE TO THE WRAPPER
-    <div className={`flex h-screen overflow-hidden transition-colors duration-300 ${
-      darkMode ? 'bg-slate-900' : 'bg-slate-50'
-    }`}>
+    /* The 'dark' class is typically managed on the <html> element via the Header component, 
+       but we use dark:bg-slate-950 here to respond to it.
+    */
+    <div className="flex h-screen overflow-hidden transition-colors duration-300 bg-slate-50 dark:bg-slate-900">
 
       <Sidebar collapsed={collapsed} darkMode={darkMode} />
 
@@ -23,6 +23,7 @@ const MainLayout = () => {
         />
 
         <main className="p-4 overflow-y-auto flex-1">
+          {/* We pass darkMode through context so Recharts/Logic-heavy components can still access the boolean */}
           <Outlet context={{ darkMode }} /> 
         </main>
       </div>

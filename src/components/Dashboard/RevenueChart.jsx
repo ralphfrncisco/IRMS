@@ -5,7 +5,7 @@ import {
 } from "recharts";
 
 function RevenueChart() {
-  const { darkMode } = useOutletContext(); // Get dark mode from your layout context
+  const { darkMode } = useOutletContext();
 
   const data = [
     { day: 'Monday', revenue: 45000, expenses: 32000 },
@@ -16,15 +16,13 @@ function RevenueChart() {
   ];
 
   return (
-    <div className={`p-6 rounded-2xl border transition-all duration-300 ${
-      darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-    }`}>
+    <div className="p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white">
             Revenue Chart
           </h3>
-          <p className={darkMode ? 'text-slate-400' : 'text-slate-500'}>
+          <p className="text-slate-500 dark:text-slate-400">
             Daily Revenue and Expenses
           </p>
         </div>
@@ -32,11 +30,11 @@ function RevenueChart() {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>Revenue</span>
+            <span className="text-sm text-slate-600 dark:text-slate-300">Revenue</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-slate-400 rounded-full"></div>
-            <span className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>Expenses</span>
+            <span className="text-sm text-slate-600 dark:text-slate-300">Expenses</span>
           </div>
         </div>
       </div>
@@ -64,7 +62,11 @@ function RevenueChart() {
               tickFormatter={(value) => `₱${value / 1000}k`}
             />
             <Tooltip
-              cursor={{ fill: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
+              /* REFRACTORED LINE BELOW: 
+                 Increased alpha to 0.15 for dark mode and 0.1 for light mode 
+                 to make the highlight "pop" more.
+              */
+              cursor={{ fill: darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.2)' }}
               contentStyle={{
                 backgroundColor: darkMode ? "#1e293b" : "#ffffff",
                 border: "none",
