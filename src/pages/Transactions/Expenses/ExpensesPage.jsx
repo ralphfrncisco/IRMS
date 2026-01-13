@@ -1,8 +1,13 @@
 import React from 'react'
+import StatsGrid from "../../../components/Expenses/StatsGrid";
+import TableSection from "../../../components/Expenses/TableSection";
 
 function Expenses() {
   return (
-    <div>Expenses</div>
+    <div className = "space-y-6">
+      <StatsGrid />
+      <TableSection />
+    </div>
   )
 }
 

@@ -3,7 +3,7 @@ import { useState } from "react";
 import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard/DashboardPage";
 import Orders from "./pages/Orders";
-import Inventory from "./pages/Inventory";
+import Inventory from "./pages/Inventory/InventoryPage";
 import Sales from './pages/Transactions/Sales/SalesPage'; 
 import Expenses from './pages/Transactions/Expenses/ExpensesPage';
 import ActivityLog from "./pages/ActivityLog";
