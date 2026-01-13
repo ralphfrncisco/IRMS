@@ -31,7 +31,7 @@ function RecentOrdersTable() {
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Orders</h3>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Sales</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
                         </div>
                         <button className="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">View All</button>

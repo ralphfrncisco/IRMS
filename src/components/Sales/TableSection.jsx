@@ -6,7 +6,9 @@ import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
 import PaymentStatusFilter from '../Filters/PaymentStatusFilter';
 
-// 1. Define Constants at the TOP to prevent ReferenceErrors
+import AddPurchaseModal from '../Modals/AddPurchaseModal';
+
+// 1. Define Constants
 const ALL_OPTION = 'All';
 const DATE_RANGE_PLACEHOLDER = 'Date Range';
 const CUSTOMER_PLACEHOLDER = 'Customer';
@@ -28,37 +30,54 @@ function TableSection() {
       className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
 
-    // 2. Initialize State with the specific placeholders
-    const [dateRangeFilter, setDateRangeFilter] = useState(DATE_RANGE_PLACEHOLDER);
-    const [customerFilter, setCustomerFilter] = useState(CUSTOMER_PLACEHOLDER);
-    const [paymentStatusFilter, setPaymentStatusFilter] = useState(STATUS_PLACEHOLDER);
+    // --- DYNAMIC OPTION GENERATION (Like CustomerList) ---
+    const extractUniqueOptions = (key, placeholder) => {
+        const uniqueValues = [...new Set(recentOrders.map(order => order[key]))];
+        return [placeholder, ALL_OPTION, ...uniqueValues.sort()];
+    };
 
-    // 3. Prepare options for the filter components
     const dateRangeOptions = [DATE_RANGE_PLACEHOLDER, ALL_OPTION, 'Today', 'Last 7 Days', 'Last 30 Days'];
-    const customerOptions = [CUSTOMER_PLACEHOLDER, ALL_OPTION, ...new Set(recentOrders.map(o => o.customer))].sort();
+    const customerOptions = extractUniqueOptions('customer', CUSTOMER_PLACEHOLDER);
     const paymentOptions = [STATUS_PLACEHOLDER, ALL_OPTION, 'Fully Paid', 'With Balance', 'Unpaid'];
 
-    const filteredOrders = useMemo(() => {
-        return recentOrders.filter(order => {
-            const matchesCustomer = customerFilter === CUSTOMER_PLACEHOLDER || customerFilter === ALL_OPTION || order.customer === customerFilter;
-            const matchesStatus = paymentStatusFilter === STATUS_PLACEHOLDER || paymentStatusFilter === ALL_OPTION || order.status === paymentStatusFilter;
-            
-            let matchesDate = true;
-            if (dateRangeFilter !== DATE_RANGE_PLACEHOLDER && dateRangeFilter !== ALL_OPTION) {
-                const orderDate = new Date(order.date);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+    // --- STATE MANAGEMENT ---
+    const [dateRangeFilter, setDateRangeFilter] = useState(DATE_RANGE_PLACEHOLDER);
+    const [customerFilter, setCustomerFilter] = useState(CUSTOMER_PLACEHOLDER); 
+    const [paymentStatusFilter, setPaymentStatusFilter] = useState(STATUS_PLACEHOLDER);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // --- FILTERING LOGIC ---
+    const filteredOrders = useMemo(() => {
+        let filtered = recentOrders;
+
+        // Customer Logic
+        if (customerFilter !== CUSTOMER_PLACEHOLDER && customerFilter !== ALL_OPTION) {
+            filtered = filtered.filter(order => order.customer === customerFilter);
+        }
+
+        // Status Logic
+        if (paymentStatusFilter !== STATUS_PLACEHOLDER && paymentStatusFilter !== ALL_OPTION) {
+            filtered = filtered.filter(order => order.status === paymentStatusFilter);
+        }
+
+        // Date Logic
+        if (dateRangeFilter !== DATE_RANGE_PLACEHOLDER && dateRangeFilter !== ALL_OPTION) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            filtered = filtered.filter(order => {
+                const orderDate = new Date(order.date);
                 if (dateRangeFilter === 'Today') {
-                    matchesDate = orderDate.toDateString() === today.toDateString();
+                    return orderDate.toDateString() === today.toDateString();
                 } else if (dateRangeFilter === 'Last 7 Days') {
                     const sevenDaysAgo = new Date(today);
                     sevenDaysAgo.setDate(today.getDate() - 7);
-                    matchesDate = orderDate >= sevenDaysAgo;
+                    return orderDate >= sevenDaysAgo;
                 }
-            }
-            return matchesCustomer && matchesStatus && matchesDate;
-        });
+                return true;
+            });
+        }
+        return filtered;
     }, [dateRangeFilter, customerFilter, paymentStatusFilter]);
 
     const getStatusColor = (status) => {
@@ -71,19 +90,21 @@ function TableSection() {
     };
 
     return (
-        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
             <div className="p-4 flex flex-wrap items-center justify-between border-b border-slate-100 dark:border-slate-800 gap-4">
                 <div>
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
-                    <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
-                    <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
+                <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-2">
+                        <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
+                        <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
+                        <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
+                    </div>
                     
-                    <button className="cursor-pointer flex items-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                    <button onClick={() => setIsModalOpen(true)} className="cursor-pointer flex items-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                         <Plus className="w-4 h-4" />
                         <span className="text-sm font-medium">Add Purchase</span>
                     </button>
@@ -98,24 +119,25 @@ function TableSection() {
                             <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>
                             <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Product</th>
                             <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
                             <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>
+                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
                     </thead>
+
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {filteredOrders.map((order) => (
                             <tr key={order.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td className="p-4 text-sm font-medium text-emerald-600 dark:text-emerald-500">{order.id}</td>
+                                <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{order.id}</td>
                                 <td className="p-4 text-sm">{order.customer}</td>
                                 <td className="p-4 text-sm">{order.product}</td>
                                 <td className="p-4 text-sm font-semibold">{order.amount}</td>
+                                <td className="p-4 text-sm">{order.date}</td>
                                 <td className="p-4">
                                     <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
                                         {order.status}
                                     </span>
                                 </td>
-                                <td className="p-4 text-sm">{order.date}</td>
                                 <td className="p-4 text-center">
                                     <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                                         <MoreHorizontal className="w-5 h-5" />
@@ -126,6 +148,12 @@ function TableSection() {
                     </tbody>
                 </table>
             </div>
+
+            <AddPurchaseModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
+
         </div>
     )
 }
