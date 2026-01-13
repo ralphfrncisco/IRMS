@@ -23,7 +23,7 @@ function Header({ onToggleSidebar }) {
 
       <div className="flex items-center gap-3">
         <button
-          className="p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
+          className="hidden md:block p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
           onClick={onToggleSidebar}
         >
           <Menu className="w-5 h-5" />
