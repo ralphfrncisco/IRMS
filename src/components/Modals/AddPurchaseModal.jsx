@@ -132,9 +132,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col h-full max-h-[90vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-5xl mx-4 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-full md:max-h-[90vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -145,10 +145,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </button>
                 </div>
 
-                <form onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 pr-2">
+                <form onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2">
                     {/* Top Fields: Customer, PO, and Date */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="relative">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-85 md:max-w-full">
+
+                        <div className="relative max-w-80 md:w-full">
                             <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
                             <input
                                 type="text" 
@@ -177,7 +178,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             )}
                         </div>
 
-                        <div>
+                        <div className = "max-w-80 md:max-w-full">
                             <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
                             <input
                                 type="text" 
@@ -189,22 +190,22 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             />
                         </div>
 
-                        <div className="w-full">
+                        <div className="max-w-80 md:max-w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Transaction Date</label>
                             <div className="relative h-10 w-full group">
-                                <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200">
-                                    <span className={formValues.transactionDate ? "text-slate-700 dark:text-slate-200" : "text-slate-400"}>
+                                <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
+                                    <span className={`truncate mr-2 ${formValues.transactionDate ? "text-slate-700 dark:text-slate-200" : "text-slate-400"}`}>
                                         {formValues.transactionDate ? formatDateDisplay(formValues.transactionDate) : "Select Date"}
                                     </span>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                         <button
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); setToday(); }}
-                                            className="relative z-20 px-2 py-1 text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-700 text-slate-600 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                            className="relative z-20 px-2 py-1 text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-700 text-slate-600 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm whitespace-nowrap"
                                         >
                                             Today
                                         </button>
-                                        <Calendar className="w-4 h-4 text-slate-400" />
+                                        <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
                                     </div>
                                 </div>
                                 <input
@@ -219,7 +220,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Item List Table */}
-                    <div className="mt-4 flex flex-col space-y-4 text-slate-800 dark:text-slate-200">
+                    <div className="mt-4 flex flex-col space-y-4 text-slate-800 dark:text-slate-200 pr-5 md:pr-0">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl font-bold">Item List</h1>
                             <button 
@@ -279,14 +280,14 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 <>
                                     {purchaseItems.map((item) => (
                                         <div key={item.id} className="relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 shadow-sm">
-                                            {/* Mobile Header with Item Name and Delete */}
+                                            
                                             <div className="bg-slate-100 dark:bg-slate-700/50 px-4 py-3 flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
                                                 <span className="font-bold text-blue-600 dark:text-blue-400 truncate pr-4">{item.name}</span>
                                                 <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 p-1 active:scale-90 transition-transform">
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
-                                            {/* Vertical Key-Value Rows */}
+                                            
                                             <div className="divide-y divide-slate-100 dark:divide-slate-700">
                                                 <div className="flex justify-between px-4 py-2.5">
                                                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Unit Price</span>
@@ -303,7 +304,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                             </div>
                                         </div>
                                     ))}
-                                    {/* Mobile Grand Total Summary */}
+                                    
                                     <div className="p-4 rounded-xl bg-blue-600 text-white flex justify-between items-center shadow-lg">
                                         <span className="text-xs font-black uppercase tracking-widest">Grand Total</span>
                                         <span className="text-xl font-bold">₱{totalAmount.toLocaleString()}</span>
@@ -319,7 +320,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     
 
                     {/* Remarks Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pr-5 md:pr-0">
                         <div className="space-y-4">
                             <label className="block mb-3 text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="file_input">Upload Receipt</label>
                             <div className="relative flex rounded-lg overflow-hidden w-full max-w-xs bg-white border border-slate-300 dark:bg-slate-700 dark:border-slate-600 hover:border-blue-400 shadow-xs">
@@ -347,7 +348,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
+                    <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0 pr-5 md:pr-0">
                         <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                             Cancel
                         </button>

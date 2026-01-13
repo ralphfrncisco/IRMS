@@ -91,24 +91,59 @@ function TableSection() {
 
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
-            <div className="p-4 flex flex-wrap items-center justify-between border-b border-slate-100 dark:border-slate-800 gap-4">
+            {/* <div className="flex flex-wrap items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 gap-4">
                 <div>
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
                 </div>
 
                 <div className="flex items-center gap-5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
                         <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
                         <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
                     </div>
                     
-                    <button onClick={() => setIsModalOpen(true)} className="cursor-pointer flex items-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                    <button onClick={() => setIsModalOpen(true)} className="cursor-pointer flex items-center md:space-x-2 py-2 px-2 md:px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                         <Plus className="w-4 h-4" />
-                        <span className="text-sm font-medium">Add Purchase</span>
+                        <span className="md:block hidden text-sm font-medium">Add Purchase</span>
                     </button>
                 </div>
+            </div> */}
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                {/* Filter Grid Container */}
+                <div className = "flex items-center justify-between w-full py-2">
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
+                    </div>
+                    <div>
+                        <button onClick={() => setIsModalOpen(true)} className="block md:hidden w-full md:w-auto cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                            <Plus className="w-4 h-4" />
+                            <span className="text-sm font-medium">Add Purchase</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:flex md:items-center gap-2 w-full md:w-auto">
+                    <div className="col-span-1">
+                        <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
+                    </div>
+                    
+                    <div className="col-span-1">
+                        <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
+                    </div>
+
+                    {/* Customer Filter occupying 2 columns on mobile */}
+                    <div className="col-span-1">
+                        <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
+                    </div>
+                </div>
+                
+                <button onClick={() => setIsModalOpen(true)} className="hidden md:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm font-medium">Add Purchase</span>
+                </button>
             </div>
 
             <div className="overflow-x-auto p-2">

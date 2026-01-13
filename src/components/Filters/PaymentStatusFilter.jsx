@@ -44,7 +44,7 @@ function PaymentStatusFilter({ options, initialValue, onSelect, iconProps }) {
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
             >
-                <span className="text-sm">{selectedValue}</span>
+                <span className="text-sm truncate">{selectedValue}</span>
                 <ArrowDownWideNarrow
                     {...iconProps}
                     className={`${iconProps.className} ml-2 top-[-6] transform -translate-y-[-1px]`} 
