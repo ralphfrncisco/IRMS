@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Pencil, Trash, Search, Plus } from 'lucide-react'
 import NoImage from './../../assets/no_image.jpg'
 
+import AddProductModal from '../Modals/AddProductModal';
+
 // Single consolidated array
 const allProducts = [
     // Hog Pellets
@@ -22,6 +24,8 @@ const allProducts = [
 
 function ProductGrid() {
     const [searchTerm, setSearchTerm] = useState("");
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Helper to filter and group in one place
     const filteredResults = allProducts.filter(product =>
@@ -55,7 +59,9 @@ function ProductGrid() {
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <button className="flex cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
+                                <button 
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="flex cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
                                     <Plus className="w-4 h-4" />
                                     <span className="text-sm font-medium">Add Product</span>
                                 </button>
@@ -130,6 +136,11 @@ function ProductGrid() {
         <div className="space-y-10 px-2 pb-10">
             {renderSection("All Products", "Hog Pellets", "border-blue-500", true)}
             {renderSection("Medications", "Medications", "border-emerald-500", false)}
+
+            <AddProductModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
         </div>
     );
 }
