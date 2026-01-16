@@ -134,7 +134,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col h-full md:max-h-[90vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-full md:max-h-[75vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -355,7 +355,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         <button 
                             type="submit" 
                             disabled={purchaseItems.length === 0 || !formValues.customer}
-                            className="px-6 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Save Purchase
                         </button>

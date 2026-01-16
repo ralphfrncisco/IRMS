@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
 import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard/DashboardPage";
-import Orders from "./pages/Orders";
 import Inventory from "./pages/Inventory/InventoryPage";
 import Sales from './pages/Transactions/Sales/SalesPage'; 
 import Expenses from './pages/Transactions/Expenses/ExpensesPage';
@@ -23,7 +22,6 @@ function App() {
         <Route path="dashboard" element={<Dashboard darkMode={darkMode} />} />
         <Route path="transactions/Expenses" element={<Expenses darkMode={darkMode} />} />
         <Route path = "transactions/Sales" element={<Sales darkMode={darkMode} />} />
-        <Route path="orders" element={<Orders darkMode={darkMode} />} />
         <Route path="suppliers" element={<Suppliers darkMode={darkMode} />} />
         <Route path="inventory" element={<Inventory darkMode={darkMode} />} />
         <Route path="activityLog" element={<ActivityLog darkMode={darkMode} />} />

@@ -10,7 +10,7 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
-    host: true, // This allows the server to be exposed to the network
+    host: true,
     strictPort: true,
   },
 })

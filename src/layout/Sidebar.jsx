@@ -17,7 +17,6 @@ const menuItems = [
       { id: "expenses", label: "Expenses", path: "/transactions/Expenses" },
     ]
   },
-  { id: "orders", icon: ShoppingCart, label: "Orders", path: "/orders" },
   { id: "inventory", icon: Package, label: "Inventory", path: "/inventory" },
   { id: "suppliers", icon: Users, label: "Suppliers", path: "/suppliers" },
   { id: "activityLog", icon: FileText, label: "Activity Logs", path: "/activityLog" },
