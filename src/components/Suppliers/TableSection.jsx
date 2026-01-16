@@ -117,10 +117,10 @@ function TableSection() {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {filteredSuppliers.map((supplier) => (
                             <tr key={supplier.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td className="p-4 text-sm">{supplier.supplier}</td>
+                                <td className="p-4 text-sm font-semibold text-blue-500 dark:text-blue-400">{supplier.supplier}</td>
                                 <td className="p-4 text-center text-sm">{supplier.contactNumber}</td>
-                                <td className="p-4 text-center text-sm font-semibold">{supplier.Address}</td>
-                                <td className="p-4 text-center text-sm font-semibold">{supplier.remarks}</td>
+                                <td className="p-4 text-center text-sm font-normal">{supplier.Address}</td>
+                                <td className="p-4 text-center text-sm font-normal">{supplier.remarks}</td>
                                 <td className="p-4 text-center">
                                     <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                                         <MoreHorizontal className="w-5 h-5" />
