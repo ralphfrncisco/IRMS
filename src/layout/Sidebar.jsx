@@ -61,7 +61,7 @@ function Sidebar({ collapsed, darkMode }) {
         </div>
       </div>
 
-      <nav className="flex-1 flex flex-row sm:flex-col items-center sm:items-stretch justify-around sm:justify-start p-0 sm:p-4 sm:space-y-2 sm:overflow-y-auto no-scrollbar">
+      <nav className={`flex-1 flex flex-row sm:flex-col items-center sm:items-stretch justify-around sm:justify-start p-0 sm:p-4 sm:space-y-2 ${collapsed ? "sm:overflow-visible" : "sm:overflow-y-auto"} no-scrollbar`}>
         {menuItems.map((item) => {
           const hasSubmenu = item.submenu && item.submenu.length > 0;
           const isOpen = openMenus[item.id];
@@ -72,7 +72,7 @@ function Sidebar({ collapsed, darkMode }) {
                 <>
                   {/* MOBILE FLOATING POPUP */}
                   {isOpen && (
-                    <div className="sm:hidden absolute top-[-65px] left-3/4 -translate-x-1/2 dark:bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden p-1.5 z-50">
+                    <div className="sm:hidden absolute bottom-15 left-1/2 -translate-x-1/2 dark:bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden p-1.5 z-50">
                       <div className="flex flex-row gap-1">
                         {item.submenu.map((sub) => (
                           <NavLink 
@@ -98,7 +98,7 @@ function Sidebar({ collapsed, darkMode }) {
                     onClick={() => toggleMenu(item.id)}
                     className={`w-full flex items-center p-2 sm:p-3 rounded-xl transition-all duration-200
                       ${collapsed ? 'justify-center' : 'justify-start'}
-                      ${isOpen ? 'text-slate-700 dark:text-white' : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                      ${isOpen ? 'text-slate-700 dark:text-white bg-slate-100 dark:bg-slate-800' : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                   >
                     <item.icon className={`w-6 h-6 sm:w-5 sm:h-5 transition-all ${collapsed ? 'min-w-0' : 'min-w-[20px]'}`} />
                     {!collapsed && (
@@ -111,7 +111,7 @@ function Sidebar({ collapsed, darkMode }) {
                     )}
                   </button>
 
-                  {/* DESKTOP ACCORDION (Expanded State) */}
+                  {/* DESKTOP ACCORDION (Visible when clicked/expanded) */}
                   {isOpen && !collapsed && (
                     <div className="hidden sm:block ml-6 pl-4 space-y-1 mt-1 border-l border-slate-100 dark:border-slate-800">
                       {item.submenu.map((sub) => (
@@ -132,17 +132,23 @@ function Sidebar({ collapsed, darkMode }) {
                     </div>
                   )}
 
-                  {/* COLLAPSED HOVER POPOUT */}
+                  {/* COLLAPSED HOVER POPOUT - Improved Hover Stability */}
                   {collapsed && (
-                    <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-50">
-                      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-2 min-w-[160px]">
-                        <p className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.label}</p>
+                    <div className="absolute left-full top-0 h-full w-4 hidden group-hover:block z-[99]">
+                        {/* This is a transparent bridge to keep the hover active while moving mouse to the menu */}
+                    </div>
+                  )}
+                  {collapsed && (
+                    <div className="absolute left-[calc(100%+8px)] top-0 hidden group-hover:block z-[100] animate-in fade-in slide-in-from-left-2 duration-200">
+                      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-2 min-w-[160px]">
+                        <p className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 mb-3">{item.label}</p>
+                        <div className="flex flex-col gap-1.5">
                         {item.submenu.map((sub) => (
                           <NavLink 
                             key={sub.id} 
                             to={sub.path}
                             className={({ isActive }) => 
-                              `block px-3 py-2 text-sm rounded-lg transition-colors ${
+                              `block px-3 py-2 text-sm rounded-lg transition-colors space-y-2 ${
                                 isActive 
                                 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 font-bold" 
                                 : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -152,6 +158,7 @@ function Sidebar({ collapsed, darkMode }) {
                             {sub.label}
                           </NavLink>
                         ))}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -175,9 +182,9 @@ function Sidebar({ collapsed, darkMode }) {
                     </span>
                   )}
                   
-                  {/* Tooltip for simple items when collapsed */}
+                  {/* Tooltip for simple items */}
                   {collapsed && (
-                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2 py-1 bg-slate-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                    <div className="absolute left-[calc(100%+20px)] top-1/2 -translate-y-1/2 px-3 py-1 bg-slate-900 dark:text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap pointer-events-none z-[100] border border-slate-400 dark:border-slate-800 bg-white dark:bg-slate-900">
                       {item.label}
                     </div>
                   )}

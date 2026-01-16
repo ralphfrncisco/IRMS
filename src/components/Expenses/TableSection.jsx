@@ -6,7 +6,7 @@ import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
 import PaymentStatusFilter from '../Filters/PaymentStatusFilter';
 
-import AddPurchaseModal from '../Modals/AddPurchaseModal';
+import AddExpenseModal from '../Modals/AddExpenseModal';
 
 // 1. Define Constants
 const ALL_OPTION = 'All';
@@ -184,7 +184,7 @@ function TableSection() {
                 </table>
             </div>
 
-            <AddPurchaseModal 
+            <AddExpenseModal
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
             />
