@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
 import MainLayout from "./layout/MainLayout";
-import Dashboard from "./pages/Dashboard/DashboardPage";
-import Inventory from "./pages/Inventory/InventoryPage";
+import Dashboard from "./pages/Dashboard";
+import Inventory from "./pages/Inventory";
 import Sales from './pages/Transactions/Sales/SalesPage'; 
 import Expenses from './pages/Transactions/Expenses/ExpensesPage';
 import ActivityLog from "./pages/ActivityLog";

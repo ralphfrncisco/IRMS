@@ -1,8 +1,11 @@
 import React from 'react';
-import { BanknoteArrowUp } from 'lucide-react';
+import { BanknoteArrowUp, Package2, Package, PackagePlus } from 'lucide-react';
 
 const statsData = [
-  { title: "Total Expenses", value: "₱ 15,240.00", icon: BanknoteArrowUp, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" }
+  { title: "Total Expenses", value: "₱ 15,240.00", icon: BanknoteArrowUp, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" },
+  { title: "Total Ordered Items (Qty)", value: "1524", icon: Package, bgColor: "bg-blue-500/10", textColor: "text-blue-500" },
+  { title: "Total Received Items (Qty)", value: "784", icon: PackagePlus, bgColor: "bg-violet-500/10", textColor: "text-violet-500" },
+  { title: "Total Pending Items (Qty)", value: "1634", icon: Package2, bgColor: "bg-amber-500/10", textColor: "text-amber-500" }
 ];
 
 function StatsGrid() {

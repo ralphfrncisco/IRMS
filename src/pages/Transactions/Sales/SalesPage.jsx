@@ -1,13 +1,13 @@
 import React from 'react'
 
-import SalesStatsGrid from './SalesStatsGrid';
-import SalesTable from './SalesTable';
+import StatsGrid from '../../../components/Sales/StatsGrid';
+import TableSection from '../../../components/Sales/TableSection';
 
 function SalesPage() {
   return (
     <div className = "space-y-6">
-      <SalesStatsGrid />
-      <SalesTable />
+      <StatsGrid />
+      <TableSection />
     </div>
   )
 }

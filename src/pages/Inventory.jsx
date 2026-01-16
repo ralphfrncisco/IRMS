@@ -1,5 +1,5 @@
 import React from 'react'
-import ProductGrid from '../../components/Inventory/ProductGrid';
+import ProductGrid from '../components/Inventory/ProductGrid';
 
 function Inventory() {
   return (
