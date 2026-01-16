@@ -1,8 +1,8 @@
 import React from 'react';
 
-import StatsGrid from '../../components/Dashboard/StatsGrid';
-import ChartSection from '../../components/Dashboard/ChartSection';
-import TableSection from '../../components/Dashboard/TableSection';
+import StatsGrid from '../components/Dashboard/StatsGrid';
+import ChartSection from '../components/Dashboard/ChartSection';
+import TableSection from '../components/Dashboard/TableSection';
 
 function Dashboard() {
   

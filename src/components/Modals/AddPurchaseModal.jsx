@@ -275,6 +275,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 </tbody>
                             </table>
                         </div>
+                        
                         <div className="block md:hidden space-y-4 mb-5">
                             {purchaseItems.length > 0 ? (
                                 <>
