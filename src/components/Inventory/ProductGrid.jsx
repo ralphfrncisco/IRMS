@@ -61,7 +61,7 @@ function ProductGrid() {
                                 </div>
                                 <button 
                                     onClick={() => setIsModalOpen(true)}
-                                    className="flex cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
+                                    className="flex cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
                                     <Plus className="w-4 h-4" />
                                     <span className="text-sm font-medium">Add Product</span>
                                 </button>

@@ -140,7 +140,7 @@ function TableSection() {
                     </div>
                 </div>
                 
-                <button onClick={() => setIsModalOpen(true)} className="hidden md:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                <button onClick={() => setIsModalOpen(true)} className="hidden md:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                     <Plus className="w-4 h-4" />
                     <span className="text-sm font-medium">Add Purchase</span>
                 </button>
@@ -153,9 +153,9 @@ function TableSection() {
                             <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>
                             <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>
                             <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Product</th>
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
                     </thead>
@@ -166,9 +166,9 @@ function TableSection() {
                                 <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{order.id}</td>
                                 <td className="p-4 text-sm">{order.customer}</td>
                                 <td className="p-4 text-sm">{order.product}</td>
-                                <td className="p-4 text-sm font-semibold">{order.amount}</td>
-                                <td className="p-4 text-sm">{order.date}</td>
-                                <td className="p-4">
+                                <td className="p-4 text-center text-sm font-semibold">{order.amount}</td>
+                                <td className="p-4 text-center text-sm">{order.date}</td>
+                                <td className="p-4 text-center">
                                     <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
                                         {order.status}
                                     </span>
