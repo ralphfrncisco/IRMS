@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { MoreHorizontal, Plus } from 'lucide-react';
+import { MoreHorizontal, Plus, Eye } from 'lucide-react';
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
 import PaymentStatusFilter from '../Filters/PaymentStatusFilter';
 
 import AddPurchaseModal from '../Modals/AddPurchaseModal';
+import EditPurchaseModal from '../Modals/EditPurchaseModal';
 
 // 1. Define Constants
 const ALL_OPTION = 'All';
@@ -45,6 +46,8 @@ function TableSection() {
     const [customerFilter, setCustomerFilter] = useState(CUSTOMER_PLACEHOLDER); 
     const [paymentStatusFilter, setPaymentStatusFilter] = useState(STATUS_PLACEHOLDER);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     // --- FILTERING LOGIC ---
     const filteredOrders = useMemo(() => {
@@ -79,6 +82,11 @@ function TableSection() {
         }
         return filtered;
     }, [dateRangeFilter, customerFilter, paymentStatusFilter]);
+
+    const handleOpenEdit = (order) => {
+        setSelectedOrder(order);
+        setIsEditModalOpen(true);
+    };
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -174,8 +182,8 @@ function TableSection() {
                                     </span>
                                 </td>
                                 <td className="p-4 text-center">
-                                    <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                        <MoreHorizontal className="w-5 h-5" />
+                                    <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                        <Eye className="w-5 h-5 text-blue-500" />
                                     </button>
                                 </td>
                             </tr>
@@ -187,6 +195,15 @@ function TableSection() {
             <AddPurchaseModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
+            />
+
+            <EditPurchaseModal 
+                isOpen={isEditModalOpen} 
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedOrder(null);
+                }} 
+                orderData={selectedOrder} 
             />
 
         </div>
