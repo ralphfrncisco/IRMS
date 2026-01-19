@@ -79,16 +79,16 @@ function AddProductModal({ isOpen, onClose }) {
                         {/* RIGHT SIDE: Input Fields */}
                         <div className="w-full md:w-1/2 space-y-4">
                             <div>
-                                <label className="text-sm font-semibold dark:text-slate-300">Product Name</label>
-                                <input type="text" className="mt-2 w-full px-4 py-2.5 rounded-lg border dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="Enter product name" />
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Product Name</label>
+                                <input type="text" className="mt-2 w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="Enter product name" />
                             </div>
                             <div>
-                                <label className="text-sm font-semibold dark:text-slate-300">Price</label>
-                                <input type="number" className="mt-2 w-full px-4 py-2.5 rounded-lg border dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0.00" />
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Price</label>
+                                <input type="number" className="mt-2 w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0.00" />
                             </div>
                             <div>
-                                <label className="text-sm font-semibold dark:text-slate-300">Stock</label>
-                                <input type="number" className="mt-2 w-full px-4 py-2.5 rounded-lg border dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0.00" />
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Stock</label>
+                                <input type="number" className="mt-2 w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0.00" />
                             </div>
                         </div>
                     </div>
