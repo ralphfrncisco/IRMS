@@ -1,8 +1,12 @@
 import React from 'react'
 
+import AccountsGrid from '../components/Accounts/AccountsGrid';
+
 function Accounts() {
   return (
-    <div>Accounts</div>
+    <div>
+      <AccountsGrid />
+    </div>
   )
 }
 
