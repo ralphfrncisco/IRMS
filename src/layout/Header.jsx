@@ -86,7 +86,7 @@ function Header({ onToggleSidebar }) {
 
           {/* --- DROPDOWN MENU --- */}
           {isUserMenuOpen && (
-            <div className="absolute right-2 mt-4 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50 px-2 animate-in fade-in zoom-in duration-100">
+            <div className="absolute right-2 mt-4 w-50 md:w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50 px-2 animate-in fade-in zoom-in duration-100">
 
               <button 
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700 rounded-lg"

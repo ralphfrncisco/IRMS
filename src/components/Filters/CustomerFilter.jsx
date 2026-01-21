@@ -39,15 +39,15 @@ function CustomerFilter({ options, initialValue, onSelect, iconProps }) {
             <button
                 type="button"
                 // Adjusted width to 'w-22' for supplier name, matching original code structure
-                className={`w-30 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
+                className={`w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
             >
-                <span className="text-sm">{selectedValue}</span>
+                <span className="text-sm truncate">{selectedValue}</span>
                 <ArrowDownWideNarrow
                     {...iconProps}
-                    className={`${iconProps.className} ml-2 top-[-6] transform -translate-y-[-1px]`}
+                    className={`${iconProps.className}`}
                 />
             </button>
             {isOpen && (

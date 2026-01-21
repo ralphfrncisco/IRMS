@@ -158,7 +158,7 @@ function TableSection() {
                         <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
                     </div>
 
-                    <div className = "ml-3">
+                    <div className = "md:ml-3">
                         <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} />
                     </div>
                 </div>

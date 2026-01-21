@@ -40,15 +40,15 @@ function DateRangeFilter({ options, initialValue, onSelect, iconProps }) {
             {/* Display Button */}
             <button
                 type="button"
-                className={`w-26 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
+                className={`w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
             >
-                <span className="text-sm">{selectedValue}</span>
+                <span className="text-sm truncate">{selectedValue}</span>
                 <ArrowDownWideNarrow
                     {...iconProps}
-                    className={`${iconProps.className} ml-2 top-[-6] transform -translate-y-[-1px]`} 
+                    className={`${iconProps.className}`} 
                 />
             </button>
 
