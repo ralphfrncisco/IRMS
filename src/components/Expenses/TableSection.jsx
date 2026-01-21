@@ -6,23 +6,25 @@ import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
 
 import AddExpenseModal from '../Modals/AddExpenseModal';
+import EditExpenseModal from '../Modals/EditExpenseModal';
 
 // 1. Define Constants
 const ALL_OPTION = 'All';
 const DATE_RANGE_PLACEHOLDER = 'Date Range';
-const TYPE_PLACEHOLDER = 'Expense Type'; // Changed from Customer
+const TYPE_PLACEHOLDER = 'Expense Type';
 
+// --- DATA CONVERTED TO NUMBERS ---
 const expenseData = [
-  { id: 'EXD-1002', expenseType: 'Electrical Bill', amount: '₱ 4250.00', date: '2026-01-12', remarks: 'Monthly office electricity' },
-  { id: 'EXD-1003', expenseType: 'Stock Expense', amount: '₱ 8100.50', date: '2026-01-12', remarks: 'Bulk purchase of raw materials' },
-  { id: 'EXD-1004', expenseType: 'Water Bill', amount: '₱ 890.00', date: '2026-01-13', remarks: 'Water utility payment' },
-  { id: 'EXD-1005', expenseType: 'Miscellaneous', amount: '₱ 350.00', date: '2026-01-13', remarks: 'Cleaning supplies' },
-  { id: 'EXD-1006', expenseType: 'Stock Expense', amount: '₱ 2400.00', date: '2026-01-14', remarks: 'Restock of beverage items' },
-  { id: 'EXD-1007', expenseType: 'Stock Expense', amount: '₱ 1150.00', date: '2026-01-14', remarks: 'Packaging materials' },
-  { id: 'EXD-1008', expenseType: 'Miscellaneous', amount: '₱ 1200.00', date: '2026-01-15', remarks: 'Repaired office chair' },
-  { id: 'EXD-1009', expenseType: 'Electrical Bill', amount: '₱ 3800.00', date: '2026-01-15', remarks: 'Warehouse electricity' },
-  { id: 'EXD-1010', expenseType: 'Water Bill', amount: '₱ 720.00', date: '2026-01-16', remarks: 'Utility fee for annex' },
-  { id: 'EXD-1011', expenseType: 'Stock Expense', amount: '₱ 5600.00', date: '2026-01-16', remarks: 'Quarterly hardware restock' }
+    { id: 'EXD-1002', expenseType: 'Electrical Bill', amount: 4250.00, date: '2026-01-12', remarks: 'Monthly office electricity' },
+    { id: 'EXD-1003', expenseType: 'Stock Expense', amount: 8100.50, date: '2026-01-12', remarks: 'Bulk purchase of raw materials' },
+    { id: 'EXD-1004', expenseType: 'Water Bill', amount: 890.00, date: '2026-01-13', remarks: 'Water utility payment' },
+    { id: 'EXD-1005', expenseType: 'Miscellaneous', amount: 350.00, date: '2026-01-13', remarks: 'Cleaning supplies' },
+    { id: 'EXD-1006', expenseType: 'Stock Expense', amount: 2400.00, date: '2026-01-14', remarks: 'Restock of beverage items' },
+    { id: 'EXD-1007', expenseType: 'Stock Expense', amount: 1150.00, date: '2026-01-14', remarks: 'Packaging materials' },
+    { id: 'EXD-1008', expenseType: 'Miscellaneous', amount: 1200.00, date: '2026-01-15', remarks: 'Repaired office chair' },
+    { id: 'EXD-1009', expenseType: 'Electrical Bill', amount: 3800.00, date: '2026-01-15', remarks: 'Warehouse electricity' },
+    { id: 'EXD-1010', expenseType: 'Water Bill', amount: 720.00, date: '2026-01-16', remarks: 'Utility fee for annex' },
+    { id: 'EXD-1011', expenseType: 'Stock Expense', amount: 5600.00, date: '2026-01-16', remarks: 'Quarterly hardware restock' }
 ];
 
 function TableSection() {
@@ -31,6 +33,16 @@ function TableSection() {
     const iconProps = { 
       size: 16, 
       className: darkMode ? "text-slate-400" : "text-slate-500" 
+    };
+
+    // --- CURRENCY FORMATTING LOGIC ---
+    const formatCurrency = (value) => {
+        if (isNaN(value)) return "₱ 0.00";
+        const formatter = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+        return `₱ ${formatter.format(value)}`;
     };
 
     // --- DYNAMIC OPTION GENERATION ---
@@ -45,18 +57,23 @@ function TableSection() {
     // --- STATE MANAGEMENT ---
     const [dateRangeFilter, setDateRangeFilter] = useState(DATE_RANGE_PLACEHOLDER);
     const [typeFilter, setTypeFilter] = useState(TYPE_PLACEHOLDER); 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedExpense, setSelectedExpense] = useState(null);
+
+    const handleViewExpense = (expense) => {
+        setSelectedExpense(expense);
+        setIsEditModalOpen(true);
+    };
 
     // --- FILTERING LOGIC ---
     const filteredExpenses = useMemo(() => {
         let filtered = expenseData;
 
-        // Expense Type Logic
         if (typeFilter !== TYPE_PLACEHOLDER && typeFilter !== ALL_OPTION) {
             filtered = filtered.filter(item => item.expenseType === typeFilter);
         }
 
-        // Date Logic
         if (dateRangeFilter !== DATE_RANGE_PLACEHOLDER && dateRangeFilter !== ALL_OPTION) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -98,7 +115,7 @@ function TableSection() {
                         <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Expenses</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Total: {filteredExpenses.length} entries</p>
                     </div>
-                    <button onClick={() => setIsModalOpen(true)} className="md:hidden flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                    <button onClick={() => setIsAddModalOpen(true)} className="md:hidden flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                         <Plus className="w-4 h-4" />
                         <span className="text-sm font-medium">Add Expense</span>
                     </button>
@@ -109,12 +126,11 @@ function TableSection() {
                         <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
                     </div>
                     <div className="col-span-1">
-                        {/* Reusing CustomerFilter component but passing Type data */}
                         <CustomerFilter options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
                     </div>
                 </div>
                 
-                <button onClick={() => setIsModalOpen(true)} className="flex cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
+                <button onClick={() => setIsAddModalOpen(true)} className="hidden md:flex cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
                     <Plus className="w-4 h-4" />
                     <span className="text-sm font-bold">Add Expense</span>
                 </button>
@@ -142,11 +158,17 @@ function TableSection() {
                                         {item.expenseType}
                                     </span>
                                 </td>
-                                <td className="p-4 text-center text-sm font-semibold">{item.amount}</td>
+                                {/* DISPLAY FORMATTED AMOUNT */}
+                                <td className="p-4 text-center text-sm font-semibold">
+                                    {formatCurrency(item.amount)}
+                                </td>
                                 <td className="p-4 text-center text-sm">{item.date}</td>
                                 <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">{item.remarks}</td>
                                 <td className="p-4 text-center">
-                                    <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                    <button 
+                                        onClick={() => handleViewExpense(item)}
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                                    >
                                         <Eye className="text-blue-500 w-5 h-5" />
                                     </button>
                                 </td>
@@ -156,7 +178,16 @@ function TableSection() {
                 </table>
             </div>
 
-            <AddExpenseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <AddExpenseModal 
+                isOpen={isAddModalOpen} 
+                onClose={() => setIsAddModalOpen(false)} 
+            />
+            
+            <EditExpenseModal 
+                isOpen={isEditModalOpen} 
+                onClose={() => setIsEditModalOpen(false)} 
+                expenseData={selectedExpense}
+            />
         </div>
     )
 }

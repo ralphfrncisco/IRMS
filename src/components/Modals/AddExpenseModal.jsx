@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { X, Plus, Trash2, Calendar, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Plus, Trash2, PhilippinePeso, Calendar, Upload, Image as ImageIcon } from 'lucide-react';
 
 // The specific categories you requested
 const expenseCategories = ["Stock Expense", "Electrical Bill", "Water Bill", "Miscellaneous"];
@@ -142,13 +142,16 @@ function AddExpenseModal({isOpen, onClose}) {
 
                     <div className="relative w-full">
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
-                        <input
-                            type="number" 
-                            name="Amount" 
-                            value={formValues.amount}
-                            placeholder='0.00'
-                            className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-11 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
-                        />
+                        <div className="relative">
+                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                            <input
+                                type="text"
+                                name="amount"
+                                value={formValues.amount}
+                                placeholder = "0.00"
+                                className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                            />
+                        </div>
                     </div>
 
                     <div className="relative w-full">

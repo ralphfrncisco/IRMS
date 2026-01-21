@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { MoreHorizontal, Plus } from 'lucide-react';
+import { Plus, Eye } from 'lucide-react';
 
 import CustomerFilter from '../Filters/CustomerFilter';
 import AddSupplierModal from '../Modals/AddSupplierModal';
@@ -122,8 +122,8 @@ function TableSection() {
                                 <td className="p-4 text-center text-sm font-normal">{supplier.Address}</td>
                                 <td className="p-4 text-center text-sm font-normal">{supplier.remarks}</td>
                                 <td className="p-4 text-center">
-                                    <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                        <MoreHorizontal className="w-5 h-5" />
+                                    <button className="text-blue-500 hover:text-blue-500 dark:hover:text-blue-500 transition-colors">
+                                        <Eye className="w-5 h-5" />
                                     </button>
                                 </td>
                             </tr>
