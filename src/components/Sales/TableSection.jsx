@@ -5,6 +5,7 @@ import { MoreHorizontal, Plus, Eye } from 'lucide-react';
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
 import PaymentStatusFilter from '../Filters/PaymentStatusFilter';
+import ColumnFilter from '../Filters/SortByFilter';
 
 import AddPurchaseModal from '../Modals/AddPurchaseModal';
 import EditPurchaseModal from '../Modals/EditPurchaseModal';
@@ -30,6 +31,16 @@ function TableSection() {
       size: 16, 
       className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
+
+    const [visibleColumns, setVisibleColumns] = useState({
+        'ORDER ID': true,
+        'CUSTOMER': true,
+        'PRODUCT': true,
+        'AMOUNT': true,
+        'DATE': true,
+        'STATUS': true,
+        'ACTIONS': true
+    });
 
     // --- DYNAMIC OPTION GENERATION (Like CustomerList) ---
     const extractUniqueOptions = (key, placeholder) => {
@@ -146,6 +157,10 @@ function TableSection() {
                     <div className="col-span-1">
                         <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
                     </div>
+
+                    <div className = "ml-3">
+                        <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} />
+                    </div>
                 </div>
                 
                 <button onClick={() => setIsModalOpen(true)} className="hidden md:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
@@ -158,12 +173,12 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Product</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
+                            {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>}
+                            {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
+                            {visibleColumns['PRODUCT'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Product</th>}
+                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
+                            {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
+                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
                     </thead>
@@ -171,16 +186,18 @@ function TableSection() {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {filteredOrders.map((order) => (
                             <tr key={order.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{order.id}</td>
-                                <td className="p-4 text-sm">{order.customer}</td>
-                                <td className="p-4 text-sm">{order.product}</td>
-                                <td className="p-4 text-center text-sm font-semibold">{order.amount}</td>
-                                <td className="p-4 text-center text-sm">{order.date}</td>
-                                <td className="p-4 text-center">
-                                    <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
+                                {visibleColumns['ORDER ID'] && <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{order.id}</td>}
+                                {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
+                                {visibleColumns['PRODUCT'] && <td className="p-4 text-sm">{order.product}</td>}
+                                {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">{order.amount}</td>}
+                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{order.date}</td>}
+                                {visibleColumns['STATUS'] && (
+                                    <td className="p-4 text-center">
+                                        <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                )}
                                 <td className="p-4 text-center">
                                     <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                                         <Eye className="w-5 h-5 text-blue-500" />
