@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound } from 'lucide-react';
+import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User } from 'lucide-react';
 
 function Header({ onToggleSidebar }) {
 
@@ -86,15 +86,27 @@ function Header({ onToggleSidebar }) {
 
           {/* --- DROPDOWN MENU --- */}
           {isUserMenuOpen && (
-            <div className="absolute right-0 mt-4 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50 animate-in fade-in zoom-in duration-100">
+            <div className="absolute right-2 mt-4 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50 px-2 animate-in fade-in zoom-in duration-100">
+
               <button 
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700 rounded-lg"
+                onClick={() => {
+                  console.log("Account Credentials Clicked");
+                  setIsUserMenuOpen(false);
+                }}
+              >
+                <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                Account Settings
+              </button>
+
+              <button 
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700 rounded-lg"
                 onClick={() => {
                   console.log("Change Password Clicked");
                   setIsUserMenuOpen(false);
                 }}
               >
-                <KeyRound className="w-4 h-4 text-slate-400" />
+                <KeyRound className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 Change Password
               </button>
               
