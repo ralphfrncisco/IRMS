@@ -149,6 +149,18 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     {/* Top Fields: Customer, PO, and Date */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-85 md:max-w-full">
 
+                        <div className = "max-w-80 md:max-w-full">
+                            <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
+                            <input
+                                type="text" 
+                                id="PONumber"
+                                name="PONumber"
+                                value={formValues.PONumber}
+                                readOnly
+                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none"
+                            />
+                        </div>
+
                         <div className="relative max-w-80 md:w-full">
                             <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
                             <input
@@ -176,18 +188,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                     ))}
                                 </ul>
                             )}
-                        </div>
-
-                        <div className = "max-w-80 md:max-w-full">
-                            <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
-                            <input
-                                type="text" 
-                                id="PONumber"
-                                name="PONumber"
-                                value={formValues.PONumber}
-                                readOnly
-                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none"
-                            />
                         </div>
 
                         <div className="max-w-80 md:max-w-full">

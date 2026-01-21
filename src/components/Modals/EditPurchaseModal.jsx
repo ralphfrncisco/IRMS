@@ -169,6 +169,17 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 <form id="purchase-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 pr-2">
                     {/* Top Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Order ID</label>
+                            <input
+                                type="text" 
+                                value={formValues.PONumber}
+                                readOnly
+                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-mono"
+                            />
+                        </div>
+                        
                         <div className="relative">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
                             <input
@@ -189,16 +200,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                     ))}
                                 </ul>
                             )}
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Order ID</label>
-                            <input
-                                type="text" 
-                                value={formValues.PONumber}
-                                readOnly
-                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-mono"
-                            />
                         </div>
 
                         <div>
