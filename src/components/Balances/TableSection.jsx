@@ -7,7 +7,6 @@ import CustomerFilter from '../Filters/CustomerFilter';
 import PaymentStatusFilter from '../Filters/PaymentStatusFilter';
 import ColumnFilter from '../Filters/SortByFilter';
 
-import AddPurchaseModal from '../Modals/AddPurchaseModal';
 import EditPurchaseModal from '../Modals/EditPurchaseModal';
 
 // 1. Define Constants
@@ -139,7 +138,7 @@ function TableSection() {
                 {/* Filter Grid Container */}
                 <div className = "flex items-center justify-between w-full py-2">
                     <div>
-                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Pending Balances</h3>
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Outstanding Accounts</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders with pending balances</p>
                     </div>
                 </div>

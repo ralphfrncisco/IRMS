@@ -1,8 +1,9 @@
 import React from 'react';
-import { PhilippinePeso } from 'lucide-react';
+import { PhilippinePeso, Users } from 'lucide-react';
 
 const statsData = [
-  { title: "Account Receivables", value: "₱25,000", icon: PhilippinePeso, bgColor: "bg-yellow-500/10", textColor: "text-yellow-500" },
+    {title: "Active Debts", value: "3", icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500"},
+    { title: "Account Receivables", value: "₱25,000", icon: PhilippinePeso, bgColor: "bg-yellow-500/10", textColor: "text-yellow-500" },
 ];
 
 function StatsGrid() {
