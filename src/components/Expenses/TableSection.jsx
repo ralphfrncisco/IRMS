@@ -140,8 +140,8 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>
+                            <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>
@@ -152,8 +152,8 @@ function TableSection() {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {filteredExpenses.map((item) => (
                             <tr key={item.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{item.id}</td>
-                                <td className="p-4">
+                                <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">{item.id}</td>
+                                <td className="p-4 text-center">
                                     <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getTypeColor(item.expenseType)}`}>
                                         {item.expenseType}
                                     </span>

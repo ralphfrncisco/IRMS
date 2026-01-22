@@ -1,17 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Plus, Trash2, Image as ImageIcon } from 'lucide-react';
+import { X, Calendar, Plus, Trash2, PhilippinePeso, Image as ImageIcon } from 'lucide-react';
 import AddItemModal from './AddItemModal';
 
 // --- ASSET IMPORTS ---
-// Ensure these paths match your folder structure
 import testImage from '../../assets/test.jpg';
 import pigImage from '../../assets/pig.png';
-// import defaultReceipt from '../../assets/default_receipt.jpg'; 
 
 const recentOrders = [
-    { id: 'ORD-1001', customer: 'John Doe', product: 'Wireless Headphones', amount: '$99.99', status: 'Fully Paid', date: '2026-01-11' },
-    { id: 'ORD-1002', customer: 'Jane Smith', product: 'Smart Watch', amount: '$199.99', status: 'With Balance', date: '2026-01-10' },
-    { id: 'ORD-1003', customer: 'Mike Johnson', product: 'Gaming Laptop', amount: '$1299.99', status: 'Unpaid', date: '2026-01-09' },
+    { id: 'ORD-1001', customer: 'John Doe', product: 'Wireless Headphones', status: 'Fully Paid', date: '2026-01-11', amount: 99.99, remainingBalance: 0 },
+    { id: 'ORD-1002', customer: 'Jane Smith', product: 'Smart Watch', amount: '$199.99', status: 'With Balance', date: '2026-01-10', remainingBalance: 50.00 },
+    { id: 'ORD-1003', customer: 'Mike Johnson', product: 'Gaming Laptop', amount: '$1299.99', status: 'Unpaid', date: '2026-01-09', remainingBalance: 1299.99 },
 ];
 
 function EditPurchaseModal({ isOpen, onClose, orderData }) {
@@ -26,6 +24,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         customer: '',
         transactionDate: '',
         remarks: '',
+        amount: '',
+        remainingBalance: '',
     });
 
     // 2. MEMO HOOKS
@@ -42,14 +42,34 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         (name || '').toLowerCase().includes((formValues.customer || '').toLowerCase())
     );
 
+    // --- AUTO-CALCULATION LOGIC ---
+    // This effect ensures the balance updates whenever items are added/removed 
+    // or when the payment amount is manually edited.
+    useEffect(() => {
+        const amountPaid = parseFloat(formValues.amount) || 0;
+        const newBalance = totalAmount - amountPaid;
+        setFormValues(prev => ({
+            ...prev,
+            remainingBalance: newBalance > 0 ? newBalance.toFixed(2) : '0.00'
+        }));
+    }, [totalAmount, formValues.amount]);
+
     // 3. EFFECT HOOKS - Population Logic
     useEffect(() => {
         if (isOpen && orderData) {
+            // Sanitize amount: remove symbols like '$' so math functions work
+            const rawAmount = orderData.amount || '';
+            const cleanAmount = typeof rawAmount === 'string' 
+                ? rawAmount.replace(/[^0-9.-]+/g, "") 
+                : rawAmount;
+
             setFormValues({
                 PONumber: orderData.id || '',
                 customer: orderData.customer || '',
                 transactionDate: orderData.date || '',
                 remarks: orderData.remarks || 'No specific remarks recorded.',
+                amount: cleanAmount,
+                remainingBalance: orderData.remainingBalance || '',
             });
 
             // Mocked items for the demo
@@ -58,7 +78,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 { id: 'PID-1002', name: 'Hog-Grower Pellets', price: 2150.00, quantity: 1, total: 2150.00 }
             ]);
             
-            // --- DYNAMIC IMAGE LOGIC ---
             if (orderData.id === 'ORD-1001') {
                 setReceiptPreview(testImage);
                 setReceiptFileName('test.jpg');
@@ -72,7 +91,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         }
     }, [isOpen, orderData]);
 
-    // 4. EARLY RETURN
     if (!isOpen) return null;
 
     // 5. HANDLERS
@@ -130,7 +148,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         setFormValues(prev => ({ ...prev, transactionDate: today }));
     };
 
-    // --- VIEW IMAGE HANDLER ---
     const handleViewFullImage = () => {
         if (receiptPreview) {
             const newTab = window.open();
@@ -145,6 +162,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
+        console.log("Saving updated data:", { ...formValues, items: purchaseItems, totalAmount });
         onClose();
     };
 
@@ -154,7 +172,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 className="flex flex-col h-full md:max-h-[94vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
                 onClick={e => e.stopPropagation()}
             >
-                {/* Header - Fixed */}
+                {/* Header */}
                 <div className="w-full flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Invoice Details</h2>
@@ -165,38 +183,21 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     </button>
                 </div>
 
-                {/* Form Body - Scrollable */}
+                {/* Form Body */}
                 <form id="purchase-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 pr-2">
-                    {/* Top Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Order ID</label>
-                            <input
-                                type="text" 
-                                value={formValues.PONumber}
-                                readOnly
-                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-mono"
-                            />
+                            <input type="text" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-mono" />
                         </div>
                         
                         <div className="relative">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
-                            <input
-                                type="text" 
-                                name="customer"
-                                value={formValues.customer}
-                                onChange={handleCustomerChange}
-                                onFocus={() => setIsDropdownOpen(true)}
-                                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                            />
+                            <input type="text" name="customer" value={formValues.customer} onChange={handleCustomerChange} onFocus={() => setIsDropdownOpen(true)} onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                             {isDropdownOpen && filteredCustomers.length > 0 && (
                                 <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-40 overflow-y-auto py-2">
                                     {filteredCustomers.map((name, index) => (
-                                        <li key={index} onClick={() => selectCustomer(name)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer">
-                                            {name}
-                                        </li>
+                                        <li key={index} onClick={() => selectCustomer(name)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer">{name}</li>
                                     ))}
                                 </ul>
                             )}
@@ -221,11 +222,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-bold text-slate-800 dark:text-white">Purchased Products</h3>
-                            <button 
-                                type="button"
-                                onClick={() => setIsAddItemOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md active:scale-95 cursor-pointer"
-                            >
+                            <button type="button" onClick={() => setIsAddItemOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md active:scale-95 cursor-pointer">
                                 <Plus className="w-5 h-5" />
                                 <span>Add Item</span>
                             </button>
@@ -275,13 +272,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                     <>
                                         <img src={receiptPreview} alt="Receipt" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <button 
-                                                type="button" 
-                                                onClick={handleViewFullImage}
-                                                className="bg-white text-slate-900 px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:bg-slate-100 transition-all active:scale-95"
-                                            >
-                                                View Image
-                                            </button>
+                                            <button type="button" onClick={handleViewFullImage} className="bg-white text-slate-900 px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:bg-slate-100 transition-all active:scale-95">View Image</button>
                                         </div>
                                     </>
                                 ) : (
@@ -295,20 +286,30 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                         </div>
 
                         <div className="col-span-2 space-y-3">
+                            <div className="flex items-center gap-4">
+                                <div className="relative w-full">
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount Paid</label>
+                                    <div className="relative">
+                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                        <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange} placeholder="0.00" autoComplete="off" className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                    </div>
+                                </div>
+
+                                <div className="relative w-full">
+                                    <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remaining Balance</label>
+                                    <div className="relative">
+                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                        <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-medium" />
+                                    </div>
+                                </div>
+                            </div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Admin Remarks</label>
-                            <textarea
-                                name="remarks"
-                                rows="6"
-                                value={formValues.remarks}
-                                onChange={handleInputChange}
-                                placeholder="Discrepancies, payment notes, or internal updates..."
-                                className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
-                            ></textarea>
+                            <textarea name="remarks" rows="6" value={formValues.remarks} onChange={handleInputChange} placeholder="Discrepancies, payment notes, or internal updates..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"></textarea>
                         </div>
                     </div>
                 </form>
 
-                {/* Footer - Fixed */}
+                {/* Footer */}
                 <div className="p-4 md:p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
                     <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-colors">Close</button>
                     <button type="submit" form="purchase-form" className="px-6 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg active:scale-95 transition-all">Update Invoice</button>
