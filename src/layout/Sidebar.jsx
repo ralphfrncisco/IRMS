@@ -73,7 +73,7 @@ function Sidebar({ collapsed, darkMode }) {
                 <>
                   {/* MOBILE FLOATING POPUP */}
                   {isOpen && (
-                    <div className="sm:hidden absolute bottom-15 left-1/2 -translate-x-1/2 dark:bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden p-1.5 z-50">
+                    <div className="sm:hidden absolute bottom-15 left-3/2 -translate-x-1/2 dark:bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden p-1 z-50">
                       <div className="flex flex-row gap-1">
                         {item.submenu.map((sub) => (
                           <NavLink 
