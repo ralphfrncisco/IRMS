@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, PiggyBank, ShoppingCart, 
+  LayoutDashboard, PiggyBank, 
   Package, FileText, Users, UserCog,
   ArrowLeftRight, ChevronDown
 } from 'lucide-react';
@@ -15,6 +15,7 @@ const menuItems = [
     submenu: [
       { id: "sales", label: "Sales", path: "/transactions/Sales" },
       { id: "expenses", label: "Expenses", path: "/transactions/Expenses" },
+      { id: "balances", label: "Balances", path: "/transactions/Balances" }
     ]
   },
   { id: "inventory", icon: Package, label: "Inventory", path: "/inventory" },
@@ -113,7 +114,7 @@ function Sidebar({ collapsed, darkMode }) {
 
                   {/* DESKTOP ACCORDION (Visible when clicked/expanded) */}
                   {isOpen && !collapsed && (
-                    <div className="hidden sm:block ml-6 pl-4 space-y-1 mt-1 border-l border-slate-100 dark:border-slate-800">
+                    <div className="hidden sm:block ml-6 pl-4 space-y-1 mt-3 border-l border-slate-100 dark:border-slate-800">
                       {item.submenu.map((sub) => (
                         <NavLink 
                           key={sub.id} 

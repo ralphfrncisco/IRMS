@@ -17,15 +17,24 @@ const CUSTOMER_PLACEHOLDER = 'Customer';
 const STATUS_PLACEHOLDER = 'Payment Status';
 
 const recentOrders = [
-    { id: 'ORD-1001', customer: 'John Doe', product: 'Wireless Headphones', amount: '$99.99', status: 'Fully Paid', date: '2026-01-11' },
-    { id: 'ORD-1002', customer: 'Jane Smith', product: 'Smart Watch', amount: '$199.99', status: 'With Balance', date: '2026-01-10' },
-    { id: 'ORD-1003', customer: 'Mike Johnson', product: 'Gaming Laptop', amount: '$1299.99', status: 'Unpaid', date: '2026-01-09' },
-    { id: 'ORD-1004', customer: 'Emily Davis', product: '4K Monitor', amount: '$399.99', status: 'With Balance', date: '2026-01-08' },
-    { id: 'ORD-1005', customer: 'Emily Davis', product: '4K Monitor', amount: '$399.99', status: 'Fully Paid', date: '2026-01-11' },
+    { id: 'ORD-1001', customer: 'John Doe', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 99.99, status: 'Fully Paid', date: '2026-01-11' },
+    { id: 'ORD-1002', customer: 'Jane Smith', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 199.99, status: 'With Balance', date: '2026-01-10' },
+    { id: 'ORD-1003', customer: 'Mike Johnson', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 1299.99, status: 'Unpaid', date: '2026-01-09' },
+    { id: 'ORD-1004', customer: 'Emily Davis', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 399.99, status: 'With Balance', date: '2026-01-08' },
+    { id: 'ORD-1005', customer: 'Emily Davis', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 399.99, status: 'Fully Paid', date: '2026-01-11' },
 ];
 
 function TableSection() {
     const { darkMode } = useOutletContext();
+
+    const formatCurrency = (value) => {
+        if (isNaN(value)) return "₱ 0.00";
+        const formatter = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+        return `₱ ${formatter.format(value)}`;
+    };
     
     const iconProps = { 
       size: 16, 
@@ -188,8 +197,11 @@ function TableSection() {
                             <tr key={order.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 {visibleColumns['ORDER ID'] && <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{order.id}</td>}
                                 {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
-                                {visibleColumns['PRODUCT'] && <td className="p-4 text-sm">{order.product}</td>}
-                                {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">{order.amount}</td>}
+                                {visibleColumns['PRODUCT'] && <td className="max-w-[100px] p-4 text-sm truncate">{order.product}</td>}
+                                {visibleColumns['AMOUNT'] && 
+                                    <td className="p-4 text-center text-sm font-semibold">
+                                        {formatCurrency(order.amount)}
+                                    </td>}
                                 {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{order.date}</td>}
                                 {visibleColumns['STATUS'] && (
                                     <td className="p-4 text-center">
