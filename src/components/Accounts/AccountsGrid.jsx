@@ -37,9 +37,9 @@ function AccountsGrid() {
                                 </h3>
                             </div>
 
-                            <div className = "flex items-start gap-3">
-                                <Pencil className="w-7 h-7 text-white bg-blue-500 p-1 rounded-sm" />   
-                                <Trash className="w-7 h-7 text-white bg-red-500 p-1 rounded-sm" />
+                            <div className="flex gap-1.5">
+                                <button className="p-2 text-blue-400 bg-blue-500/10 rounded-lg hover:bg-blue-500 hover:text-white transition-colors"><Pencil className="w-4 h-4" /></button>
+                                <button className="p-2 text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500 hover:text-white transition-colors"><Trash className="w-4 h-4" /></button>
                             </div>
                         </div>
                     </div>
