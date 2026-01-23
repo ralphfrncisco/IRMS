@@ -15,7 +15,8 @@ const menuItems = [
     submenu: [
       { id: "sales", label: "Sales", path: "/transactions/Sales" },
       { id: "expenses", label: "Expenses", path: "/transactions/Expenses" },
-      { id: "balances", label: "Balances", path: "/transactions/Balances" }
+      { id: "balances", label: "Balances", path: "/transactions/Balances" },
+      { id: "ledger", label: "Ledger", path: "/transactions/Ledger" }
     ]
   },
   { id: "inventory", icon: Package, label: "Inventory", path: "/inventory" },
@@ -73,7 +74,7 @@ function Sidebar({ collapsed, darkMode }) {
                 <>
                   {/* MOBILE FLOATING POPUP */}
                   {isOpen && (
-                    <div className="sm:hidden absolute bottom-15 left-3/2 -translate-x-1/2 dark:bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden p-1 z-50">
+                    <div className="sm:hidden absolute bottom-15 left-9/4 -translate-x-1/2 dark:bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden p-1 z-50">
                       <div className="flex flex-row gap-1">
                         {item.submenu.map((sub) => (
                           <NavLink 
