@@ -1,14 +1,131 @@
-import React, { useState, useRef } from 'react'
-import { X, Upload } from 'lucide-react'
+import React, { useState, useRef, useMemo, useEffect } from 'react'
+import { X, Upload, PhilippinePeso } from 'lucide-react'
+import CustomFormSelect from './../Filters/CustomFormSelect'
+
+// Mock data for the dropdown
+const productTypeOptions = [
+    { label: 'Pellets', value: 'Pellets' },
+    { label: 'Antibiotics', value: 'Antibiotics' },
+    { label: 'Vitamins', value: 'Vitamins' },
+    { label: 'Equipments', value: 'Equipments' },
+];
+
+// MOCK DATA: In production, this would be fetched from your ledger/products database
+const mockProductSrpList = [
+    { supplier: 'B-Meg Philippines', productName: 'Pre-Starter Grower', srp: 1420 },
+    { supplier: 'Univet Nutrition', productName: 'Pre-Starter Grower', srp: 1450 },
+    { supplier: 'Purina Feeds', productName: 'Hog Starter', srp: 1550 },
+];
 
 function AddProductModal({ isOpen, onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
+    // --- BACKEND-READY STATE ---
+    const [suppliers, setSuppliers] = useState([]); 
+    const [isSupplierDropdownOpen, setIsSupplierDropdownOpen] = useState(false);
+    const [isSrpDropdownOpen, setIsSrpDropdownOpen] = useState(false);
+    
+    const [formValues, setFormValues] = useState({
+        supplierName: '',
+        supplierId: null,
+        productType: '',
+        productName: '',
+        srp: '', // This will hold the formatted string for the input
+        stock: ''
+    });
+
+    // Simulate API Fetch for Suppliers
+    useEffect(() => {
+        if (isOpen) {
+            const mockDbSuppliers = [
+                { id: 'SUP-001', name: 'B-Meg Philippines' },
+                { id: 'SUP-002', name: 'Purina Feeds' },
+                { id: 'SUP-003', name: 'Univet Nutrition' },
+                { id: 'SUP-004', name: 'Cargill' },
+            ];
+            setSuppliers(mockDbSuppliers);
+        }
+    }, [isOpen]);
+
+    // --- HELPERS ---
+    const formatNumberWithCommas = (value) => {
+        if (!value) return '';
+        // Remove all non-digits and non-decimals
+        const cleanValue = value.toString().replace(/[^0-9.]/g, '');
+        const parts = cleanValue.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.length > 1 ? `${parts[0]}.${parts[1].slice(0, 2)}` : parts[0];
+    };
+
+    const formatCurrency = (value) => {
+        if (!value && value !== 0) return '0.00';
+        return new Intl.NumberFormat('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
+    };
+
+    const filteredSuppliers = useMemo(() => {
+        return suppliers.filter(s => 
+            (s.name || '').toLowerCase().includes((formValues.supplierName || '').toLowerCase())
+        ).sort((a, b) => a.name.localeCompare(b.name));
+    }, [formValues.supplierName, suppliers]);
+
+    // LOGIC: Filter SRP options based on Product Name match (Case-Insensitive)
+    const srpSuggestions = useMemo(() => {
+        if (!formValues.productName) return [];
+        return mockProductSrpList.filter(item => 
+            item.productName.toLowerCase() === formValues.productName.toLowerCase()
+        );
+    }, [formValues.productName]);
+
     if (!isOpen) return null;
 
-    // Handlers for image upload
+    // --- HANDLERS ---
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSrpChange = (e) => {
+        const rawValue = e.target.value.replace(/,/g, '');
+        // Allow only numbers and a single decimal point
+        if (/^\d*\.?\d*$/.test(rawValue)) {
+            setFormValues(prev => ({ ...prev, srp: formatNumberWithCommas(rawValue) }));
+        }
+    };
+
+    const handleSelectChange = (value, name) => {
+        setFormValues(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSupplierSearch = (e) => {
+        const value = e.target.value;
+        const match = suppliers.find(s => s.name.toLowerCase() === value.toLowerCase());
+        setFormValues(prev => ({ 
+            ...prev, 
+            supplierName: value, 
+            supplierId: match ? match.id : null 
+        }));
+        setIsSupplierDropdownOpen(true);
+    };
+
+    const selectSupplier = (supplier) => {
+        setFormValues(prev => ({ 
+            ...prev, 
+            supplierName: supplier.name, 
+            supplierId: supplier.id 
+        }));
+        setIsSupplierDropdownOpen(false);
+    };
+
+    const selectSrp = (price) => {
+        setFormValues(prev => ({ ...prev, srp: formatNumberWithCommas(price.toString()) }));
+        setIsSrpDropdownOpen(false);
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) setSelectedImage(URL.createObjectURL(file));
@@ -23,10 +140,21 @@ function AddProductModal({ isOpen, onClose }) {
         if (file) setSelectedImage(URL.createObjectURL(file));
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Extract raw numeric value for submission
+        const submissionData = {
+            ...formValues,
+            srp: parseFloat(formValues.srp.replace(/,/g, '')) || 0
+        };
+        console.log("Submitting:", submissionData);
+        onClose();
+    };
+
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col h-auto max-h-[90vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-auto max-h-[70vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -37,8 +165,7 @@ function AddProductModal({ isOpen, onClose }) {
                     </button>
                 </div>
 
-                <form className="flex flex-col h-full overflow-hidden">
-                    {/* Main Content Area: Split into Left and Right */}
+                <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
                     <div className="flex flex-col md:flex-row gap-8 overflow-y-auto pb-6">
                         
                         {/* LEFT SIDE: Image Upload */}
@@ -49,7 +176,7 @@ function AddProductModal({ isOpen, onClose }) {
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
                                 onClick={() => fileInputRef.current.click()}
-                                className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-2xl transition-all
+                                className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 md:h-96 border-2 border-dashed rounded-2xl transition-all
                                     ${isDragging 
                                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
                                         : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-800/50'
@@ -78,28 +205,90 @@ function AddProductModal({ isOpen, onClose }) {
 
                         {/* RIGHT SIDE: Input Fields */}
                         <div className="w-full md:w-1/2 space-y-4">
+                            <div className="relative">
+                                <label htmlFor="SupplierName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier</label>
+                                <input 
+                                    type="text" 
+                                    id="SupplierName" 
+                                    name="supplierName" 
+                                    value={formValues.supplierName} 
+                                    onChange={handleSupplierSearch} 
+                                    onFocus={() => setIsSupplierDropdownOpen(true)} 
+                                    onBlur={() => setTimeout(() => setIsSupplierDropdownOpen(false), 200)} 
+                                    placeholder='Search or type new supplier' 
+                                    autoComplete="off" 
+                                    className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
+                                />
+                                {isSupplierDropdownOpen && filteredSuppliers.length > 0 && (
+                                    <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
+                                        {filteredSuppliers.map((s) => (
+                                            <li key={s.id} onClick={() => selectSupplier(s)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">{s.name}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+
+                            <CustomFormSelect 
+                                label="Product Type"
+                                name="productType"
+                                options={productTypeOptions}
+                                initialValue={formValues.productType}
+                                onSelect={handleSelectChange}
+                                placeholder="eg. Pellets, Antibiotics"
+                            />
+
                             <div>
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Product Name</label>
-                                <input type="text" className="mt-2 w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="Enter product name" />
+                                <input type="text" name="productName" value={formValues.productName} onChange={handleInputChange} className="mt-2 text-sm h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="eg. Pre-Starter Pellets" />
                             </div>
-                            <div>
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Price</label>
-                                <input type="number" className="mt-2 w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0.00" />
+
+                            {/* SRP INPUT WITH LIVE FORMATTING */}
+                            <div className="relative">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Retail Price (SRP)</label>
+                                <div className="relative mt-2">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                                        <PhilippinePeso className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        name="srp" 
+                                        value={formValues.srp} 
+                                        onChange={handleSrpChange} 
+                                        onFocus={() => setIsSrpDropdownOpen(true)}
+                                        onBlur={() => setTimeout(() => setIsSrpDropdownOpen(false), 200)}
+                                        className="pl-9 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" 
+                                        placeholder="0.00" 
+                                    />
+                                    {isSrpDropdownOpen && srpSuggestions.length > 0 && (
+                                        <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-40 overflow-y-auto py-2">
+                                            {srpSuggestions.map((item, index) => (
+                                                <li 
+                                                    key={index} 
+                                                    onClick={() => selectSrp(item.srp)} 
+                                                    className="px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
+                                                >
+                                                    <span className="font-bold">{item.supplier}</span> - ₱{formatCurrency(item.srp)}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
                             </div>
+
                             <div>
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Stock</label>
-                                <input type="number" className="mt-2 w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0.00" />
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Stock Quantity</label>
+                                <input type="number" name="stock" value={formValues.stock} onChange={handleInputChange} className="mt-2 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Action Buttons: Fixed at bottom of form */}
+                    {/* Action Buttons */}
                     <div className="pt-5 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 flex-shrink-0">
-                        <button type="button" onClick={onClose} className="px-8 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <button type="button" onClick={onClose} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" className="px-5 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all">
-                            Save Product
+                        <button type="submit" className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all">
+                            Upload
                         </button>
                     </div>
                 </form>

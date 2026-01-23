@@ -87,7 +87,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                                 <thead className="bg-slate-100 dark:bg-slate-800">
                                     <tr>
                                         <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
-                                        <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Unit Price</th>
+                                        <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Net Unit Price</th>
                                         <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Action</th>
                                     </tr>
                                 </thead>
