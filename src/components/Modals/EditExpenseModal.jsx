@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Image as ImageIcon, PhilippinePeso } from 'lucide-react';
+import { X, Calendar, Image as ImageIcon, PhilippinePeso, Package } from 'lucide-react';
 
 // --- ASSET IMPORTS ---
 import testImage from '../../assets/test.jpg';
@@ -13,10 +13,17 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
     const [formValues, setFormValues] = useState({
         id: '',
         expenseType: '',
+        supplier: '',
         amount: '',
         date: '',
         remarks: '',
     });
+
+    // Sub-table state for Stock Allocation
+    const [stockItems, setStockItems] = useState([
+        { id: 1, productName: 'Pre-Starter Pellets', price: 4050.25, quantity: 1 },
+        { id: 2, productName: 'Hog-Grower Pellets', price: 2025.12, quantity: 2 },
+    ]);
 
     const formatCurrency = (value) => {
         if (value === null || value === undefined || isNaN(value)) return "";
@@ -33,12 +40,12 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
             setFormValues({
                 id: expenseData.id || '',
                 expenseType: expenseData.expenseType || '',
+                supplier: expenseData.supplier || '', // Populating supplier from data
                 amount: formatCurrency(expenseData.amount),
                 date: expenseData.date || '',
                 remarks: expenseData.remarks || '',
             });
 
-            
             if (expenseData.id === 'EXD-1002') {
                 setReceiptPreview(testImage);
                 setReceiptFileName('electricity_bill_jan.jpg');
@@ -81,11 +88,6 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
         }).format(date).toUpperCase();
     };
 
-    const setToday = () => {
-        const today = new Date().toISOString().split('T')[0];
-        setFormValues(prev => ({ ...prev, date: today }));
-    };
-
     const handleFormSubmit = (e) => {
         e.preventDefault();
         console.log("Updated Expense Data:", formValues);
@@ -95,7 +97,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
     return (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex py-4 items-center justify-center">
             <div 
-                className="flex flex-col h-full md:max-h-[65vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
+                className="flex flex-col h-auto md:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -124,12 +126,23 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                     className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier</label>
+                                <input
+                                    type="text"
+                                    name="supplier"
+                                    value={formValues.supplier}
+                                    onChange={handleInputChange}
+                                    placeholder="Enter supplier name"
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                                />
+                            </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
                                     <div className="relative">
-                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                         <input
                                             type="text"
                                             name="amount"
@@ -155,7 +168,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
                                 <textarea
                                     name="remarks"
-                                    rows="4"
+                                    rows="3"
                                     value={formValues.remarks}
                                     onChange={handleInputChange}
                                     className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
@@ -166,7 +179,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                         {/* Right Column: Receipt Image */}
                         <div className="space-y-3">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Transaction Receipt</label>
-                            <div className="relative aspect-[4/3] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
+                            <div className="relative aspect-[16/10] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
                                 {receiptPreview ? (
                                     <>
                                         <img src={receiptPreview} alt="Receipt" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
@@ -190,6 +203,40 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                             <p className="text-[10px] text-slate-400 truncate italic">Filename: {receiptFileName}</p>
                         </div>
                     </div>
+
+                    {/* DYNAMIC PRODUCT ALLOCATION TABLE */}
+                    {formValues.expenseType === 'Stock Expense' && (
+                        <div className="pt-4">
+                            <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
+                                <Package className="w-5 h-5" />
+                                <h3 className="text-sm font-bold uppercase tracking-widest">Expense Allocation Breakdown</h3>
+                            </div>
+                            <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                                        <tr>
+                                            <th className="px-4 py-3">Product Description</th>
+                                            <th className="px-4 py-3 text-center">Unit Price</th>
+                                            <th className="px-4 py-3 text-center">Quantity</th>
+                                            <th className="px-4 py-3 text-right">Sub-total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                                        {stockItems.map((item) => (
+                                            <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                                <td className="px-4 py-3 font-medium">{item.productName}</td>
+                                                <td className="px-4 py-3 text-center">₱ {formatCurrency(item.price)}</td>
+                                                <td className="px-4 py-3 text-center">{item.quantity}</td>
+                                                <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white">
+                                                    ₱ {formatCurrency(item.price * item.quantity)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
                 </form>
 
                 {/* Footer */}
