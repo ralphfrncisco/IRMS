@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { MoreHorizontal, Plus, Eye } from 'lucide-react';
+import { Plus, Eye } from 'lucide-react';
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
+import ColumnFilter from '../Filters/SortByFilter';
 
 import AddExpenseModal from '../Modals/AddExpenseModal';
 import EditExpenseModal from '../Modals/EditExpenseModal';
@@ -35,6 +36,14 @@ function TableSection() {
       className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
 
+    const [visibleColumns, setVisibleColumns] = useState({
+        'ID': true,
+        'EXPENSE TYPE': true,
+        'AMOUNT': true,
+        'DATE': true,
+        'REMARKS': true
+    });
+
     // --- CURRENCY FORMATTING LOGIC ---
     const formatCurrency = (value) => {
         if (isNaN(value)) return "₱ 0.00";
@@ -55,6 +64,7 @@ function TableSection() {
     const typeOptions = extractUniqueOptions('expenseType', TYPE_PLACEHOLDER);
 
     // --- STATE MANAGEMENT ---
+
     const [dateRangeFilter, setDateRangeFilter] = useState(DATE_RANGE_PLACEHOLDER);
     const [typeFilter, setTypeFilter] = useState(TYPE_PLACEHOLDER); 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -70,10 +80,12 @@ function TableSection() {
     const filteredExpenses = useMemo(() => {
         let filtered = expenseData;
 
+        // 2. Type Filter
         if (typeFilter !== TYPE_PLACEHOLDER && typeFilter !== ALL_OPTION) {
             filtered = filtered.filter(item => item.expenseType === typeFilter);
         }
 
+        // 3. Date Filter
         if (dateRangeFilter !== DATE_RANGE_PLACEHOLDER && dateRangeFilter !== ALL_OPTION) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -121,12 +133,20 @@ function TableSection() {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-2 md:flex md:items-center gap-2 w-full md:w-auto">
-                    <div className="col-span-1">
-                        <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
-                    </div>
-                    <div className="col-span-1">
-                        <CustomerFilter options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
+                {/* --- UPDATED FILTER BAR --- */}
+                <div className="flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto">
+                    {/* Column Search Filter */}
+                    
+                    <div className="grid grid-cols-2 md:flex md:items-center gap-2">
+                        <div className="col-span-1">
+                            <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
+                        </div>
+                        <div className="col-span-1">
+                            <CustomerFilter options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
+                        </div>
+                        <div className = "md:ml-3">
+                            <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} />
+                        </div>
                     </div>
                 </div>
                 
@@ -140,40 +160,47 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                            <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>
+                            {visibleColumns['ID'] &&<th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>}
+                            {visibleColumns['EXPENSE TYPE'] &&<th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>}
+                            {visibleColumns['AMOUNT'] &&<th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
+                            {visibleColumns['DATE'] &&<th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
+                            {visibleColumns['REMARKS'] &&<th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>}
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
                     </thead>
 
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {filteredExpenses.map((item) => (
-                            <tr key={item.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">{item.id}</td>
-                                <td className="p-4 text-center">
-                                    <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getTypeColor(item.expenseType)}`}>
-                                        {item.expenseType}
-                                    </span>
-                                </td>
-                                {/* DISPLAY FORMATTED AMOUNT */}
-                                <td className="p-4 text-center text-sm font-semibold">
-                                    {formatCurrency(item.amount)}
-                                </td>
-                                <td className="p-4 text-center text-sm">{item.date}</td>
-                                <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">{item.remarks}</td>
-                                <td className="p-4 text-center">
-                                    <button 
-                                        onClick={() => handleViewExpense(item)}
-                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                                    >
-                                        <Eye className="text-blue-500 w-5 h-5" />
-                                    </button>
+                        {filteredExpenses.length > 0 ? (
+                            filteredExpenses.map((item) => (
+                                <tr key={item.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    {visibleColumns['ID'] && <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">{item.id}</td>}
+                                    {visibleColumns['EXPENSE TYPE'] && <td className="p-4 text-center">
+                                        <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getTypeColor(item.expenseType)}`}>
+                                            {item.expenseType}
+                                        </span>
+                                    </td>}
+                                    {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">
+                                        {formatCurrency(item.amount)}
+                                    </td>}
+                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{item.date}</td>}
+                                    {visibleColumns['REMARKS'] && <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">{item.remarks}</td>}
+                                    <td className="p-4 text-center">
+                                        <button 
+                                            onClick={() => handleViewExpense(item)}
+                                            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                                        >
+                                            <Eye className="text-blue-500 w-5 h-5" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className="p-8 text-center text-slate-500 dark:text-slate-400 italic">
+                                    No results found matching "{searchTerm}"
                                 </td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
             </div>
