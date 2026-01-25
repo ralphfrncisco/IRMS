@@ -6,7 +6,7 @@ import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter'; 
 import ColumnFilter from '../Filters/SortByFilter';
 
-import AddPurchaseModal from '../Modals/AddPurchaseModal';
+import AddSalaryModal from '../Modals/AddSalaryModal';
 
 // 1. Define Constants
 const ALL_OPTION = 'All';
@@ -21,7 +21,7 @@ const salaryData = [
     { id: 'SAL-1005', employee: 'Emily Davis', amount: 5000.00, date: '2026-01-11' },
 ];
 
-function SalaryLedgerTable() {
+function TablSection() {
     const { darkMode } = useOutletContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -157,7 +157,7 @@ function SalaryLedgerTable() {
                 </table>
             </div>
 
-            <AddPurchaseModal 
+            <AddSalaryModal
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
             />
@@ -165,4 +165,4 @@ function SalaryLedgerTable() {
     )
 }
 
-export default SalaryLedgerTable;
+export default TablSection;
