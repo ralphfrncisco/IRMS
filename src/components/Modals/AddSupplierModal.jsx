@@ -44,7 +44,7 @@ function AddSupplierModal({ isOpen, onClose }) {
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-auto md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
@@ -82,7 +82,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                                 <span>Add Item</span>
                             </button>
                         </div>
-                        <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
                             <table className="w-full">
                                 <thead className="bg-slate-100 dark:bg-slate-800">
                                     <tr>

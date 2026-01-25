@@ -258,6 +258,7 @@ function AddProductModal({ isOpen, onClose }) {
                                         onBlur={() => setTimeout(() => setIsSrpDropdownOpen(false), 200)}
                                         className="pl-9 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" 
                                         placeholder="0.00" 
+                                        autocomplete="off"
                                     />
                                     {isSrpDropdownOpen && srpSuggestions.length > 0 && (
                                         <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-40 overflow-y-auto py-2">
