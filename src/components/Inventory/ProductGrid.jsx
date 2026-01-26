@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import { Pencil, Trash, Search, Plus } from 'lucide-react'
+import { Pencil, Trash, Search, Plus, AlertTriangle } from 'lucide-react'
 import { supabase } from "../../lib/supabase";
 
 import NoImage from './../../assets/no_image.jpg'
 import AddProductModal from '../Modals/AddProductModal';
+import EditProductModal from '../Modals/EditProductModal';
+import DeleteConfirmModal from '../Modals/DeleteConfirmModal';
 
 export default function ProductGrid() {
-    const [products, setProducts] = useState([])
+    const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    
+    // New states for deletion
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const fetchProducts = async () => {
         const { data, error } = await supabase
@@ -18,6 +26,27 @@ export default function ProductGrid() {
     
         if (!error) setProducts(data)
     }
+
+    const handleDelete = async () => {
+        if (!selectedProduct) return;
+        setIsDeleting(true);
+        try {
+            const { error } = await supabase
+                .from('products')
+                .delete()
+                .eq('id', selectedProduct.id);
+
+            if (error) throw error;
+            
+            setIsDeleteModalOpen(false);
+            setSelectedProduct(null);
+        } catch (error) {
+            console.error("Delete failed:", error.message);
+            alert(`Error: ${error.message}`);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     // Logic to transform the DB path into a public URL from Supabase Storage
     const getImageUrl = (path) => {
@@ -71,14 +100,27 @@ export default function ProductGrid() {
                     />
                 </div>
                 <div className="flex gap-1.5">
-                    <button className="p-2 text-blue-400 bg-blue-500/10 rounded-lg hover:bg-blue-500 hover:text-white transition-colors"><Pencil className="w-4 h-4" /></button>
-                    <button className="p-2 text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500 hover:text-white transition-colors"><Trash className="w-4 h-4" /></button>
+                    <button
+                        onClick={() => {
+                            setSelectedProduct(item);
+                            setIsEditModalOpen(true);
+                        }} 
+                        className="p-2 text-blue-400 bg-blue-500/10 rounded-lg hover:bg-blue-500 hover:text-white transition-colors">
+                        <Pencil className="w-4 h-4" />
+                    </button>
+                    <button 
+                        onClick={() => {
+                            setSelectedProduct(item);
+                            setIsDeleteModalOpen(true);
+                        }}
+                        className="p-2 text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500 hover:text-white transition-colors">
+                        <Trash className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
 
             <h3 className="text-lg font-bold text-slate-800 dark:text-white line-clamp-2">{item.name}</h3>
             
-            {/* Scientific Sub-category Badge */}
             {item.sub_category && (
                 <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                     {item.sub_category}
@@ -140,7 +182,7 @@ export default function ProductGrid() {
                 </div>
             </div>
 
-            {/* SECTION 1: HOG PELLETS */}
+            {/* Grid Sections */}
             <section className = "space-y-4">
                 <div className="flex items-center gap-2">
                     <div className="h-6 w-1 bg-blue-500 rounded-full"></div>
@@ -151,7 +193,6 @@ export default function ProductGrid() {
                 </div>
             </section>
 
-            {/* SECTION 2: MEDICATIONS */}
             <section className="space-y-4">
                 <div className="flex items-center gap-2">
                     <div className="h-6 w-1 bg-emerald-500 rounded-full"></div>
@@ -162,7 +203,6 @@ export default function ProductGrid() {
                 </div>
             </section>
 
-            {/* SECTION 3: EQUIPMENTS */}
             <section className="space-y-4">
                 <div className="flex items-center gap-2">
                     <div className="h-6 w-1 bg-rose-500 rounded-full"></div>
@@ -174,6 +214,26 @@ export default function ProductGrid() {
             </section>
 
             <AddProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+            <EditProductModal 
+                isOpen={isEditModalOpen} 
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedProduct(null);
+                }} 
+                product={selectedProduct}
+            />
+
+            <DeleteConfirmModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setSelectedProduct(null);
+                }}
+                onConfirm={handleDelete}
+                itemId={selectedProduct?.id} // Passing the unique ID instead of name
+                loading={isDeleting}
+            />
         </div>
     );
 }

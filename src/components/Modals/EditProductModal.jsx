@@ -1,0 +1,373 @@
+import React, { useState, useRef, useMemo, useEffect } from 'react'
+import { X, Upload, PhilippinePeso, Image as ImageIcon } from 'lucide-react'
+import CustomFormSelect from './../Filters/CustomFormSelect'
+import { supabase } from "../../lib/supabase";
+import NoImage from './../../assets/no_image.jpg'
+
+const productTypeOptions = [
+    { label: 'Hog Pellets', value: 'Hog Pellets' },
+    { label: 'Medication', value: 'Medication' },
+    { label: 'Equipments', value: 'Equipments' },
+];
+
+const medicationUsageOptions = [
+    { label: 'Antibiotics', value: 'Antibiotics' },
+    { label: 'Vaccines', value: 'Vaccines' },
+    { label: 'Parasiticides', value: 'Parasiticides' },
+    { label: 'Hormones', value: 'Hormones' },
+];
+
+const mockProductSrpList = [
+    { supplier: 'B-Meg Philippines', productName: 'Pre-Starter Grower', srp: 1420 },
+    { supplier: 'Univet Nutrition', productName: 'Pre-Starter Grower', srp: 1450 },
+    { supplier: 'Purina Feeds', productName: 'Hog Starter', srp: 1550 },
+];
+
+function EditProductModal({ isOpen, onClose, product }) {
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const [suppliers, setSuppliers] = useState([]); 
+    const [isSupplierDropdownOpen, setIsSupplierDropdownOpen] = useState(false);
+    const [isSrpDropdownOpen, setIsSrpDropdownOpen] = useState(false);
+    
+    const [formValues, setFormValues] = useState({
+        supplierName: '',
+        supplierId: null,
+        productType: '',
+        sub_category: '', 
+        productName: '',
+        srp: '', 
+        stock: ''
+    });
+
+    // Formatting Helpers
+    const formatNumberWithCommas = (value) => {
+        if (!value && value !== 0) return '';
+        const cleanValue = value.toString().replace(/[^0-9.]/g, '');
+        const parts = cleanValue.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.length > 1 ? `${parts[0]}.${parts[1].slice(0, 2)}` : parts[0];
+    };
+
+    const formatCurrency = (value) => {
+        const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : value;
+        if (isNaN(num)) return '0.00';
+        return new Intl.NumberFormat('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(num);
+    };
+
+    useEffect(() => {
+        if (isOpen && product) {
+            setFormValues({
+                supplierName: product.supplier_name || '',
+                supplierId: product.supplier_id || null,
+                productType: product.category || '',
+                sub_category: product.sub_category || '',
+                productName: product.name || '',
+                srp: product.price ? formatNumberWithCommas(product.price) : '',
+                stock: product.quantity || ''
+            });
+
+            if (product.image) {
+                const { data } = supabase.storage.from('product-images').getPublicUrl(product.image);
+                setPreviewUrl(data.publicUrl);
+            } else {
+                setPreviewUrl(null);
+            }
+        }
+    }, [isOpen, product]);
+
+    useEffect(() => {
+        if (isOpen) {
+            const mockDbSuppliers = [
+                { id: 'SUP-001', name: 'B-Meg Philippines' },
+                { id: 'SUP-002', name: 'Purina Feeds' },
+                { id: 'SUP-003', name: 'Univet Nutrition' },
+                { id: 'SUP-004', name: 'Cargill' },
+            ];
+            setSuppliers(mockDbSuppliers);
+        }
+    }, [isOpen]);
+
+    const filteredSuppliers = useMemo(() => {
+        return suppliers.filter(s => 
+            (s.name || '').toLowerCase().includes((formValues.supplierName || '').toLowerCase())
+        ).sort((a, b) => a.name.localeCompare(b.name));
+    }, [formValues.supplierName, suppliers]);
+
+    const srpSuggestions = useMemo(() => {
+        if (!formValues.productName) return [];
+        return mockProductSrpList.filter(item => 
+            item.productName.toLowerCase() === formValues.productName.toLowerCase()
+        );
+    }, [formValues.productName]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSrpChange = (e) => {
+        const rawValue = e.target.value.replace(/,/g, '');
+        if (/^\d*\.?\d*$/.test(rawValue)) {
+            setFormValues(prev => ({ ...prev, srp: formatNumberWithCommas(rawValue) }));
+        }
+    };
+
+    const handleSelectChange = (value, name) => {
+        setFormValues(prev => {
+            const newValues = { ...prev, [name]: value };
+            if (name === 'productType' && value !== 'Medication') {
+                newValues.sub_category = '';
+            }
+            return newValues;
+        });
+    };
+
+    const handleSupplierSearch = (e) => {
+        const value = e.target.value;
+        const match = suppliers.find(s => s.name.toLowerCase() === value.toLowerCase());
+        setFormValues(prev => ({ 
+            ...prev, 
+            supplierName: value, 
+            supplierId: match ? match.id : null 
+        }));
+        setIsSupplierDropdownOpen(true);
+    };
+
+    const selectSupplier = (supplier) => {
+        setFormValues(prev => ({ ...prev, supplierName: supplier.name, supplierId: supplier.id }));
+        setIsSupplierDropdownOpen(false);
+    };
+
+    const selectSrp = (price) => {
+        setFormValues(prev => ({ ...prev, srp: formatNumberWithCommas(price.toString()) }));
+        setIsSrpDropdownOpen(false);
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+    const handleDragLeave = () => setIsDragging(false);
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            let imagePath = product.image;
+
+            if (selectedImage) {
+                const fileExt = selectedImage.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+                
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('product-images')
+                    .upload(fileName, selectedImage);
+
+                if (uploadError) throw new Error("Storage Error: Failed to upload image.");
+                imagePath = uploadData?.path || fileName;
+            }
+
+            // CLEAN DATA BEFORE SENDING
+            const finalPrice = parseFloat(formValues.srp.toString().replace(/,/g, '')) || 0;
+            const finalStock = parseInt(formValues.stock) || 0;
+
+            const { error: updateError } = await supabase
+                .from('products')
+                .update({
+                    name: formValues.productName,
+                    price: finalPrice,
+                    quantity: finalStock.toString(),
+                    category: formValues.productType,
+                    sub_category: formValues.sub_category,
+                    image: imagePath,
+                    supplier_name: formValues.supplierName,
+                    supplier_id: formValues.supplierId
+                })
+                .eq('id', product.id);
+
+            if (updateError) throw updateError;
+            
+            onClose();
+        } catch (error) {
+            console.error("Update Error:", error.message);
+            alert(`Failed to update: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
+            <div 
+                className="flex flex-col max-h-[75vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                onClick={e => e.stopPropagation()}
+            >
+                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Edit Product Details</h2>
+                    <button onClick={onClose} disabled={loading} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group disabled:opacity-50">
+                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
+                    <div className="flex flex-col md:flex-row gap-8 overflow-y-auto pb-6">
+                        <div className="w-full md:w-1/2 space-y-2">
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Product Image</label>
+                            <div
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                onClick={() => !loading && fileInputRef.current.click()}
+                                className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 md:h-96 border-2 border-dashed rounded-2xl transition-all
+                                    ${isDragging 
+                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                                        : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-800/50'
+                                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" disabled={loading} />
+
+                                <div className="relative w-full h-full p-2 flex items-center justify-center">
+                                    <img 
+                                        src={previewUrl || NoImage} 
+                                        alt="Preview" 
+                                        className="w-full h-full object-contain rounded-xl"
+                                        onError={(e) => { e.target.src = NoImage; }}
+                                    />
+                                    {!loading && (
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                                            <p className="text-white text-sm font-medium">Click to Change Image</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="w-full md:w-1/2 space-y-4">
+                            <div className="relative">
+                                <label htmlFor="SupplierName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier</label>
+                                <input 
+                                    type="text" 
+                                    id="SupplierName" 
+                                    name="supplierName" 
+                                    value={formValues.supplierName} 
+                                    onChange={handleSupplierSearch} 
+                                    onFocus={() => !loading && setIsSupplierDropdownOpen(true)} 
+                                    onBlur={() => setTimeout(() => setIsSupplierDropdownOpen(false), 200)} 
+                                    placeholder='Select or type supplier' 
+                                    autoComplete="off" 
+                                    disabled={loading}
+                                    className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all disabled:opacity-50" 
+                                />
+                                {isSupplierDropdownOpen && filteredSuppliers.length > 0 && (
+                                    <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
+                                        {filteredSuppliers.map((s) => (
+                                            <li key={s.id} onClick={() => selectSupplier(s)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">{s.name}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+
+                            <CustomFormSelect 
+                                label="Product Type"
+                                name="productType"
+                                options={productTypeOptions}
+                                initialValue={formValues.productType}
+                                onSelect={handleSelectChange}
+                                placeholder="eg. Pellets, Medication"
+                                disabled={loading}
+                            />
+
+                            {formValues.productType === 'Medication' && (
+                                <CustomFormSelect 
+                                    label="Medication Usage"
+                                    name="sub_category"
+                                    options={medicationUsageOptions}
+                                    initialValue={formValues.sub_category}
+                                    onSelect={handleSelectChange}
+                                    placeholder="Select Usage Type"
+                                    disabled={loading}
+                                />
+                            )}
+
+                            <div>
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Product Name</label>
+                                <input type="text" name="productName" value={formValues.productName} onChange={handleInputChange} disabled={loading} className="mt-2 text-sm h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="eg. Pre-Starter Pellets" />
+                            </div>
+
+                            <div className="relative">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Retail Price (SRP)</label>
+                                <div className="relative mt-2">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                                        <PhilippinePeso className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        name="srp" 
+                                        value={formValues.srp} 
+                                        onChange={handleSrpChange} 
+                                        onFocus={() => !loading && setIsSrpDropdownOpen(true)}
+                                        onBlur={() => setTimeout(() => setIsSrpDropdownOpen(false), 200)}
+                                        disabled={loading}
+                                        className="pl-9 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" 
+                                        placeholder="0.00" 
+                                        autoComplete="off"
+                                    />
+                                    {isSrpDropdownOpen && srpSuggestions.length > 0 && (
+                                        <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-40 overflow-y-auto py-2">
+                                            {srpSuggestions.map((item, index) => (
+                                                <li key={index} onClick={() => selectSrp(item.srp)} className="px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">
+                                                    <span className="font-bold">{item.supplier}</span> - ₱{formatCurrency(item.srp)}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Stock Quantity</label>
+                                <input type="number" name="stock" value={formValues.stock} onChange={handleInputChange} disabled={loading} className="mt-2 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="0" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-5 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 flex-shrink-0">
+                        <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50">
+                            Cancel
+                        </button>
+                        <button type="submit" disabled={loading} className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[140px]">
+                            {loading ? 'Saving Changes...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    )
+}
+
+export default EditProductModal;
