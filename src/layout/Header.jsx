@@ -41,7 +41,7 @@ function Header({ onToggleSidebar }) {
   }, []);
 
   return (
-    <div className="w-full flex items-center justify-between p-4 py-5 gap-2 border-b transition-colors duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+    <div className="sticky top-0 z-50 w-full flex items-center justify-between p-4 py-5 gap-2 border-b transition-colors duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
 
       <div className="flex items-center gap-3">
         <button

@@ -118,7 +118,7 @@ function TableSection() {
     };
 
     return (
-        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
+        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
             {/* <div className="flex flex-wrap items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 gap-4">
                 <div>
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
@@ -178,7 +178,7 @@ function TableSection() {
                 </button>
             </div>
 
-            <div className="overflow-x-auto p-2">
+            <div className="overflow-x-auto max-h-[600px] p-2">
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
@@ -188,7 +188,7 @@ function TableSection() {
                             {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
                             {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
+                            {visibleColumns['ACTIONS'] &&<th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>}
                         </tr>
                     </thead>
 
@@ -197,7 +197,7 @@ function TableSection() {
                             <tr key={order.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 {visibleColumns['ORDER ID'] && <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{order.id}</td>}
                                 {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
-                                {visibleColumns['PRODUCT'] && <td className="max-w-[100px] p-4 text-sm truncate">{order.product}</td>}
+                                {visibleColumns['PRODUCT'] && <td className="p-4 text-sm">{order.product}</td>}
                                 {visibleColumns['AMOUNT'] && 
                                     <td className="p-4 text-center text-sm font-semibold">
                                         {formatCurrency(order.amount)}
@@ -210,11 +210,11 @@ function TableSection() {
                                         </span>
                                     </td>
                                 )}
-                                <td className="p-4 text-center">
+                                {visibleColumns['ACTIONS'] &&<td className="p-4 text-center">
                                     <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                                         <Eye className="w-5 h-5 text-blue-500" />
                                     </button>
-                                </td>
+                                </td>}
                             </tr>
                         ))}
                     </tbody>

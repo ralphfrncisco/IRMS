@@ -21,3 +21,8 @@ button
 {
   cursor : pointer;
 }
+
+table td, 
+table th {
+    white-space: nowrap;
+}

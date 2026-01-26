@@ -217,7 +217,7 @@ function AddProductModal({ isOpen, onClose }) {
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col h-auto max-h-screen bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col max-h-[75vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}

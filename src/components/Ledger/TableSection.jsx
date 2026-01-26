@@ -87,12 +87,12 @@ function TablSection() {
     }, [dateRangeFilter, employeeFilter]);
 
     return (
-        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
+        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
                 <div className="flex items-center justify-between w-full py-2">
                     <div>
                         <h3 className="text-xl font-bold text-slate-800 dark:text-white">Salary Ledger</h3>
-                        <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">View employee compensation history</p>
+                        <p className="text-[7pt] md:text-sm text-slate-500 dark:text-slate-400 mt-1">View employee compensation history</p>
                     </div>
                     {/* Mobile Button */}
                     <button onClick={() => setIsModalOpen(true)} className="flex md:hidden w-auto cursor-pointer items-center justify-center space-x-2 py-2 px-3 bg-blue-500 text-white rounded-md md:rounded-lg hover:bg-blue-600 transition-all">

@@ -8,7 +8,7 @@ const MainLayout = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <div className="flex flex-col sm:flex-row h-screen overflow-hidden transition-colors duration-300 bg-slate-50 dark:bg-slate-900">
+    <div className="fixed inset-0 flex flex-col sm:flex-row h-screen overflow-hidden transition-colors duration-300 bg-slate-50 dark:bg-slate-900">
       
       {/* On Mobile: order-last puts Sidebar at the bottom of the column.
          On Desktop: order-first puts it on the left of the row.
@@ -25,7 +25,7 @@ const MainLayout = () => {
         />
 
         {/* pb-16 ensures content isn't covered by the mobile bottom nav */}
-        <main className="p-4 pb-20 sm:pb-4 overflow-y-auto flex-1">
+        <main className="p-4 pt-5 pb-20 sm:pb-4 overflow-y-auto flex-1">
           <Outlet context={{ darkMode }} /> 
         </main>
       </div>

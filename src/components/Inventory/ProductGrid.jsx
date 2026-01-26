@@ -104,7 +104,7 @@ export default function ProductGrid() {
     );
 
     return (
-        <div className="space-y-10 px-2 pb-10">
+        <div className="space-y-10 px-2 pb-10 mb-15">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center justify-between">

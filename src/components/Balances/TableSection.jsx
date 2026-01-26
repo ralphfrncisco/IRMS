@@ -114,7 +114,7 @@ function TableSection() {
     };
 
     return (
-        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
+        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
             {/* <div className="flex flex-wrap items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 gap-4">
                 <div>
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>

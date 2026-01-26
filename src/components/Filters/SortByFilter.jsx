@@ -24,7 +24,7 @@ function SortByFilter({ options, onSelect, iconProps }) {
     };
 
     // Filter out 'ACTIONS' from the selectable list and count visible ones
-    const columnKeys = Object.keys(options).filter(key => key !== 'ACTIONS');
+    const columnKeys = Object.keys(options);
     const visibleCount = columnKeys.filter(key => options[key]).length;
 
     return (
