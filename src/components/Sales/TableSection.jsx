@@ -148,7 +148,8 @@ function TableSection() {
                     <div>
                         <button onClick={() => setIsModalOpen(true)} className="block md:hidden w-full md:w-auto cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add Purchase</span>
+                            <span className="block md:hidden text-sm font-medium">Add</span>
+                            <span className="hidden md:block text-sm font-medium">Add Purchase</span>
                         </button>
                     </div>
                 </div>

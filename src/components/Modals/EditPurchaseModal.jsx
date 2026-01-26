@@ -186,12 +186,12 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 {/* Form Body */}
                 <form id="purchase-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 pr-2">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
+                        <div className = "max-w-[87vw]">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Order ID</label>
                             <input type="text" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-mono" />
                         </div>
                         
-                        <div className="relative">
+                        <div className="relative max-w-[87vw]">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
                             <input type="text" name="customer" value={formValues.customer} onChange={handleCustomerChange} onFocus={() => setIsDropdownOpen(true)} onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                             {isDropdownOpen && filteredCustomers.length > 0 && (
@@ -203,7 +203,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             )}
                         </div>
 
-                        <div>
+                        <div className = "max-w-[87vw]">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
                             <div className="relative h-10 w-full group">
                                 <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200">
@@ -219,7 +219,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     </div>
 
                     {/* Item List */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-w-[87vw]">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-bold text-slate-800 dark:text-white">Purchased Products</h3>
                             <button type="button" onClick={() => setIsAddItemOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md active:scale-95 cursor-pointer">
@@ -264,7 +264,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     </div>
 
                     {/* Receipt & Remarks Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[87vw]">
                         <div className="space-y-3">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Receipt Preview</label>
                             <div className="relative aspect-[4/3] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">

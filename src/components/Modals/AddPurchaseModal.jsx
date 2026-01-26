@@ -155,9 +155,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
             <div 
-                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xlmd:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -171,12 +171,12 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 <form id="purchaseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2">
                     {/* Top Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div>
+                        <div className = "max-w-[83vw]">
                             <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
                             <input type="text" id="PONumber" name="PONumber" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none" />
                         </div>
 
-                        <div className="relative">
+                        <div className="relative max-w-[83vw]">
                             <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
                             <input type="text" id="CustomerName" name="customer" value={formValues.customer || ''} onChange={handleCustomerChange} onFocus={() => setIsDropdownOpen(true)} onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)} placeholder='select or type a customer' autoComplete="off" className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                             {isDropdownOpen && filteredCustomers.length > 0 && (
@@ -188,7 +188,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             )}
                         </div>
 
-                        <div>
+                        <div className = "max-w-[83vw]">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Transaction Date</label>
                             <div className="relative h-10 w-full group">
                                 <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
@@ -213,7 +213,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 <Plus className="w-5 h-5" /> <span>Add Item</span>
                             </button>
                         </div>
-                        <div className="hidden md:block overflow-x-auto mb-1 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div className="block overflow-x-auto mb-1 rounded-lg border border-slate-200 dark:border-slate-800">
                             <table className="w-full">
                                 <thead className="bg-slate-100 dark:bg-slate-800">
                                     <tr>

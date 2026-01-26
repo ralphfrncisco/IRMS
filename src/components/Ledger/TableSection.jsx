@@ -97,7 +97,7 @@ function TablSection() {
                     {/* Mobile Button */}
                     <button onClick={() => setIsModalOpen(true)} className="flex md:hidden w-auto cursor-pointer items-center justify-center space-x-2 py-2 px-3 bg-blue-500 text-white rounded-md md:rounded-lg hover:bg-blue-600 transition-all">
                         <Plus className="w-4 h-4" />
-                        <span className="text-xs md:text-sm font-medium mr-1 ml:mr-0">Add Salary</span>
+                        <span className="text-sm font-medium mr-1 ml:mr-0">Add</span>
                     </button>
                 </div>
 

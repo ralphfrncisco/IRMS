@@ -83,7 +83,7 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
     return (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex py-4 items-center justify-center">
             <div 
-                className="flex flex-col h-auto md:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
+                className="flex flex-col h-auto max-h-[80vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
