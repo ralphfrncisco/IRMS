@@ -4,7 +4,7 @@ import CustomFormSelect from './../Filters/CustomFormSelect'
 
 // Mock data for the dropdown
 const productTypeOptions = [
-    { label: 'Pellets', value: 'Pellets' },
+    { label: 'Hog Pellets', value: 'Hog Pellets' },
     { label: 'Antibiotics', value: 'Antibiotics' },
     { label: 'Vitamins', value: 'Vitamins' },
     { label: 'Equipments', value: 'Equipments' },
