@@ -1,13 +1,15 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react'
 import { X, Upload, PhilippinePeso } from 'lucide-react'
 import CustomFormSelect from './../Filters/CustomFormSelect'
+import { supabase } from "../../lib/supabase";
 
-// Mock data for the dropdown
+// Dropdown Options
 const productTypeOptions = [
     { label: 'Hog Pellets', value: 'Hog Pellets' },
     { label: 'Medication', value: 'Medication' },
     { label: 'Equipments', value: 'Equipments' },
 ];
+
 const medicationUsageOptions = [
     { label: 'Antibiotics', value: 'Antibiotics' },
     { label: 'Vaccines', value: 'Vaccines' },
@@ -15,7 +17,7 @@ const medicationUsageOptions = [
     { label: 'Hormones', value: 'Hormones' },
 ];
 
-// MOCK DATA: In production, this would be fetched from your ledger/products database
+// Mock data for SRP suggestions
 const mockProductSrpList = [
     { supplier: 'B-Meg Philippines', productName: 'Pre-Starter Grower', srp: 1420 },
     { supplier: 'Univet Nutrition', productName: 'Pre-Starter Grower', srp: 1450 },
@@ -24,10 +26,11 @@ const mockProductSrpList = [
 
 function AddProductModal({ isOpen, onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [loading, setLoading] = useState(false);
     const fileInputRef = useRef(null);
 
-    // --- BACKEND-READY STATE ---
     const [suppliers, setSuppliers] = useState([]); 
     const [isSupplierDropdownOpen, setIsSupplierDropdownOpen] = useState(false);
     const [isSrpDropdownOpen, setIsSrpDropdownOpen] = useState(false);
@@ -36,13 +39,12 @@ function AddProductModal({ isOpen, onClose }) {
         supplierName: '',
         supplierId: null,
         productType: '',
-        sub_category: '', // This will hold the "Medication Usage" value
+        sub_category: '', 
         productName: '',
-        srp: '', // This will hold the formatted string for the input
+        srp: '', 
         stock: ''
     });
 
-    // Simulate API Fetch for Suppliers
     useEffect(() => {
         if (isOpen) {
             const mockDbSuppliers = [
@@ -58,7 +60,6 @@ function AddProductModal({ isOpen, onClose }) {
     // --- HELPERS ---
     const formatNumberWithCommas = (value) => {
         if (!value) return '';
-        // Remove all non-digits and non-decimals
         const cleanValue = value.toString().replace(/[^0-9.]/g, '');
         const parts = cleanValue.split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -79,15 +80,12 @@ function AddProductModal({ isOpen, onClose }) {
         ).sort((a, b) => a.name.localeCompare(b.name));
     }, [formValues.supplierName, suppliers]);
 
-    // LOGIC: Filter SRP options based on Product Name match (Case-Insensitive)
     const srpSuggestions = useMemo(() => {
         if (!formValues.productName) return [];
         return mockProductSrpList.filter(item => 
             item.productName.toLowerCase() === formValues.productName.toLowerCase()
         );
     }, [formValues.productName]);
-
-    if (!isOpen) return null;
 
     // --- HANDLERS ---
     const handleInputChange = (e) => {
@@ -97,7 +95,6 @@ function AddProductModal({ isOpen, onClose }) {
 
     const handleSrpChange = (e) => {
         const rawValue = e.target.value.replace(/,/g, '');
-        // Allow only numbers and a single decimal point
         if (/^\d*\.?\d*$/.test(rawValue)) {
             setFormValues(prev => ({ ...prev, srp: formatNumberWithCommas(rawValue) }));
         }
@@ -106,8 +103,6 @@ function AddProductModal({ isOpen, onClose }) {
     const handleSelectChange = (value, name) => {
         setFormValues(prev => {
             const newValues = { ...prev, [name]: value };
-            
-            // LOGIC: If user switches away from Medication, clear the sub_category
             if (name === 'productType' && value !== 'Medication') {
                 newValues.sub_category = '';
             }
@@ -142,7 +137,10 @@ function AddProductModal({ isOpen, onClose }) {
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (file) setSelectedImage(URL.createObjectURL(file));
+        if (file) {
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
     };
 
     const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
@@ -151,30 +149,81 @@ function AddProductModal({ isOpen, onClose }) {
         e.preventDefault();
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
-        if (file) setSelectedImage(URL.createObjectURL(file));
+        if (file) {
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Extract raw numeric value for submission
-        const submissionData = {
-            ...formValues,
-            srp: parseFloat(formValues.srp.replace(/,/g, '')) || 0
-        };
-        console.log("Submitting:", submissionData);
-        onClose();
+        setLoading(true);
+
+        try {
+            let imagePath = null;
+
+            // 1. Upload Image to Storage Bucket
+            if (selectedImage) {
+                const fileExt = selectedImage.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+                
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('product-images')
+                    .upload(fileName, selectedImage);
+
+                if (uploadError) {
+                    console.error("Storage Error:", uploadError);
+                    throw new Error("Storage Error: Failed to upload image. Please check your Storage Policies.");
+                }
+                imagePath = uploadData?.path || fileName;
+            }
+
+            // Insert Record into Products Table
+            const { error: insertError } = await supabase
+                .from('products')
+                .insert([{
+                    name: formValues.productName,
+                    price: parseFloat(formValues.srp.replace(/,/g, '')) || 0,
+                    quantity: formValues.stock.toString(), // DB schema shows varchar for quantity
+                    category: formValues.productType,
+                    sub_category: formValues.sub_category,
+                    image: imagePath,
+                    supplier_name: formValues.supplierName,
+                    supplier_id: formValues.supplierId
+                }]);
+
+            if (insertError) {
+                console.error("Database Error:", insertError);
+                throw new Error("Database Error: Could not save product details.");
+            }
+            
+            setSelectedImage(null);
+            setPreviewUrl(null);
+            setFormValues({
+                supplierName: '', supplierId: null, productType: '',
+                sub_category: '', productName: '', srp: '', stock: ''
+            });
+            onClose();
+
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col h-auto max-h-[70vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-auto max-h-screen bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Product</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
+                    <button onClick={onClose} disabled={loading} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group disabled:opacity-50">
                         <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
                     </button>
                 </div>
@@ -189,21 +238,23 @@ function AddProductModal({ isOpen, onClose }) {
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
-                                onClick={() => fileInputRef.current.click()}
+                                onClick={() => !loading && fileInputRef.current.click()}
                                 className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 md:h-96 border-2 border-dashed rounded-2xl transition-all
                                     ${isDragging 
                                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
                                         : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-800/50'
-                                    }`}
+                                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+                                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" disabled={loading} />
 
-                                {selectedImage ? (
+                                {previewUrl ? (
                                     <div className="relative w-full h-full p-2">
-                                        <img src={selectedImage} alt="Preview" className="w-full h-full object-contain rounded-xl" />
-                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                                            <p className="text-white text-sm font-medium">Click to Change Image</p>
-                                        </div>
+                                        <img src={previewUrl} alt="Preview" className="w-full h-full object-contain rounded-xl" />
+                                        {!loading && (
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                                                <p className="text-white text-sm font-medium">Click to Change Image</p>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center p-4">
@@ -227,11 +278,12 @@ function AddProductModal({ isOpen, onClose }) {
                                     name="supplierName" 
                                     value={formValues.supplierName} 
                                     onChange={handleSupplierSearch} 
-                                    onFocus={() => setIsSupplierDropdownOpen(true)} 
+                                    onFocus={() => !loading && setIsSupplierDropdownOpen(true)} 
                                     onBlur={() => setTimeout(() => setIsSupplierDropdownOpen(false), 200)} 
-                                    placeholder='Select an existing supplier or type a new supplier' 
+                                    placeholder='Select or type supplier' 
                                     autoComplete="off" 
-                                    className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
+                                    disabled={loading}
+                                    className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all disabled:opacity-50" 
                                 />
                                 {isSupplierDropdownOpen && filteredSuppliers.length > 0 && (
                                     <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
@@ -248,7 +300,8 @@ function AddProductModal({ isOpen, onClose }) {
                                 options={productTypeOptions}
                                 initialValue={formValues.productType}
                                 onSelect={handleSelectChange}
-                                placeholder="eg. Pellets, Antibiotics"
+                                placeholder="eg. Pellets, Medication"
+                                disabled={loading}
                             />
 
                             {formValues.productType === 'Medication' && (
@@ -259,15 +312,15 @@ function AddProductModal({ isOpen, onClose }) {
                                     initialValue={formValues.sub_category}
                                     onSelect={handleSelectChange}
                                     placeholder="Select Usage Type"
+                                    disabled={loading}
                                 />
                             )}
 
                             <div>
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Product Name</label>
-                                <input type="text" name="productName" value={formValues.productName} onChange={handleInputChange} className="mt-2 text-sm h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="eg. Pre-Starter Pellets" />
+                                <input type="text" name="productName" value={formValues.productName} onChange={handleInputChange} disabled={loading} className="mt-2 text-sm h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="eg. Pre-Starter Pellets" />
                             </div>
 
-                            {/* SRP INPUT WITH LIVE FORMATTING */}
                             <div className="relative">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Retail Price (SRP)</label>
                                 <div className="relative mt-2">
@@ -279,20 +332,17 @@ function AddProductModal({ isOpen, onClose }) {
                                         name="srp" 
                                         value={formValues.srp} 
                                         onChange={handleSrpChange} 
-                                        onFocus={() => setIsSrpDropdownOpen(true)}
+                                        onFocus={() => !loading && setIsSrpDropdownOpen(true)}
                                         onBlur={() => setTimeout(() => setIsSrpDropdownOpen(false), 200)}
-                                        className="pl-9 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" 
+                                        disabled={loading}
+                                        className="pl-9 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" 
                                         placeholder="0.00" 
-                                        autocomplete="off"
+                                        autoComplete="off"
                                     />
                                     {isSrpDropdownOpen && srpSuggestions.length > 0 && (
                                         <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-40 overflow-y-auto py-2">
                                             {srpSuggestions.map((item, index) => (
-                                                <li 
-                                                    key={index} 
-                                                    onClick={() => selectSrp(item.srp)} 
-                                                    className="px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
-                                                >
+                                                <li key={index} onClick={() => selectSrp(item.srp)} className="px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">
                                                     <span className="font-bold">{item.supplier}</span> - ₱{formatCurrency(item.srp)}
                                                 </li>
                                             ))}
@@ -303,18 +353,18 @@ function AddProductModal({ isOpen, onClose }) {
 
                             <div>
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Stock Quantity</label>
-                                <input type="number" name="stock" value={formValues.stock} onChange={handleInputChange} className="mt-2 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="0" />
+                                <input type="number" name="stock" value={formValues.stock} onChange={handleInputChange} disabled={loading} className="mt-2 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="0" />
                             </div>
                         </div>
                     </div>
 
                     {/* Action Buttons */}
                     <div className="pt-5 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 flex-shrink-0">
-                        <button type="button" onClick={onClose} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50">
                             Cancel
                         </button>
-                        <button type="submit" className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all">
-                            Upload
+                        <button type="submit" disabled={loading} className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[120px]">
+                            {loading ? 'Uploading...' : 'Upload'}
                         </button>
                     </div>
                 </form>
