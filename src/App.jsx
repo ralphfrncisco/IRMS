@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "./lib/supabase";
+
 import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
@@ -10,10 +12,25 @@ import Ledger from './pages/Transactions/Ledger/LedgerPage';
 import ActivityLog from "./pages/ActivityLog";
 import Accounts from "./pages/Accounts";
 import Suppliers from "./pages/Suppliers";
+import Test from "./pages/testPage";
+
 
 function App() {
 
   const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const testConnection = async () => {
+      const { data, error } = await supabase
+        .from('account')
+        .select('*')
+
+      console.log('DATA:', data)
+      console.log('ERROR:', error)
+    }
+
+    testConnection()
+  }, [])
 
   return (
     <Routes>
@@ -30,7 +47,7 @@ function App() {
         <Route path="inventory" element={<Inventory darkMode={darkMode} />} />
         <Route path="activityLog" element={<ActivityLog darkMode={darkMode} />} />
         <Route path="accounts" element={<Accounts darkMode={darkMode} />} />
-        
+        <Route path="test" element={<Test darkMode={darkMode} />} />
       </Route>
     </Routes>
   );

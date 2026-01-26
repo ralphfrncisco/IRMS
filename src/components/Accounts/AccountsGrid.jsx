@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react'
 import { Pencil, Trash, Plus } from 'lucide-react';
+
 import noProfile from '../../assets/no-profile.png';
+import AddAccountModal from '../Modals/AddAccountModal';
+
 
 const Accounts = 
 [
@@ -12,10 +15,13 @@ const Accounts =
 ];
 
 function AccountsGrid() {
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   return (
+    
     <div>
-        <button
-            className="flex cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
+        <button onClick={() => setIsAddModalOpen(true)}
+            className="flex cursor-pointer items-center justify-center space-x-2 py-2 px-3 pr-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
             <Plus className="w-4 h-4" />
             <span className="text-sm font-medium">Add Account</span>
         </button>
@@ -28,7 +34,7 @@ function AccountsGrid() {
                     <div className="flex items-start justify-between gap-5">
                         <img src={accs.image} alt="" className="w-30 h-30 rounded-full" />
                         <div className = "flex-1 space-y-4">
-                            <div className="">
+                            <div>
                                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                                     {accs.role}
                                 </p>
@@ -46,6 +52,10 @@ function AccountsGrid() {
                 </div>
             ))}
         </div>
+        <AddAccountModal 
+            isOpen={isAddModalOpen} 
+            onClose={() => setIsAddModalOpen(false)} 
+        />
     </div>
     
   )

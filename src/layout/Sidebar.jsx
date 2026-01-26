@@ -22,7 +22,8 @@ const menuItems = [
   { id: "inventory", icon: Package, label: "Inventory", path: "/inventory" },
   { id: "suppliers", icon: Users, label: "Suppliers", path: "/suppliers" },
   { id: "activityLog", icon: FileText, label: "Activity Logs", path: "/activityLog" },
-  { id: "accounts", icon: UserCog, label: "Accounts", path: "/accounts" }
+  { id: "accounts", icon: UserCog, label: "Accounts", path: "/accounts" },
+  { id: "test", icon: FileText, label: "Test", path: "/test" },
 ];
 
 function Sidebar({ collapsed, darkMode }) { 

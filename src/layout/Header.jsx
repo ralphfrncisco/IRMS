@@ -10,7 +10,9 @@ function Header({ onToggleSidebar }) {
 
   // --- DROPDOWN STATE ---
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false); // Added for Notifications
   const menuRef = useRef(null);
+  const notifRef = useRef(null);
 
   useEffect(() => {
     if (darkMode) {
@@ -25,8 +27,13 @@ function Header({ onToggleSidebar }) {
   // --- CLOSE DROPDOWN ON OUTSIDE CLICK ---
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Handle User Menu
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsUserMenuOpen(false);
+      }
+      // Handle Notification Menu
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setIsNotifMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -61,10 +68,52 @@ function Header({ onToggleSidebar }) {
           )}
         </button>
 
-        <button className="relative p-2.5 rounded-xl transition-colors text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800">
-          <Bell className="w-5 h-5" />
-          <span className="absolute -top-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
-        </button>
+        <div className="relative" ref={notifRef}>
+          <button 
+            onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
+            className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'text-black/50 dark:text-white hover:bg-gray-200/50 dark:hover:bg-slate-800'}`}
+          >
+            <Bell className="w-5 h-5" />
+            <span className="absolute -top-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">3</span>
+          </button>
+
+          {isNotifMenuOpen && (
+            <div className="absolute right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                <h3 className="font-bold text-slate-800 dark:text-white">Notifications</h3>
+                <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 px-2 py-0.5 rounded-full">3 New</span>
+              </div>
+              
+              <div className="max-h-[300px] overflow-y-auto">
+                {/* Example Notification Item */}
+                <div className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-white">New Purchase Order</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ORD-1005 has been fully paid by Emily Davis.</p>
+                  <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
+                </div>
+                <div className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-white">New Purchase Order</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ORD-1005 has been fully paid by Emily Davis.</p>
+                  <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
+                </div>
+                <div className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-white">New Purchase Order</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ORD-1005 has been fully paid by Emily Davis.</p>
+                  <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
+                </div>
+                <div className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-white">New Purchase Order</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ORD-1005 has been fully paid by Emily Davis.</p>
+                  <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
+                </div>
+              </div>
+
+              <button className="w-full py-3 text-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                View all notifications
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* --- USER PROFILE DROPDOWN CONTAINER --- */}
         <div className="relative" ref={menuRef}>
