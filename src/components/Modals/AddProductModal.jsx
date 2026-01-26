@@ -5,9 +5,14 @@ import CustomFormSelect from './../Filters/CustomFormSelect'
 // Mock data for the dropdown
 const productTypeOptions = [
     { label: 'Hog Pellets', value: 'Hog Pellets' },
-    { label: 'Antibiotics', value: 'Antibiotics' },
-    { label: 'Vitamins', value: 'Vitamins' },
+    { label: 'Medication', value: 'Medication' },
     { label: 'Equipments', value: 'Equipments' },
+];
+const medicationUsageOptions = [
+    { label: 'Antibiotics', value: 'Antibiotics' },
+    { label: 'Vaccines', value: 'Vaccines' },
+    { label: 'Parasiticides', value: 'Parasiticides' },
+    { label: 'Hormones', value: 'Hormones' },
 ];
 
 // MOCK DATA: In production, this would be fetched from your ledger/products database
@@ -31,6 +36,7 @@ function AddProductModal({ isOpen, onClose }) {
         supplierName: '',
         supplierId: null,
         productType: '',
+        sub_category: '', // This will hold the "Medication Usage" value
         productName: '',
         srp: '', // This will hold the formatted string for the input
         stock: ''
@@ -98,7 +104,15 @@ function AddProductModal({ isOpen, onClose }) {
     };
 
     const handleSelectChange = (value, name) => {
-        setFormValues(prev => ({ ...prev, [name]: value }));
+        setFormValues(prev => {
+            const newValues = { ...prev, [name]: value };
+            
+            // LOGIC: If user switches away from Medication, clear the sub_category
+            if (name === 'productType' && value !== 'Medication') {
+                newValues.sub_category = '';
+            }
+            return newValues;
+        });
     };
 
     const handleSupplierSearch = (e) => {
@@ -215,7 +229,7 @@ function AddProductModal({ isOpen, onClose }) {
                                     onChange={handleSupplierSearch} 
                                     onFocus={() => setIsSupplierDropdownOpen(true)} 
                                     onBlur={() => setTimeout(() => setIsSupplierDropdownOpen(false), 200)} 
-                                    placeholder='Search or type new supplier' 
+                                    placeholder='Select an existing supplier or type a new supplier' 
                                     autoComplete="off" 
                                     className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
                                 />
@@ -236,6 +250,17 @@ function AddProductModal({ isOpen, onClose }) {
                                 onSelect={handleSelectChange}
                                 placeholder="eg. Pellets, Antibiotics"
                             />
+
+                            {formValues.productType === 'Medication' && (
+                                <CustomFormSelect 
+                                    label="Medication Usage"
+                                    name="sub_category"
+                                    options={medicationUsageOptions}
+                                    initialValue={formValues.sub_category}
+                                    onSelect={handleSelectChange}
+                                    placeholder="Select Usage Type"
+                                />
+                            )}
 
                             <div>
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Product Name</label>

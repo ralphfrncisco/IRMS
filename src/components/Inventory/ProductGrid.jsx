@@ -41,7 +41,7 @@ export default function ProductGrid() {
         return () => { supabase.removeChannel(channel) }
       }, [])
 
-    // Filter logic to separate the sections
+    // Logic to separate products by category while keeping search functional
     const pelletProducts = products.filter(p => 
         p.category === 'Hog Pellets' && 
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -52,7 +52,7 @@ export default function ProductGrid() {
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Reusable Card Component
+    // Reusable Card Component to keep the grid consistent
     const ProductCard = ({ item }) => (
         <div className="relative group p-5 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-blue-500/30 transition-all">
             <div className="flex items-start justify-between mb-4">
@@ -72,7 +72,7 @@ export default function ProductGrid() {
 
             <h3 className="text-lg font-bold text-slate-800 dark:text-white line-clamp-2">{item.name}</h3>
             
-            {/* Sub-category badge: only renders if data exists */}
+            {/* Scientific Sub-category Badge */}
             {item.sub_category && (
                 <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                     {item.sub_category}
@@ -128,7 +128,7 @@ export default function ProductGrid() {
                 </div>
             </div>
 
-            {/* SECTION 1: ALL PRODUCTS (Hog Pellets) */}
+            {/* SECTION 1: ALL PRODUCTS */}
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {pelletProducts.map(item => <ProductCard key={item.id} item={item} />)}
