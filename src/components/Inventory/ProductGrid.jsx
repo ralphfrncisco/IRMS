@@ -61,7 +61,7 @@ export default function ProductGrid() {
           .channel('todos-realtime')
           .on(
             'postgres_changes',
-            { event: '*', schema: 'public', table: 'todos' },
+            { event: '*', schema: 'public', table: 'products' },
             () => {
               fetchProducts()
             }
