@@ -232,6 +232,7 @@ export default function ProductGrid() {
                 }}
                 onConfirm={handleDelete}
                 itemId={selectedProduct?.id} // Passing the unique ID instead of name
+                itemName={selectedProduct?.name}
                 loading={isDeleting}
             />
         </div>
