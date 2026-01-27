@@ -31,7 +31,7 @@ function SortByFilter({ options, onSelect, iconProps }) {
         <div ref={dropdownRef} className="relative py-1 px-3 bg-slate-300/30 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg transition-all">
             <button
                 type="button"
-                className="w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300"
+                className="w-full md:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span className="text-sm font-normal">Columns ({visibleCount})</span>

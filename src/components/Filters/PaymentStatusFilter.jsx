@@ -39,12 +39,12 @@ function PaymentStatusFilter({ options, initialValue, onSelect, iconProps }) {
             <button
                 type="button"
                 // Changed w-30 to w-32 (standard) and kept justify-between
-                className={`w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
+                className={`w-full md:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
             >
-                <span className="text-sm truncate">{selectedValue}</span>
+                <span className="text-sm truncate mr-1">{selectedValue}</span>
                 <ArrowDownWideNarrow
                     {...iconProps}
                     // Removed manual ml-2 and top offsets to let flexbox center it vertically

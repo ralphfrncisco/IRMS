@@ -78,7 +78,7 @@ function Header({ onToggleSidebar }) {
           </button>
 
           {isNotifMenuOpen && (
-            <div className="absolute right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
+            <div className="absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
               <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                 <h3 className="font-bold text-slate-800 dark:text-white">Notifications</h3>
                 <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 px-2 py-0.5 rounded-full">3 New</span>

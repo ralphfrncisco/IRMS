@@ -56,19 +56,19 @@ function AddSupplierModal({ isOpen, onClose }) {
 
                 <form onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2 pb-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-85 md:max-w-full">
-                        <div className="relative max-w-82 md:w-full">
+                        <div className="relative max-w-81 md:w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier Name</label>
                             <input type="text" name="supplier" value={formValues.supplier} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
-                        <div className="relative max-w-82 md:w-full">
+                        <div className="relative max-w-81 md:w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Contact Number</label>
                             <input type="text" name="contactNumber" value={formValues.contactNumber} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
-                        <div className="w-full max-w-82 md:col-span-2">
+                        <div className="md:max-w-full max-w-81 md:col-span-2">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Address</label>
                             <input type="text" name="address" value={formValues.Address} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
-                        <div className="max-w-82 md:col-span-2">
+                        <div className="max-w-81 md:max-w-full md:col-span-2">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
                             <textarea name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"></textarea>
                         </div>
