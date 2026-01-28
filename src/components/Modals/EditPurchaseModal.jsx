@@ -235,7 +235,14 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
-                                <input type="date" name="transactionDate" value={formValues.transactionDate} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800" />
+                                <input 
+                                ype="date" 
+                                name="transactionDate" 
+                                value={formValues.transactionDate} 
+                                onChange={handleInputChange} 
+                                onClick={(e) => e.stopPropagation()}
+                                readOnly
+                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800" />
                             </div>
                         </div>
 
