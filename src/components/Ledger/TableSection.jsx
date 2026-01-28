@@ -118,7 +118,7 @@ function TablSection() {
                 {/* Desktop Button */}
                 <button onClick={() => setIsModalOpen(true)} className="hidden md:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                     <Plus className="w-4 h-4" />
-                    <span className="text-sm font-medium">Add Salary</span>
+                    <span className="text-sm font-medium">Add Entry</span>
                 </button>
             </div>
 

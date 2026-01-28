@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { X, Calendar, Plus, Trash2, PhilippinePeso } from 'lucide-react';
 import AddItemModal from './AddItemModal';
 
+import { supabase } from "../../lib/supabase";
+
 const recentOrders = [
     { id: 'ORD-1001', customer: 'John Doe', product: 'Wireless Headphones', amount: '$99.99', status: 'Fully Paid', date: '2026-01-11' },
     { id: 'ORD-1002', customer: 'Jane Smith', product: 'Smart Watch', amount: '$199.99', status: 'With Balance', date: '2026-01-10' },
@@ -12,10 +14,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [purchaseItems, setPurchaseItems] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const formatInputCurrency = (value) => {
         if (!value || value === '0') return '';
-        const cleanValue = value.replace(/[^0-9.]/g, '');
+        const cleanValue = value.toString().replace(/[^0-9.]/g, '');
         const parts = cleanValue.split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         if (parts.length > 1) {
@@ -45,42 +48,49 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     // AUTO-CALCULATE LOGIC
     useEffect(() => {
-        // Strip commas so parseFloat works correctly
         const rawAmountString = formValues.amount.toString().replace(/,/g, '');
         const payment = parseFloat(rawAmountString) || 0;
         const balance = totalAmount - payment;
         
         setFormValues(prev => ({
             ...prev,
-            // Format the balance with commas for the display field
             remainingBalance: totalAmount > 0 ? formatInputCurrency(balance.toString()) : ''
         }));
     }, [totalAmount, formValues.amount]);
 
     const filteredCustomers = customerList.filter(name =>
-        name.toLowerCase().includes((formValues.customer || '').toLowerCase())
+        (name || '').toLowerCase().includes((formValues.customer || '').toLowerCase())
     );
 
+    // FETCH LATEST ID FROM SUPABASE
     useEffect(() => {
-        if (isOpen) {
-            const idNumbers = recentOrders.map(order => 
-                parseInt(order.id.replace('ORD-', ''), 10)
-            );
-            const lastId = idNumbers.length > 0 ? Math.max(...idNumbers) : 0;
-            const nextId = lastId + 1;
-            const formattedId = `ORD-${nextId.toString().padStart(4, '0')}`;
+        const prepareModal = async () => {
+            if (isOpen) {
+                // Fetch the highest numeric ID from SalesTable
+                const { data } = await supabase
+                    .from('SalesTable')
+                    .select('order_id')
+                    .order('order_id', { ascending: false })
+                    .limit(1);
 
-            setFormValues({
-                PONumber: formattedId,
-                customer: '',
-                transactionDate: '',
-                remarks: '',
-                amount: '',
-                remainingBalance: '',
-            });
-            setPurchaseItems([]);
-            setReceiptFileName('No file chosen');
-        }
+                let nextIdNum = 1001;
+                if (data && data.length > 0) {
+                    nextIdNum = parseInt(data[0].order_id) + 1;
+                }
+
+                setFormValues({
+                    PONumber: `ORD-${nextIdNum.toString().padStart(4, '0')}`,
+                    customer: '',
+                    transactionDate: new Date().toISOString().split('T')[0],
+                    remarks: '',
+                    amount: '',
+                    remainingBalance: '',
+                });
+                setPurchaseItems([]);
+                setReceiptFileName('No file chosen');
+            }
+        };
+        prepareModal();
     }, [isOpen]);
 
     if (!isOpen) return null;
@@ -121,8 +131,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         if (name === 'amount') {
-            const formattedValue = formatInputCurrency(value);
-            setFormValues(prev => ({ ...prev, [name]: formattedValue }));
+            setFormValues(prev => ({ ...prev, [name]: formatInputCurrency(value) }));
             return;
         }
         setFormValues(prev => ({ ...prev, [name]: value }));
@@ -149,15 +158,48 @@ function AddPurchaseModal({ isOpen, onClose }) {
         setReceiptFileName(files.length > 0 ? files[0].name : 'No file chosen');
     };
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
-        onClose();
+        setIsSaving(true);
+        
+        try {
+            // 1. Convert "ORD-1004" to just 1004 for the int8 column
+            const numericId = parseInt(formValues.PONumber.replace('ORD-', ''), 10);
+            
+            // 2. Clean currency and join items
+            const cleanAmount = parseFloat(formValues.amount.replace(/,/g, '')) || 0;
+            const productNames = purchaseItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
+            const balanceValue = parseFloat(formValues.remainingBalance.replace(/,/g, '')) || 0;
+
+            const { error } = await supabase
+                .from('SalesTable')
+                .insert([
+                    {
+                        order_id: numericId,
+                        customer: formValues.customer,
+                        purchased_items: productNames,
+                        amount: cleanAmount,
+                        date: formValues.transactionDate,
+                        status: balanceValue > 0 ? 'With Balance' : 'Fully Paid',
+                        receipt_image: receiptFileName,
+                        remarks: formValues.remarks
+                    }
+                ]);
+
+            if (error) throw error;
+            onClose();
+            
+        } catch (error) {
+            alert("Error saving: " + error.message);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
             <div 
-                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xlmd:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -267,7 +309,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         <div className="col-span-2 space-y-5">
                             <div className="flex items-center gap-4">
                                 <div className="relative w-full">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount Paid</label>
                                     <div className="relative">
                                         <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                         <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange} placeholder="0.00" autoComplete="off" className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
@@ -292,7 +334,14 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 {/* Footer Buttons */}
                 <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0 pr-5 md:pr-0">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" form="purchaseForm" disabled={purchaseItems.length === 0 || !formValues.customer} className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">Save Purchase</button>
+                    <button 
+                        type="submit" 
+                        form="purchaseForm" 
+                        disabled={purchaseItems.length === 0 || !formValues.customer || isSaving} 
+                        className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                        {isSaving ? "Saving..." : "Save Purchase"}
+                    </button>
                 </div>
             </div>
             <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />

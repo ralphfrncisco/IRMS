@@ -103,7 +103,6 @@ function TableSection() {
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Activity</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Description</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Time</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
                     </thead>
 
@@ -116,11 +115,6 @@ function TableSection() {
                                 <td className="p-4 text-center text-sm font-semibold text-blue-500 dark:text-blue-400">{activity.title}</td>
                                 <td className="p-4 text-center text-sm">{activity.description}</td>
                                 <td className="p-4 text-center text-sm font-normal">{activity.time}</td>
-                                <td className="p-4 text-center">
-                                    <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                        <MoreHorizontal className="w-5 h-5" />
-                                    </button>
-                                </td>
                             </tr>
                         ))}
                     </tbody>
