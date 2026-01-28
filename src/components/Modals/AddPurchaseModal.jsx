@@ -15,6 +15,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [purchaseItems, setPurchaseItems] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    
+    const [receiptFile, setReceiptFile] = useState(null);
+    const [receiptFileName, setReceiptFileName] = useState('No file chosen');
 
     const formatInputCurrency = (value) => {
         if (!value || value === '0') return '';
@@ -35,7 +38,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
         amount: '',
         remainingBalance: '',
     });
-    const [receiptFileName, setReceiptFileName] = useState('No file chosen');
 
     const customerList = useMemo(() => {
         const names = [...new Set(recentOrders.map(order => order.customer))];
@@ -46,7 +48,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
         return purchaseItems.reduce((sum, item) => sum + item.total, 0);
     }, [purchaseItems]);
 
-    // AUTO-CALCULATE LOGIC
     useEffect(() => {
         const rawAmountString = formValues.amount.toString().replace(/,/g, '');
         const payment = parseFloat(rawAmountString) || 0;
@@ -62,32 +63,35 @@ function AddPurchaseModal({ isOpen, onClose }) {
         (name || '').toLowerCase().includes((formValues.customer || '').toLowerCase())
     );
 
-    // FETCH LATEST ID FROM SUPABASE
     useEffect(() => {
         const prepareModal = async () => {
             if (isOpen) {
-                // Fetch the highest numeric ID from SalesTable
-                const { data } = await supabase
-                    .from('SalesTable')
-                    .select('order_id')
-                    .order('order_id', { ascending: false })
-                    .limit(1);
+                try {
+                    const { data } = await supabase
+                        .from('SalesTable')
+                        .select('order_id')
+                        .order('order_id', { ascending: false })
+                        .limit(1);
 
-                let nextIdNum = 1001;
-                if (data && data.length > 0) {
-                    nextIdNum = parseInt(data[0].order_id) + 1;
+                    let nextIdNum = 1001;
+                    if (data && data.length > 0) {
+                        nextIdNum = parseInt(data[0].order_id) + 1;
+                    }
+
+                    setFormValues({
+                        PONumber: `ORD-${nextIdNum.toString().padStart(4, '0')}`,
+                        customer: '',
+                        transactionDate: new Date().toISOString().split('T')[0],
+                        remarks: '',
+                        amount: '',
+                        remainingBalance: '',
+                    });
+                    setPurchaseItems([]);
+                    setReceiptFile(null);
+                    setReceiptFileName('No file chosen');
+                } catch (e) {
+                    console.error("Initialization Error:", e);
                 }
-
-                setFormValues({
-                    PONumber: `ORD-${nextIdNum.toString().padStart(4, '0')}`,
-                    customer: '',
-                    transactionDate: new Date().toISOString().split('T')[0],
-                    remarks: '',
-                    amount: '',
-                    remainingBalance: '',
-                });
-                setPurchaseItems([]);
-                setReceiptFileName('No file chosen');
             }
         };
         prepareModal();
@@ -155,42 +159,73 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     const handleFileChange = (event) => {
         const files = event.target.files;
-        setReceiptFileName(files.length > 0 ? files[0].name : 'No file chosen');
+        if (files && files.length > 0) {
+            setReceiptFile(files[0]);
+            setReceiptFileName(files[0].name);
+        } else {
+            setReceiptFile(null);
+            setReceiptFileName('No file chosen');
+        }
     };
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
-        
+
         try {
-            // 1. Convert "ORD-1004" to just 1004 for the int8 column
-            const numericId = parseInt(formValues.PONumber.replace('ORD-', ''), 10);
-            
-            // 2. Clean currency and join items
-            const cleanAmount = parseFloat(formValues.amount.replace(/,/g, '')) || 0;
-            const productNames = purchaseItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
-            const balanceValue = parseFloat(formValues.remainingBalance.replace(/,/g, '')) || 0;
+            let receiptFilename = null;
 
-            const { error } = await supabase
+            // Upload receipt to 'receipts' bucket and store only filename
+            if (receiptFile) {
+                const fileExt = receiptFile.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                
+                const { error: uploadError } = await supabase.storage
+                    .from('receipts')
+                    .upload(fileName, receiptFile);
+
+                if (uploadError) throw uploadError;
+
+                // Store ONLY the filename in the database
+                receiptFilename = fileName;
+            }
+
+            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
+            const totalToInsert = parseNum(formValues.amount);
+
+            const { data: saleData, error: saleError } = await supabase
                 .from('SalesTable')
-                .insert([
-                    {
-                        order_id: numericId,
-                        customer: formValues.customer,
-                        purchased_items: productNames,
-                        amount: cleanAmount,
-                        date: formValues.transactionDate,
-                        status: balanceValue > 0 ? 'With Balance' : 'Fully Paid',
-                        receipt_image: receiptFileName,
-                        remarks: formValues.remarks
-                    }
-                ]);
+                .insert([{
+                    customer: formValues.customer,
+                    date: formValues.transactionDate,
+                    amount: totalToInsert,
+                    remaining_balance: parseNum(formValues.remainingBalance),
+                    remarks: formValues.remarks,
+                    receipt_image: receiptFilename,
+                    status: parseNum(formValues.remainingBalance) <= 0 ? "Fully Paid" : "With Balance",
+                    purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
+                }])
+                .select()
+                .single();
 
-            if (error) throw error;
+            if (saleError) throw new Error(`SalesTable Error: ${saleError.message}`);
+
+            const itemsToInsert = purchaseItems.map(item => ({
+                order_id: saleData.order_id,
+                product_name: item.name,
+                amount: item.price,
+                quantity: item.quantity
+            }));
+
+            const { error: itemsError } = await supabase
+                .from('purchasedItems')
+                .insert(itemsToInsert);
+
+            if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
+
             onClose();
-            
-        } catch (error) {
-            alert("Error saving: " + error.message);
+        } catch (err) {
+            alert("Failed to save: " + err.message);
         } finally {
             setIsSaving(false);
         }
@@ -202,7 +237,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
-                {/* Header */}
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Purchase</h2>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
@@ -211,7 +245,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 </div>
 
                 <form id="purchaseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2">
-                    {/* Top Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className = "max-w-[83vw]">
                             <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
@@ -247,7 +280,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
                     </div>
 
-                    {/* Item List */}
                     <div className="mt-4 flex flex-col space-y-4 text-slate-800 dark:text-slate-200 pr-5 md:pr-0">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl font-bold">Item List</h1>
@@ -296,7 +328,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
                     </div>
 
-                    {/* Bottom Section */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pr-5 md:pr-0 pb-4">
                         <div className="space-y-1">
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="file_input">Upload Receipt</label>
@@ -331,11 +362,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </div>
                 </form>
 
-                {/* Footer Buttons */}
                 <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0 pr-5 md:pr-0">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
                     <button 
-                        type="submit" 
+                        type="submit"
                         form="purchaseForm" 
                         disabled={purchaseItems.length === 0 || !formValues.customer || isSaving} 
                         className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
