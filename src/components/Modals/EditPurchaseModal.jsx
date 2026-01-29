@@ -26,6 +26,16 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         return parts[0];
     };
 
+    const formatDisplayDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    };
+
     // Helper function to generate image URL from filename
     const getImageUrl = (path) => {
         if (!path) return null;
@@ -236,12 +246,12 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
                                 <input 
-                                ype="date" 
-                                name="transactionDate" 
-                                value={formValues.transactionDate} 
-                                onChange={handleInputChange} 
-                                onClick={(e) => e.stopPropagation()}
-                                readOnly
+                                    type="text" 
+                                    name="transactionDate" 
+                                    value={formatDisplayDate(formValues.transactionDate)}
+                                    onChange={handleInputChange} 
+                                    onClick={(e) => e.stopPropagation()}
+                                    readOnly
                                 className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800" />
                             </div>
                         </div>

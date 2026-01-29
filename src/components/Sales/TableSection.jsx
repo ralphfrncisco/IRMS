@@ -30,6 +30,16 @@ function TableSection() {
         });
         return `₱ ${formatter.format(value)}`;
     };
+
+    const formatDisplayDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    };
     
     const iconProps = { 
       size: 16, 
@@ -217,7 +227,7 @@ function TableSection() {
                                     {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
                                     {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm">{order.purchased_items}</td>}
                                     {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">{formatCurrency(order.amount)}</td>}
-                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{order.date}</td>}
+                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(order.date)}</td>}
                                     {visibleColumns['STATUS'] && (
                                         <td className="p-4 text-center">
                                             <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
