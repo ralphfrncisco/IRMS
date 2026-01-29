@@ -12,7 +12,6 @@ import Ledger from './pages/Transactions/Ledger/LedgerPage';
 import ActivityLog from "./pages/ActivityLog";
 import Accounts from "./pages/Accounts";
 import Suppliers from "./pages/Suppliers";
-import Test from "./pages/testPage";
 
 
 function App() {
@@ -47,7 +46,6 @@ function App() {
         <Route path="inventory" element={<Inventory darkMode={darkMode} />} />
         <Route path="activityLog" element={<ActivityLog darkMode={darkMode} />} />
         <Route path="accounts" element={<Accounts darkMode={darkMode} />} />
-        <Route path="test" element={<Test darkMode={darkMode} />} />
       </Route>
     </Routes>
   );
