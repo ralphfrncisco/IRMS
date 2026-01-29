@@ -7,6 +7,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
     const [isAddItemOpen, setIsAddItemOpen] = useState(false);
     const [purchaseItems, setPurchaseItems] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
     const [receiptPreview, setReceiptPreview] = useState(null);
     const [formValues, setFormValues] = useState({
         PONumber: '',
@@ -130,7 +131,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         const newBalance = totalAmount - amountPaid;
         setFormValues(prev => ({
             ...prev,
-            remainingBalance: newBalance > 0 ? newBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'
+            remainingBalance: newBalance > 0 ? formatInputCurrency(newBalance.toFixed(2)) : '0.00'
         }));
     }, [totalAmount, formValues.amount]);
 
@@ -167,6 +168,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         try {
+            setIsUpdating(true); // Start "Updating" status
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
             const parsedAmount = parseNum(formValues.amount);
             const parsedBalance = parseNum(formValues.remainingBalance);
@@ -202,6 +204,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             onClose();
         } catch (err) {
             alert("Error updating transaction: " + err.message);
+        } finally {
+            setIsUpdating(false); // Reset status
         }
     };
 
@@ -209,7 +213,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
     return (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex py-4 items-center justify-center">
-            <div className="flex flex-col h-full md:max-h-[94vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col h-full md:max-h-[100vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
                 <div className="w-full flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Invoice Details</h2>
@@ -357,7 +361,21 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 {/* Footer Buttons */}
                 <div className="p-4 md:p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
                     <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-colors cursor-pointer">Close</button>
-                    <button type="submit" form="purchase-form" className="px-6 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer">Update Invoice</button>
+                    <button 
+                        type="submit" 
+                        form="purchase-form" 
+                        disabled={isUpdating}
+                        className="flex items-center gap-2 px-6 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:bg-blue-500 disabled:cursor-not-allowed"
+                    >
+                        {isUpdating ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Updating...
+                            </>
+                        ) : (
+                            'Update Invoice'
+                        )}
+                    </button>                
                 </div>
             </div>
             <AddItemModal isOpen={isAddItemOpen} onClose={() => setIsAddItemOpen(false)} onAdd={handleAddItem} />
