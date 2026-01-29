@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { MoreHorizontal, Plus, Eye } from 'lucide-react';
+import { MoreHorizontal, Plus, Eye, Loader2 } from 'lucide-react';
+import { supabase } from "../../lib/supabase";
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
@@ -15,14 +16,10 @@ const DATE_RANGE_PLACEHOLDER = 'Date Range';
 const CUSTOMER_PLACEHOLDER = 'Customer';
 const STATUS_PLACEHOLDER = 'Payment Status';
 
-const recentOrders = [
-    { id: 'ORD-1002', customer: 'Jane Smith', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 199.99, status: 'With Balance', date: '2026-01-10' },
-    { id: 'ORD-1003', customer: 'Mike Johnson', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 0.00, status: 'Unpaid', date: '2026-01-09' },
-    { id: 'ORD-1004', customer: 'Emily Davis', product: 'Pre-Starter Pellets, Hog-Grower Pellets', amount: 399.99, status: 'With Balance', date: '2026-01-08' },
-];
-
-function TableSection() {
+export default function TableSection() {
     const { darkMode } = useOutletContext();
+    const [salesData, setSalesData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const formatCurrency = (value) => {
         if (isNaN(value)) return "₱ 0.00";
@@ -41,16 +38,51 @@ function TableSection() {
     const [visibleColumns, setVisibleColumns] = useState({
         'ORDER ID': true,
         'CUSTOMER': true,
-        'PRODUCT': true,
+        'PURCHASED ITEMS': true,
         'AMOUNT': true,
         'DATE': true,
         'STATUS': true,
         'ACTIONS': true
     });
 
-    // --- DYNAMIC OPTION GENERATION (Like CustomerList) ---
+    // --- FETCH FUNCTION (Moved to component scope) ---
+    const fetchOrders = async () => {
+        try {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('SalesTable')
+                .select('*')
+                .order('order_id', { ascending: false });
+
+            if (error) throw error;
+            setOrders(data || []);
+        } catch (error) {
+            console.error('Error fetching orders:', error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    
+        // Real-time listener for SalesTable
+        const channel = supabase
+            .channel('sales-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'SalesTable' },
+                () => { fetchOrders() }
+            )
+            .subscribe();
+    
+        return () => { supabase.removeChannel(channel) }
+    }, []);
+    
+
+    // --- DYNAMIC OPTION GENERATION ---
     const extractUniqueOptions = (key, placeholder) => {
-        const uniqueValues = [...new Set(recentOrders.map(order => order[key]))];
+        const uniqueValues = [...new Set(salesData.map(order => order[key]))];
         return [placeholder, ALL_OPTION, ...uniqueValues.sort()];
     };
 
@@ -67,19 +99,16 @@ function TableSection() {
 
     // --- FILTERING LOGIC ---
     const filteredOrders = useMemo(() => {
-        let filtered = recentOrders;
+        let filtered = salesData;
 
-        // Customer Logic
         if (customerFilter !== CUSTOMER_PLACEHOLDER && customerFilter !== ALL_OPTION) {
             filtered = filtered.filter(order => order.customer === customerFilter);
         }
 
-        // Status Logic
         if (paymentStatusFilter !== STATUS_PLACEHOLDER && paymentStatusFilter !== ALL_OPTION) {
             filtered = filtered.filter(order => order.status === paymentStatusFilter);
         }
 
-        // Date Logic
         if (dateRangeFilter !== DATE_RANGE_PLACEHOLDER && dateRangeFilter !== ALL_OPTION) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -97,7 +126,7 @@ function TableSection() {
             });
         }
         return filtered;
-    }, [dateRangeFilter, customerFilter, paymentStatusFilter]);
+    }, [dateRangeFilter, customerFilter, paymentStatusFilter, salesData]);
 
     const handleOpenEdit = (order) => {
         setSelectedOrder(order);
@@ -106,7 +135,6 @@ function TableSection() {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case "Fully Paid": return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400";
             case "With Balance": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400";
             case "Unpaid": return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400";
             default: return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
@@ -115,27 +143,7 @@ function TableSection() {
 
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
-            {/* <div className="flex flex-wrap items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 gap-4">
-                <div>
-                    <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
-                </div>
-
-                <div className="flex items-center gap-5">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
-                        <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
-                        <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
-                    </div>
-                    
-                    <button onClick={() => setIsModalOpen(true)} className="cursor-pointer flex items-center md:space-x-2 py-2 px-2 md:px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
-                        <Plus className="w-4 h-4" />
-                        <span className="md:block hidden text-sm font-medium">Add Purchase</span>
-                    </button>
-                </div>
-            </div> */}
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
-                {/* Filter Grid Container */}
                 <div className = "flex items-center justify-between w-full py-2">
                     <div>
                         <h3 className="text-xl font-bold text-slate-800 dark:text-white">Outstanding Accounts</h3>
@@ -152,7 +160,6 @@ function TableSection() {
                         <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
                     </div>
 
-                    {/* Customer Filter occupying 2 columns on mobile */}
                     <div className="col-span-1">
                         <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
                     </div>
@@ -163,45 +170,60 @@ function TableSection() {
                 </div>
             </div>
 
-            <div className="overflow-x-auto p-2">
+            <div className="overflow-x-auto max-h-[600px] p-2">
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                             {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>}
                             {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
-                            {visibleColumns['PRODUCT'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Product</th>}
-                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Paid Amount</th>}
+                            {visibleColumns['PURCHASED ITEMS'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
+                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
                             {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
+                            {visibleColumns['ACTIONS'] &&<th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>}
                         </tr>
                     </thead>
 
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {filteredOrders.map((order) => (
-                            <tr key={order.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                {visibleColumns['ORDER ID'] && <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">{order.id}</td>}
-                                {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
-                                {visibleColumns['PRODUCT'] && <td className="max-w-[100px] p-4 text-sm truncate">{order.product}</td>}
-                                {visibleColumns['AMOUNT'] && 
-                                    <td className="p-4 text-center text-sm font-semibold">
-                                        {formatCurrency(order.amount)}
-                                    </td>}
-                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{order.date}</td>}
-                                {visibleColumns['STATUS'] && (
-                                    <td className="p-4 text-center">
-                                        <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
-                                            {order.status}
-                                        </span>
-                                    </td>
-                                )}
-                                <td className="p-4 text-center">
-                                    <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                        <Eye className="w-5 h-5 text-blue-500" />
-                                    </button>
+                        {loading ? (
+                            <tr><td colSpan="7" className="p-10 text-center text-slate-500">Loading sales data...</td></tr>
+                        ) : filteredOrders.length === 0 ?
+                        (
+                            <tr>
+                                <td colSpan="7" className="p-4 text-center text-slate-500">
+                                    <div className="flex flex-col items-center justify-center py-4">
+                                        <p className="text-lg font-normal">No records found</p>
+                                    </div>
                                 </td>
                             </tr>
-                        ))}
+                        ) : (filteredOrders.map((order) => (
+                                <tr key={order.order_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    {visibleColumns['ORDER ID'] && (
+                                        <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
+                                            {`ORD-${order.order_id.toString().padStart(4, '0')}`}
+                                        </td>
+                                    )}
+                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
+                                    {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm">{order.purchased_items}</td>}
+                                    {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">{formatCurrency(order.amount)}</td>}
+                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(order.date)}</td>}
+                                    {visibleColumns['STATUS'] && (
+                                        <td className="p-4 text-center">
+                                            <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                    )}
+                                    {visibleColumns['ACTIONS'] && (
+                                        <td className="p-4 text-center">
+                                            <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                                <Eye className="w-5 h-5 text-blue-500" />
+                                            </button>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -214,9 +236,6 @@ function TableSection() {
                 }} 
                 orderData={selectedOrder} 
             />
-
         </div>
     )
 }
-
-export default TableSection;
