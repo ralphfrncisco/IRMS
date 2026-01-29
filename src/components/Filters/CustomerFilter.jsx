@@ -39,7 +39,7 @@ function CustomerFilter({ options, initialValue, onSelect, iconProps }) {
             <button
                 type="button"
                 // Adjusted width to 'w-22' for supplier name, matching original code structure
-                className={`w-full md:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
+                className={`w-full lg:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"

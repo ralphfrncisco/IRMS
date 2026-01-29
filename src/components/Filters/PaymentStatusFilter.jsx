@@ -39,7 +39,7 @@ function PaymentStatusFilter({ options, initialValue, onSelect, iconProps }) {
             <button
                 type="button"
                 // Changed w-30 to w-32 (standard) and kept justify-between
-                className={`w-full md:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
+                className={`w-full lg:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"

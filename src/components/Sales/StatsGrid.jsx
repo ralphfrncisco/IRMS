@@ -12,7 +12,7 @@ function StatsGrid() {
     const { darkMode } = useOutletContext();
     
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
             {statsData.map((item, index) => (
                 <div 
                     key={index} 

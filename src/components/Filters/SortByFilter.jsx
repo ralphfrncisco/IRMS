@@ -31,7 +31,7 @@ function SortByFilter({ options, onSelect, iconProps }) {
         <div ref={dropdownRef} className="relative py-1 px-3 bg-slate-300/30 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg transition-all">
             <button
                 type="button"
-                className="w-full md:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300"
+                className="w-full lg:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span className="text-sm font-normal">Columns ({visibleCount})</span>
@@ -40,7 +40,7 @@ function SortByFilter({ options, onSelect, iconProps }) {
             </button>
 
             {isOpen && (
-                <ul className="absolute z-20 top-full mt-2 w-48 right-0 bg-white dark:bg-slate-800 shadow-xl rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden py-1">
+                <ul className="absolute z-20 top-full mt-[-330px] sm:mt-2 w-48 right-0 bg-white dark:bg-slate-800 shadow-xl rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden py-1">
                     <div className="px-3 py-1 border-b border-slate-200 dark:border-slate-500">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Display Columns</span>
                     </div>

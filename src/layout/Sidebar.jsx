@@ -86,7 +86,7 @@ function Sidebar({ collapsed, darkMode }) {
                               `px-4 py-2 text-xs font-bold transition-all whitespace-nowrap ${
                                 isActive 
                                   ? "bg-emerald-500 text-white rounded-lg" 
-                                  : "text-black/50 dark:text-slate-300 hover:text-white"
+                                  : "text-black/50 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white"
                               }`
                             }
                           >
