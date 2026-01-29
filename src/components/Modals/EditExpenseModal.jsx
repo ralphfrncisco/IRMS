@@ -108,8 +108,53 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        // Add your Supabase Update logic here similar to EditPurchaseModal
-        onClose();
+        setLoading(true);
+        try {
+            const parseCurrency = (val) => parseFloat(val.toString().replace(/[^0-9.]/g, '')) || 0;
+
+            // 1. Update the Main Expense Record
+            const { error: updateError } = await supabase
+                .from('ExpensesTable')
+                .update({
+                    expense_type: formValues.expenseType,
+                    supplier_name: formValues.expenseType === 'Stock Expense' ? formValues.supplier : null,
+                    amount: parseCurrency(formValues.amount),
+                    date: formValues.date,
+                    remarks: formValues.remarks
+                })
+                .eq('expense_id', expenseData.expense_id);
+
+            if (updateError) throw updateError;
+
+            // 2. Sync Allocation Items (Delete and Re-insert)
+            // Only relevant if the list is editable or needs to be refreshed
+            await supabase
+                .from('ExpenseItems')
+                .delete()
+                .eq('expense_id', expenseData.expense_id);
+
+            if (stockItems.length > 0) {
+                const itemsToInsert = stockItems.map(item => ({
+                    expense_id: expenseData.expense_id,
+                    product_name: item.product_name,
+                    amount: item.amount,
+                    quantity: item.quantity
+                }));
+
+                const { error: insertError } = await supabase
+                    .from('ExpenseItems')
+                    .insert(itemsToInsert);
+
+                if (insertError) throw insertError;
+            }
+
+            onClose();
+        } catch (err) {
+            console.error("Error updating expense:", err.message);
+            alert("Failed to update expense: " + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
