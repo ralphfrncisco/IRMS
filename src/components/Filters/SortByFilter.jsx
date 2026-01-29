@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Columns } from 'lucide-react';
+import { Columns, ChevronDown } from 'lucide-react';
 
-function SortByFilter({ options, onSelect, iconProps }) {
+function SortByFilter({ options, onSelect, iconProps, dropdownClassName = "mt-2" }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -16,31 +16,30 @@ function SortByFilter({ options, onSelect, iconProps }) {
     }, []);
 
     const handleToggleColumn = (columnName) => {
-        const updatedOptions = {
-            ...options,
-            [columnName]: !options[columnName]
-        };
+        const updatedOptions = { ...options, [columnName]: !options[columnName] };
         onSelect(updatedOptions);
     };
 
-    // Filter out 'ACTIONS' from the selectable list and count visible ones
     const columnKeys = Object.keys(options);
     const visibleCount = columnKeys.filter(key => options[key]).length;
 
     return (
-        <div ref={dropdownRef} className="relative py-1 px-3 bg-slate-300/30 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg transition-all">
+        <div ref={dropdownRef} className="relative w-full transition-all">
             <button
                 type="button"
-                className="w-full lg:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300"
+                className={`w-full lg:w-38 py-1 px-3 bg-slate-300/30 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between text-slate-700 dark:text-slate-300 transition-colors 
+                    ${isOpen ? 'ring-2 ring-blue-500/20 border-blue-500' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span className="text-sm font-normal">Columns ({visibleCount})</span>
-                {/* Removed ml-2 to let justify-between handle the spacing */}
-                <Columns {...iconProps} className={`${iconProps.className}`} />
+                <div className="flex items-center gap-2">
+                    <Columns size={16} {...iconProps} />
+                    <span className="text-sm font-normal">Columns ({visibleCount})</span>
+                </div>
+                <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
-                <ul className="absolute z-20 top-full mt-[-330px] sm:mt-2 w-48 right-0 bg-white dark:bg-slate-800 shadow-xl rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden py-1">
+                <ul className={`absolute z-20 top-full w-full sm:w-38 right-0 bg-white dark:bg-slate-800 shadow-xl rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden py-1 ${dropdownClassName}`}>
                     <div className="px-3 py-1 border-b border-slate-200 dark:border-slate-500">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Display Columns</span>
                     </div>
@@ -54,9 +53,9 @@ function SortByFilter({ options, onSelect, iconProps }) {
                                 type="checkbox"
                                 checked={options[columnName]}
                                 readOnly
-                                className="w-4 h-4 rounded border-slate-300 accent-blue-600 focus:ring-blue-500 cursor-pointer"
+                                className="w-4 h-4 rounded border-slate-300 accent-blue-600 cursor-pointer"
                             />
-                            <span className="ml-3 text-sm text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
+                            <span className="ml-3 text-sm text-slate-700 dark:text-slate-200">
                                 {columnName}
                             </span>
                         </li>
