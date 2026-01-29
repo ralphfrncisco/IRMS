@@ -96,7 +96,7 @@ function TableSection() {
                             className="block md:hidden w-full md:w-auto cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
                         >
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium truncate">Add Supplier</span>
+                            <span className="text-sm font-medium truncate">Add</span>
                         </button>
                     </div>
 
@@ -104,8 +104,8 @@ function TableSection() {
                 </div>
 
                 {/* Filters Section */}
-                <div className="grid grid-cols-2 md:flex md:items-center gap-2 w-full md:w-auto">
-                    <div className="col-span-1">
+                <div className="flex items-center justify-end gap-2 w-full md:w-auto">
+                    <div className="w-40 md:w-auto">
                         <CustomerFilter 
                             options={supplierOptions} 
                             initialValue={supplierFilter} 
