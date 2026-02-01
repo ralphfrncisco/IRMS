@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
 import { Plus, Eye } from 'lucide-react';
+import { supabase } from "../../lib/supabase";
 
 import CustomerFilter from '../Filters/CustomerFilter';
 import AddSupplierModal from '../Modals/AddSupplierModal';
@@ -11,43 +12,69 @@ const ALL_OPTION = 'All';
 const SUPPLIER_PLACEHOLDER = 'Supplier';
 
 const supplierData = [
-    {
-        id: 'SP-0001',
-        supplier: 'John Doe', 
-        contactNumber: '0917-555-1029', 
-        Address: '123 Rizal St, Brgy. Poblacion, Makati City, Metro Manila', 
-        remarks: 'Order ORD-1001: Fully Paid - Fast delivery requested',
-    },
-    {
-        id: 'SP-0002',
-        supplier: 'Jane Smith', 
-        contactNumber: '0920-412-8834', 
-        Address: 'Lot 42, Block 7, Golden Meadows, Biñan, Laguna', 
-        remarks: 'Order ORD-1002: With Balance - Partial payment received',
-    },
-    {
-        id: 'SP-0003',
-        supplier: 'Mike Johnson', 
-        contactNumber: '0908-771-2290', 
-        Address: 'Unit 1502, Sky Tower, Fuente Osmeña Circle, Cebu City', 
-        remarks: 'Order ORD-1003: Unpaid - Pending credit verification',
-    },
-    {
-        id: 'SP-0004',
-        supplier: 'Emily Davis', 
-        contactNumber: '0966-223-4451', 
-        Address: 'G/F Commercial Bldg, J.P. Laurel Ave, Davao City, Davao del Sur', 
-        remarks: 'Order ORD-1004: With Balance - Installment plan active',
-    }
+    // {
+    //     id: 'SP-0001',
+    //     supplier: 'John Doe', 
+    //     contactNumber: '0917-555-1029', 
+    //     Address: '123 Rizal St, Brgy. Poblacion, Makati City, Metro Manila', 
+    //     remarks: 'Order ORD-1001: Fully Paid - Fast delivery requested',
+    // },
+    // {
+    //     id: 'SP-0002',
+    //     supplier: 'Jane Smith', 
+    //     contactNumber: '0920-412-8834', 
+    //     Address: 'Lot 42, Block 7, Golden Meadows, Biñan, Laguna', 
+    //     remarks: 'Order ORD-1002: With Balance - Partial payment received',
+    // },
+    // {
+    //     id: 'SP-0003',
+    //     supplier: 'Mike Johnson', 
+    //     contactNumber: '0908-771-2290', 
+    //     Address: 'Unit 1502, Sky Tower, Fuente Osmeña Circle, Cebu City', 
+    //     remarks: 'Order ORD-1003: Unpaid - Pending credit verification',
+    // },
+    // {
+    //     id: 'SP-0004',
+    //     supplier: 'Emily Davis', 
+    //     contactNumber: '0966-223-4451', 
+    //     Address: 'G/F Commercial Bldg, J.P. Laurel Ave, Davao City, Davao del Sur', 
+    //     remarks: 'Order ORD-1004: With Balance - Installment plan active',
+    // }
 ];
 
 function TableSection() {
     const { darkMode } = useOutletContext();
+    const [supplierData, setSupplierData] = useState([])
     
     const iconProps = { 
       size: 16, 
       className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
+
+    const fetchSuppliers = async () => {
+        const { data, error } = await supabase
+            .from('supplier')
+            .select('*')
+            .order('id', { ascending: true })
+    
+        if (!error) setSupplierData(data)
+    }
+    
+    useEffect(() => {
+        fetchSuppliers();
+    
+        // Real-time listener for SupplierTable
+        const channel = supabase
+            .channel('supplier-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'supplier' },
+                () => { fetchSuppliers() }
+            )
+            .subscribe();
+    
+        return () => { supabase.removeChannel(channel) }
+    }, []);
 
     // --- DYNAMIC OPTION GENERATION ---
     const extractUniqueOptions = (key, placeholder) => {
@@ -65,7 +92,7 @@ function TableSection() {
 
     // --- FILTERING LOGIC ---
     const filteredSuppliers = useMemo(() => {
-        let filtered = supplierData;
+        let filtered = [...supplierData];
 
         // Supplier Name Logic: Handles both Placeholder and "All"
         if (supplierFilter !== SUPPLIER_PLACEHOLDER && supplierFilter !== ALL_OPTION) {
@@ -73,7 +100,7 @@ function TableSection() {
         }
 
         return filtered;
-    }, [supplierFilter]);
+    }, [supplierFilter, supplierData]);
 
     const handleOpenEdit = (supplier) => {
         setSelectedSupplier(supplier);
@@ -142,13 +169,13 @@ function TableSection() {
                         {filteredSuppliers.map((supplier) => (
                             <tr key={supplier.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
                                 <td className="p-4 text-sm font-semibold text-blue-500 dark:text-blue-400">
-                                    {supplier.supplier}
+                                    {supplier.supplierName}
                                 </td>
                                 <td className="p-4 text-center text-sm">
                                     {supplier.contactNumber}
                                 </td>
                                 <td className="p-4 text-center text-sm font-normal max-w-xs truncate">
-                                    {supplier.Address}
+                                    {supplier.address}
                                 </td>
                                 <td className="p-4 text-center text-sm font-normal italic text-slate-400">
                                     {supplier.remarks}

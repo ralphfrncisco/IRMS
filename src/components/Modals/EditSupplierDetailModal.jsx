@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Plus, Phone, MapPin, Trash2 } from 'lucide-react';
+import { supabase } from "../../lib/supabase";
 
 // --- ASSET IMPORTS ---
 import AddRetailProductModal from './AddRetailProductModal';
@@ -40,9 +41,9 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
             // 1. Map Table Data to Form Fields
             setFormValues({
                 id: supplierData.id || '',
-                supplier: supplierData.supplier || '',
+                supplier: supplierData.supplierName || '',
                 contactNumber: supplierData.contactNumber || '',
-                address: supplierData.Address || '', 
+                address: supplierData.address || '', 
                 remarks: supplierData.remarks || '',
             });
 
