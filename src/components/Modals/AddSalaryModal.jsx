@@ -1,13 +1,14 @@
-import React, { useState, useMemo } from 'react';
-import { X, Plus, Trash2, PhilippinePeso, Calendar } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, PhilippinePeso, Calendar } from 'lucide-react';
+import { supabase } from "../../lib/supabase";
 
 function AddSalaryModal({ isOpen, onClose }) {
-    const [purchaseItems, setPurchaseItems] = useState([]);
+    const [isSaving, setIsSaving] = useState(false);
+
     const [formValues, setFormValues] = useState({
-        supplier: '',
-        contactNumber: '',
-        Address: '',
-        remarks: '',
+        employeeName: '',
+        amount: '',
+        transactionDate: '',
     });
 
     const formatInputCurrency = (value) => {
@@ -43,9 +44,34 @@ function AddSalaryModal({ isOpen, onClose }) {
         setFormValues(prev => ({ ...prev, transactionDate: today }));
     };
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
-        onClose();
+        setIsSaving(true);
+
+        try {
+            // HELPER FUNCTION: Parse formatted currency to number
+            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
+
+            // INSERT RECORD
+            const { error } = await supabase
+                .from('salary')
+                .insert([{
+                    employee_name: formValues.employeeName,
+                    amount: parseNum(formValues.amount), // Use parseNum for currency fields
+                    date: formValues.transactionDate,
+                    // ... other fields
+                }]);
+
+            if (error) throw error;
+
+            // SUCCESS: Close modal
+            onClose();
+            
+        } catch (err) {
+            alert("Failed to save: " + err.message);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -63,11 +89,11 @@ function AddSalaryModal({ isOpen, onClose }) {
                     </button>
                 </div>
 
-                <form onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2">
+                <form onSubmit={handleFormSubmit} id = "saveSalaryForm" className="flex-grow overflow-y-auto space-y-9 md:pr-2">
                     <div className="grid grid-cols-1 gap-6 max-w-85 md:max-w-full">
                         <div className="relative w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Employee's Name</label>
-                            <input type="text" name="supplier" value={formValues.supplier} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                            <input type="text" name="employeeName" value={formValues.employeeName} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
                         <div className="relative w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
@@ -97,8 +123,17 @@ function AddSalaryModal({ isOpen, onClose }) {
                         <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95">
-                            Save Supplier
+                        <button 
+                            type="submit" 
+                            disabled={
+                                !formValues.employeeName || 
+                                !formValues.amount || 
+                                !formValues.transactionDate ||
+                                isSaving
+                            }
+                            form = "saveSalaryForm"
+                        className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95">
+                            {isSaving ? "Saving..." : "Save Entry"}
                         </button>
                     </div>
                 </form>

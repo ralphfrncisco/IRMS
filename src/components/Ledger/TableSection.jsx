@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
 import { Plus, Funnel } from 'lucide-react';
+import { supabase } from "../../lib/supabase";
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter'; 
@@ -13,18 +14,10 @@ const ALL_OPTION = 'All';
 const DATE_RANGE_PLACEHOLDER = 'Date Range';
 const EMPLOYEE_PLACEHOLDER = 'Employee';
 
-const salaryData = [
-    { id: 'SAL-1001', employee: 'John Doe', amount: 15000.00, date: '2026-01-11' },
-    { id: 'SAL-1002', employee: 'Jane Smith', amount: 18500.00, date: '2026-01-10' },
-    { id: 'SAL-1003', employee: 'Mike Johnson', amount: 12000.00, date: '2026-01-09' },
-    { id: 'SAL-1004', employee: 'Emily Davis', amount: 22000.00, date: '2026-01-08' },
-    { id: 'SAL-1005', employee: 'Emily Davis', amount: 5000.00, date: '2026-01-11' },
-];
-
-function TablSection() {
+function TableSection() {
     const { darkMode } = useOutletContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const [salaryData, setSalaryData] = useState([])
     const [showFilters, setShowFilters] = useState(false);
     const filterRef = React.useRef(null);
 
@@ -46,11 +39,46 @@ function TablSection() {
         });
         return `₱ ${formatter.format(value)}`;
     };
+
+    const formatDisplayDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    };
     
     const iconProps = { 
       size: 16, 
       className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
+
+    const fetchSalary = async () => {
+    const { data, error } = await supabase
+        .from('salary')
+        .select('*')
+        .order('id', { ascending: true })
+
+    if (!error) setSalaryData(data)
+    }
+
+    useEffect(() => {
+        fetchSalary();
+    
+        // Real-time listener for SalaryTable
+        const channel = supabase
+            .channel('salary-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'salary' },
+                () => { fetchSalary() }
+            )
+            .subscribe();
+    
+        return () => { supabase.removeChannel(channel) }
+    }, []);
 
     const [visibleColumns, setVisibleColumns] = useState({
         'ID': true,
@@ -66,7 +94,7 @@ function TablSection() {
     };
 
     const dateRangeOptions = [DATE_RANGE_PLACEHOLDER, ALL_OPTION, 'Today', 'Last 7 Days', 'Last 30 Days'];
-    const employeeOptions = extractUniqueOptions('employee', EMPLOYEE_PLACEHOLDER);
+    const employeeOptions = extractUniqueOptions('employee_name', EMPLOYEE_PLACEHOLDER);
 
     // --- STATE MANAGEMENT ---
     const [dateRangeFilter, setDateRangeFilter] = useState(DATE_RANGE_PLACEHOLDER);
@@ -74,10 +102,10 @@ function TablSection() {
 
     // --- FILTERING LOGIC ---
     const filteredSalary = useMemo(() => {
-        let filtered = salaryData;
+        let filtered = [...salaryData];
 
         if (employeeFilter !== EMPLOYEE_PLACEHOLDER && employeeFilter !== ALL_OPTION) {
-            filtered = filtered.filter(item => item.employee === employeeFilter);
+            filtered = filtered.filter(item => item.employee_name === employeeFilter);
         }
 
         if (dateRangeFilter !== DATE_RANGE_PLACEHOLDER && dateRangeFilter !== ALL_OPTION) {
@@ -97,7 +125,7 @@ function TablSection() {
             });
         }
         return filtered;
-    }, [dateRangeFilter, employeeFilter]);
+    }, [dateRangeFilter, employeeFilter, salaryData]);
 
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
@@ -166,7 +194,7 @@ function TablSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                            {visibleColumns['ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>}
+                            {visibleColumns['ID'] && <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>}
                             {visibleColumns['EMPLOYEE'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Employee Name</th>}
                             {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
@@ -177,20 +205,20 @@ function TablSection() {
                         {filteredSalary.map((entry) => (
                             <tr key={entry.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 {visibleColumns['ID'] && (
-                                    <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500 whitespace-nowrap">
+                                    <td className="text-center p-4 text-sm font-medium text-blue-600 dark:text-blue-500 whitespace-nowrap">
                                         {entry.id}
                                     </td>
                                 )}
                                 {visibleColumns['EMPLOYEE'] && (
                                     <td className="p-4 text-sm font-medium text-slate-900 dark:text-white">
-                                        {entry.employee}
+                                        {entry.employee_name}
                                     </td>
                                 )}
                                 {visibleColumns['AMOUNT'] && 
                                     <td className="p-4 text-center text-sm font-semibold text-emerald-600 dark:text-emerald-500">
                                         {formatCurrency(entry.amount)}
                                     </td>}
-                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{entry.date}</td>}
+                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(entry.date)}</td>}
                             </tr>
                         ))}
                     </tbody>
@@ -199,10 +227,13 @@ function TablSection() {
 
             <AddSalaryModal
                 isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+                onClose={() => {
+                    setIsModalOpen(false)
+                    fetchSalary()
+                }} 
             />
         </div>
     )
 }
 
-export default TablSection;
+export default TableSection;
