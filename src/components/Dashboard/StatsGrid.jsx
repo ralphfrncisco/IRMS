@@ -10,7 +10,7 @@ const statsData = [
 
 function StatsGrid() {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
             {statsData.map((item, index) => (
                 <div key={index} className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
                     <div className="flex items-start justify-between">

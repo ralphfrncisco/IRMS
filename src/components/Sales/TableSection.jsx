@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye, Funnel } from 'lucide-react';
+import { Plus, Eye, Funnel, Loader2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
@@ -246,7 +246,7 @@ function TableSection() {
 
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {loading ? (
-                            <tr><td colSpan="7" className="p-10 text-center text-slate-500">Loading sales data...</td></tr>
+                            <tr><td colSpan="7" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
                         ) : filteredOrders.length === 0 ?
                         (
                             <tr>
