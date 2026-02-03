@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { PhilippinePeso, Wallet, ShoppingCart, PackageCheck, Package, Users } from 'lucide-react';
+import { PhilippinePeso, Wallet, PackageCheck} from 'lucide-react';
 
 const statsData = [
   { title: "Total Item Sales (Qty)", value: "125", icon: PackageCheck, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" },
