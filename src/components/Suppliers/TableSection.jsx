@@ -82,7 +82,7 @@ function TableSection() {
         return [placeholder, ALL_OPTION, ...uniqueValues.sort()];
     };
 
-    const supplierOptions = extractUniqueOptions('supplier', SUPPLIER_PLACEHOLDER);
+    const supplierOptions = extractUniqueOptions('supplierName', SUPPLIER_PLACEHOLDER);
 
     // --- STATE MANAGEMENT ---
     const [supplierFilter, setSupplierFilter] = useState(SUPPLIER_PLACEHOLDER); 

@@ -1,14 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import AddRetailProductModal from './AddRetailProductModal';
+import { supabase } from "../../lib/supabase";
 
 function AddSupplierModal({ isOpen, onClose }) {
+    const [isSaving, setIsSaving] = useState(false);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [purchaseItems, setPurchaseItems] = useState([]);
     const [formValues, setFormValues] = useState({
         supplier: '',
         contactNumber: '',
-        Address: '',
+        address: '',
         remarks: '',
     });
 
@@ -30,14 +32,47 @@ function AddSupplierModal({ isOpen, onClose }) {
         setPurchaseItems(prev => prev.filter(item => item.id !== id));
     };
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
-        onClose();
-    };
+        setIsSaving(true);
 
-    const totalAmount = useMemo(() => {
-        return purchaseItems.reduce((sum, item) => sum + item.price, 0);
-    }, [purchaseItems]);
+        try {
+            // 1. Insert the Supplier and get the generated ID back
+            const { data: supplierData, error: supplierError } = await supabase
+                .from('supplier')
+                .insert([{
+                    supplierName: formValues.supplier, // Matching your schema image
+                    contactNumber: formValues.contactNumber,
+                    address: formValues.address,
+                    remarks: formValues.remarks
+                }])
+                .select()
+                .single(); // Gets the specific record we just created
+
+            if (supplierError) throw supplierError;
+
+            // 2. Prepare items with the new supplier_id foreign key
+            if (purchaseItems.length > 0) {
+                const itemsToInsert = purchaseItems.map(item => ({
+                    supplier_id: supplierData.id, // Linking to the ID from Step 1
+                    productName: item.name,
+                    netUnitPrice: item.price
+                }));
+
+                const { error: itemsError } = await supabase
+                    .from('retailProducts')
+                    .insert(itemsToInsert);
+
+                if (itemsError) throw itemsError;
+            }
+
+            onClose();
+        } catch (err) {
+            alert("Failed to save: " + err.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -54,7 +89,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                     </button>
                 </div>
 
-                <form onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2 pb-4">
+                <form onSubmit={handleFormSubmit} id = "addSupplierForm" className="flex-grow overflow-y-auto space-y-9 md:pr-2 pb-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-85 md:max-w-full">
                         <div className="relative max-w-81 md:w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier Name</label>
@@ -66,7 +101,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                         </div>
                         <div className="md:max-w-full max-w-81 md:col-span-2">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Address</label>
-                            <input type="text" name="address" value={formValues.Address} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                            <input type="text" name="address" autocomplete = "off" value={formValues.address} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
                         <div className="max-w-81 md:max-w-full md:col-span-2">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
@@ -118,8 +153,18 @@ function AddSupplierModal({ isOpen, onClose }) {
                         <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95">
-                            Save Supplier
+                        <button 
+                            type="submit" 
+                            disabled={
+                                !formValues.supplier || 
+                                !formValues.contactNumber || 
+                                !formValues.address ||
+                                !formValues.remarks ||
+                                isSaving
+                            }
+                            form = "addSupplierForm"
+                        className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95">
+                            {isSaving ? "Saving..." : "Save Supplier"}
                         </button>
                     </div>
             </div>
