@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Funnel } from 'lucide-react';
+import { Plus, Funnel, Loader2 } from 'lucide-react'; // Added Loader2
 import { supabase } from "../../lib/supabase";
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
@@ -17,7 +17,8 @@ const EMPLOYEE_PLACEHOLDER = 'Employee';
 function TableSection() {
     const { darkMode } = useOutletContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [salaryData, setSalaryData] = useState([])
+    const [salaryData, setSalaryData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true); // Added loading state
     const [showFilters, setShowFilters] = useState(false);
     const filterRef = React.useRef(null);
 
@@ -56,12 +57,14 @@ function TableSection() {
     };
 
     const fetchSalary = async () => {
-    const { data, error } = await supabase
-        .from('salary')
-        .select('*')
-        .order('id', { ascending: true })
+        setIsLoading(true); // Start loading
+        const { data, error } = await supabase
+            .from('salary')
+            .select('*')
+            .order('id', { ascending: true })
 
-    if (!error) setSalaryData(data)
+        if (!error) setSalaryData(data);
+        setIsLoading(false); // Stop loading
     }
 
     useEffect(() => {
@@ -202,25 +205,39 @@ function TableSection() {
                     </thead>
 
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {filteredSalary.map((entry) => (
-                            <tr key={entry.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                {visibleColumns['ID'] && (
-                                    <td className="text-center p-4 text-sm font-medium text-blue-600 dark:text-blue-500 whitespace-nowrap">
-                                        {entry.id}
-                                    </td>
-                                )}
-                                {visibleColumns['EMPLOYEE'] && (
-                                    <td className="p-4 text-sm font-medium text-slate-900 dark:text-white">
-                                        {entry.employee_name}
-                                    </td>
-                                )}
-                                {visibleColumns['AMOUNT'] && 
-                                    <td className="p-4 text-center text-sm font-semibold text-emerald-600 dark:text-emerald-500">
-                                        {formatCurrency(entry.amount)}
-                                    </td>}
-                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(entry.date)}</td>}
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan="4" className="p-10 text-center">
+                                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" />
+                                </td>
                             </tr>
-                        ))}
+                        ) : filteredSalary.length === 0 ? (
+                            <tr>
+                                <td colSpan="4" className="p-10 text-center text-slate-500 dark:text-slate-400 text-sm">
+                                    No salary records found.
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredSalary.map((entry) => (
+                                <tr key={entry.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    {visibleColumns['ID'] && (
+                                        <td className="text-center p-4 text-sm font-medium text-blue-600 dark:text-blue-500 whitespace-nowrap">
+                                            {entry.id}
+                                        </td>
+                                    )}
+                                    {visibleColumns['EMPLOYEE'] && (
+                                        <td className="p-4 text-sm font-medium text-slate-900 dark:text-white">
+                                            {entry.employee_name}
+                                        </td>
+                                    )}
+                                    {visibleColumns['AMOUNT'] && 
+                                        <td className="p-4 text-center text-sm font-semibold text-emerald-600 dark:text-emerald-500">
+                                            {formatCurrency(entry.amount)}
+                                        </td>}
+                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(entry.date)}</td>}
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
