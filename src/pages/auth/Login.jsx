@@ -7,6 +7,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false); // New error state
 
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
@@ -31,6 +32,8 @@ function Login() {
     if (loading) return;
 
     setLoading(true);
+    setIsError(false); // Reset error state on new attempt
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
@@ -38,7 +41,8 @@ function Login() {
       });
 
       if (error) {
-        alert(error.message);
+        setIsError(true); // Trigger red borders
+        console.error("Login failed:", error.message);
       } else {
         window.location.href = '/dashboard'; 
       }
@@ -49,8 +53,13 @@ function Login() {
     }
   };
 
+  // Helper to reset error when user types
+  const handleInputChange = (setter) => (e) => {
+    setter(e.target.value);
+    if (isError) setIsError(false);
+  };
+
   return (
-    // ADDED: transition-all duration-500 to the main container
     <div id="loginForm" className="min-h-screen bg-white md:bg-slate-100 dark:bg-[#1E1E1E] flex items-center justify-center lg:p-4 transition-all duration-500 ease-in-out">
       
       <button
@@ -64,35 +73,44 @@ function Login() {
         )}
       </button>
 
-      {/* ADDED: transition-colors duration-500 to the card */}
-      <div className="max-w-md w-full rounded-xl bg-white dark:bg-[#111] p-8 py-17 shadow-sm md:shadow-xl transition-colors duration-500 ease-in-out">
+      <div className={`max-w-md w-full rounded-xl bg-white dark:bg-[#111] p-8 py-17 shadow-sm md:shadow-xl transition-all duration-500 ease-in-out ${isError ? 'animate-shake' : ''}`}>
         <div className="flex flex-col items-center justify-center space-y-2 mb-10">
-          <PiggyBank className="w-9 h-9 text-black dark:text-white transition-colors duration-500"/>
+          <PiggyBank className= "w-9 h-9 transition-colors duration-500 text-black dark:text-white"/>
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white transition-colors duration-500">IRMS</h2>
-          <small className="text-slate-500 dark:text-white/60 text-xs transition-colors duration-500">Enter your details to login</small>
+          <small className={`text-xs transition-colors duration-500 ${isError ? 'text-red-500 font-medium' : 'text-slate-500 dark:text-white/60'}`}>
+            {isError ? 'Invalid email or password' : 'Enter your details to login'}
+          </small>
         </div>
 
         <form className="space-y-6" onSubmit={handleLogin}>
           <div className="w-full">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-white/90 mb-1 transition-colors duration-500">Email</label>
+            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-500' : 'text-slate-700 dark:text-white/90'}`}>Email</label>
             <input 
               type="email" 
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleInputChange(setEmail)}
               placeholder="Enter your email" 
-              className="w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-100/20 dark:bg-black/70 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300" 
+              className={`w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border outline-none transition-all duration-300 ring-offset-transparent
+                ${isError 
+                  ? 'border-red-500 ring-2 ring-red-500/20 dark:bg-red-500/5' 
+                  : 'border-slate-300 dark:border-slate-100/20 dark:bg-black/70 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'} 
+              `} 
             />
           </div>
 
           <div className="w-full">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-white/90 mb-1 transition-colors duration-500">Password</label>
-            <div className="flex items-center justify-between w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-100/20 dark:bg-black/70 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all duration-300">
+            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-500' : 'text-slate-700 dark:text-white/90'}`}>Password</label>
+            <div className={`flex items-center justify-between w-full px-3 py-2 rounded-lg border transition-all duration-300
+                ${isError 
+                  ? 'border-red-500 ring-2 ring-red-500/20 dark:bg-red-500/5' 
+                  : 'border-slate-300 dark:border-slate-100/20 dark:bg-black/70 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500'}
+            `}>
               <input 
                 type={showPassword ? "text" : "password"} 
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handleInputChange(setPassword)}
                 placeholder="••••••••••••••••" 
                 className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none" 
               />
@@ -109,7 +127,7 @@ function Login() {
           <button 
             type="submit" 
             disabled={loading}
-            className="mt-10 flex items-center justify-center w-full bg-black text-white dark:text-white font-semibold rounded-lg p-2.5 hover:bg-black/90 dark:hover:bg-blue-600 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+            className= "mt-10 flex items-center justify-center w-full text-white font-semibold rounded-lg p-2.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed bg-black hover:bg-black/90 dark:hover:bg-blue-600"
           >
             {loading ? (
               <>
@@ -122,6 +140,18 @@ function Login() {
           </button>
         </form>
       </div>
+
+      {/* Tailwind CSS for the shake animation */}
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+          animation: shake 0.2s ease-in-out 0s 2;
+        }
+      `}</style>
     </div>
   )
 }
