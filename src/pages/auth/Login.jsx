@@ -127,7 +127,7 @@ function Login() {
           <button 
             type="submit" 
             disabled={loading}
-            className= "mt-10 flex items-center justify-center w-full text-white font-semibold rounded-lg p-2.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed bg-black hover:bg-black/90 dark:hover:bg-blue-600"
+            className= "mt-10 flex items-center justify-center w-full text-white font-semibold rounded-lg p-2.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed bg-black hover:bg-black/90 dark:hover:bg-black/80"
           >
             {loading ? (
               <>
