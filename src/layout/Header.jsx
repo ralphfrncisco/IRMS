@@ -2,9 +2,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User } from 'lucide-react';
 import { supabase } from "../lib/supabase";
 
-function Header({ onToggleSidebar }) {
-
-    // THEME STATE
+function Header({ onToggleSidebar, onRoleLoaded }) {
+    // --- THEME STATE ---
     const [darkMode, setDarkMode] = useState(
         localStorage.getItem("theme") === "dark"
     );
@@ -19,40 +18,42 @@ function Header({ onToggleSidebar }) {
 
     // --- FETCH PROFILE DATA ---
     useEffect(() => {
-        const getProfile = async () => {
+        let isMounted = true;
+        const fetchProfile = async () => {
             try {
-                setIsLoading(true);
-                // 1. Get current user session
                 const { data: { user } } = await supabase.auth.getUser();
-                
                 if (user) {
-                    // 2. Fetch from your 'account' table using the user_id link
                     const { data, error } = await supabase
                         .from('account')
                         .select('*')
                         .eq('user_id', user.id)
-                        .single();
+                        .maybeSingle();
 
-                    if (!error && data) {
+                    if (!error && data && isMounted) {
                         setProfile(data);
+                        // CRITICAL FIX: Pass the role to the parent so Sidebar can see it
+                        if (onRoleLoaded) onRoleLoaded(data.role);
                     }
                 }
             } catch (err) {
-                console.error("Profile fetch error:", err);
+                console.error("Header Profile Error:", err);
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         };
-        getProfile();
-    }, []);
+        fetchProfile();
+        return () => { isMounted = false; };
+    }, [onRoleLoaded]);
 
     // --- LOGOUT HANDLER ---
     const handleLogout = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error("Error logging out:", error.message);
-        } else {
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
             setIsUserMenuOpen(false);
+            window.location.href = "/login";
+        } catch (err) {
+            alert("Error logging out: " + err.message);
         }
     };
 
@@ -112,7 +113,7 @@ function Header({ onToggleSidebar }) {
                 <div className="relative" ref={notifRef}>
                     <button
                         onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
-                        className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'text-black/50 dark:text-white hover:bg-gray-200/50 dark:hover:bg-slate-800'}`}
+                        className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'hover:bg-gray-200/50 dark:hover:bg-slate-800'}`}
                     >
                         <Bell className="w-5 h-5" />
                         <span className="absolute -top-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">3</span>
@@ -131,9 +132,6 @@ function Header({ onToggleSidebar }) {
                                     <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
                                 </div>
                             </div>
-                            <button className="w-full py-3 text-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                View all notifications
-                            </button>
                         </div>
                     )}
                 </div>

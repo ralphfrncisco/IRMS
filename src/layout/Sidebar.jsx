@@ -25,9 +25,18 @@ const menuItems = [
   { id: "accounts", icon: UserCog, label: "Accounts", path: "/accounts" },
 ];
 
-function Sidebar({ collapsed, darkMode }) { 
+function Sidebar({ collapsed, darkMode, userRole }) { 
   const [openMenus, setOpenMenus] = useState({});
   const location = useLocation();
+
+  const filteredMenuItems = menuItems.filter(item => {
+    const restrictedIds = ['activityLog', 'accounts'];
+    
+    if (restrictedIds.includes(item.id)) {
+       return userRole === 'Administrator';
+    }
+    return true;
+  });
 
   const toggleMenu = (id) => {
     setOpenMenus(prev => ({
@@ -64,7 +73,7 @@ function Sidebar({ collapsed, darkMode }) {
       </div>
 
       <nav className={`flex-1 flex flex-row sm:flex-col items-center sm:items-stretch justify-around sm:justify-start p-0 sm:p-4 sm:space-y-2 ${collapsed ? "sm:overflow-visible" : "sm:overflow-y-auto"} no-scrollbar`}>
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const hasSubmenu = item.submenu && item.submenu.length > 0;
           const isOpen = openMenus[item.id];
 
@@ -113,7 +122,7 @@ function Sidebar({ collapsed, darkMode }) {
                     )}
                   </button>
 
-                  {/* DESKTOP ACCORDION (Visible when clicked/expanded) */}
+                  {/* DESKTOP ACCORDION */}
                   {isOpen && !collapsed && (
                     <div className="hidden sm:block ml-6 pl-4 space-y-1 mt-3 border-l border-slate-100 dark:border-slate-800">
                       {item.submenu.map((sub) => (
@@ -134,12 +143,7 @@ function Sidebar({ collapsed, darkMode }) {
                     </div>
                   )}
 
-                  {/* COLLAPSED HOVER POPOUT - Improved Hover Stability */}
-                  {collapsed && (
-                    <div className="absolute left-full top-0 h-full w-4 hidden group-hover:block z-[99]">
-                        {/* This is a transparent bridge to keep the hover active while moving mouse to the menu */}
-                    </div>
-                  )}
+                  {/* COLLAPSED HOVER POPOUT */}
                   {collapsed && (
                     <div className="absolute left-[calc(100%+8px)] top-0 hidden group-hover:block z-[100] animate-in fade-in slide-in-from-left-2 duration-200">
                       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-2 min-w-[160px]">
@@ -184,7 +188,6 @@ function Sidebar({ collapsed, darkMode }) {
                     </span>
                   )}
                   
-                  {/* Tooltip for simple items */}
                   {collapsed && (
                     <div className="absolute left-[calc(100%+20px)] top-1/2 -translate-y-1/2 px-3 py-1 bg-slate-900 dark:text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap pointer-events-none z-[100] border border-slate-400 dark:border-slate-800 bg-white dark:bg-slate-900">
                       {item.label}

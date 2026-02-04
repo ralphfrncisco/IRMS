@@ -6,6 +6,7 @@ import { Outlet } from "react-router-dom";
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   return (
     <div className="fixed inset-0 flex flex-col sm:flex-row h-screen overflow-hidden transition-colors duration-300 bg-slate-50 dark:bg-slate-900">
@@ -14,12 +15,13 @@ const MainLayout = () => {
          On Desktop: order-first puts it on the left of the row.
       */}
       <div className="order-last sm:order-first">
-        <Sidebar collapsed={collapsed} darkMode={darkMode} />
+        <Sidebar collapsed={collapsed} darkMode={darkMode} userRole={userRole}/>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <Header 
-          onToggleSidebar={() => setCollapsed(!collapsed)} 
+          onToggleSidebar={() => setCollapsed(!collapsed)}
+          onRoleLoaded={(role) => setUserRole(role)}
           darkMode={darkMode} 
           setDarkMode={setDarkMode} 
         />
