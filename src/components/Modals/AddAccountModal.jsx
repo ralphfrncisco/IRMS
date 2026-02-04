@@ -164,14 +164,14 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Password</label>
                             <div className="flex items-center px-3 py-1.5 rounded-lg border dark:bg-slate-800 border-slate-300 dark:border-slate-100/20">
                                 <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none" />
-                                <button type="button" onClick={togglePasswordVisibility} className="text-slate-500">{showPassword ? <EyeClosed className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+                                <button type="button" onClick={togglePasswordVisibility} className="text-slate-500">{showPassword ? <Eye className="w-4 h-4" /> : <EyeClosed className="w-4 h-4" />}</button>
                             </div>
                         </div>
                         <div className="relative">
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Confirm Password</label>
                             <div className="flex items-center px-3 py-1.5 rounded-lg border dark:bg-slate-800 border-slate-300 dark:border-slate-100/20">
                                 <input type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none" />
-                                <button type="button" onClick={toggleConfirmPasswordVisibility} className="text-slate-500">{showConfirmPassword ? <EyeClosed className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+                                <button type="button" onClick={toggleConfirmPasswordVisibility} className="text-slate-500">{showConfirmPassword ? <Eye className="w-4 h-4" /> : <EyeClosed className="w-4 h-4" />}</button>
                             </div>
                         </div>
                     </div>

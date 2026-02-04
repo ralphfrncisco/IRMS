@@ -119,7 +119,7 @@ function Login() {
                 onClick={togglePasswordVisibility}
                 className="ml-2 text-slate-500 dark:text-white/80 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-300"
               >
-                {showPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <Eye className="w-5 h-5" /> : <EyeClosed className="w-5 h-5" />}
               </button>
             </div>
           </div>

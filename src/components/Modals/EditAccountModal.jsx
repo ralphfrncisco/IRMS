@@ -189,7 +189,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
                                     className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none" 
                                 />
                                 <button type="button" onClick={togglePasswordVisibility} className="ml-2 text-slate-500">
-                                    {showPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    {showPassword ? <Eye className="w-5 h-5" /> : <EyeClosed className="w-5 h-5" />}
                                 </button>
                             </div>
                         </div>
