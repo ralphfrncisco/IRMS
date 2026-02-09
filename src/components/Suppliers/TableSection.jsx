@@ -1,63 +1,44 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, Trash2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 
 import CustomerFilter from '../Filters/CustomerFilter';
 import AddSupplierModal from '../Modals/AddSupplierModal';
 import EditSupplierDetailModal from '../Modals/EditSupplierDetailModal';
+import DeleteConfirmModal from '../Modals/DeleteConfirmModal';
 
 // 1. Define Constants
 const ALL_OPTION = 'All';
 const SUPPLIER_PLACEHOLDER = 'Supplier';
 
-const supplierData = [
-    // {
-    //     id: 'SP-0001',
-    //     supplier: 'John Doe', 
-    //     contactNumber: '0917-555-1029', 
-    //     Address: '123 Rizal St, Brgy. Poblacion, Makati City, Metro Manila', 
-    //     remarks: 'Order ORD-1001: Fully Paid - Fast delivery requested',
-    // },
-    // {
-    //     id: 'SP-0002',
-    //     supplier: 'Jane Smith', 
-    //     contactNumber: '0920-412-8834', 
-    //     Address: 'Lot 42, Block 7, Golden Meadows, Biñan, Laguna', 
-    //     remarks: 'Order ORD-1002: With Balance - Partial payment received',
-    // },
-    // {
-    //     id: 'SP-0003',
-    //     supplier: 'Mike Johnson', 
-    //     contactNumber: '0908-771-2290', 
-    //     Address: 'Unit 1502, Sky Tower, Fuente Osmeña Circle, Cebu City', 
-    //     remarks: 'Order ORD-1003: Unpaid - Pending credit verification',
-    // },
-    // {
-    //     id: 'SP-0004',
-    //     supplier: 'Emily Davis', 
-    //     contactNumber: '0966-223-4451', 
-    //     Address: 'G/F Commercial Bldg, J.P. Laurel Ave, Davao City, Davao del Sur', 
-    //     remarks: 'Order ORD-1004: With Balance - Installment plan active',
-    // }
-];
-
 function TableSection() {
     const { darkMode } = useOutletContext();
     const [supplierData, setSupplierData] = useState([])
+    const [loading, setLoading] = useState(true);
     
     const iconProps = { 
       size: 16, 
       className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
 
+    // --- UNIFIED STATE MANAGEMENT ---
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
+    const [supplierFilter, setSupplierFilter] = useState(SUPPLIER_PLACEHOLDER); 
+
     const fetchSuppliers = async () => {
+        setLoading(true);
         const { data, error } = await supabase
             .from('supplier')
             .select('*')
             .order('id', { ascending: true })
     
-        if (!error) setSupplierData(data)
+        if (!error) setSupplierData(data);
+        setLoading(false);
     }
     
     useEffect(() => {
@@ -84,19 +65,12 @@ function TableSection() {
 
     const supplierOptions = extractUniqueOptions('supplierName', SUPPLIER_PLACEHOLDER);
 
-    // --- STATE MANAGEMENT ---
-    const [supplierFilter, setSupplierFilter] = useState(SUPPLIER_PLACEHOLDER); 
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedSupplier, setSelectedSupplier] = useState(null);
-
     // --- FILTERING LOGIC ---
     const filteredSuppliers = useMemo(() => {
         let filtered = [...supplierData];
 
-        // Supplier Name Logic: Handles both Placeholder and "All"
         if (supplierFilter !== SUPPLIER_PLACEHOLDER && supplierFilter !== ALL_OPTION) {
-            filtered = filtered.filter(item => item.supplier === supplierFilter);
+            filtered = filtered.filter(item => item.supplierName === supplierFilter);
         }
 
         return filtered;
@@ -105,6 +79,44 @@ function TableSection() {
     const handleOpenEdit = (supplier) => {
         setSelectedSupplier(supplier);
         setIsEditModalOpen(true);
+    };
+
+    const triggerDelete = (supplier) => {
+        setSelectedSupplier(supplier);
+        setIsDeleteModalOpen(true);
+    };
+
+    // --- EXECUTE DELETE (Adapted from ProductGrid) ---
+    const handleDelete = async () => {
+        if (!selectedSupplier) return;
+        setIsDeleting(true);
+
+        try {
+            // 1. Delete associated products from retailProducts first
+            const { error: productError } = await supabase
+                .from('retailProducts')
+                .delete()
+                .eq('supplier_id', selectedSupplier.id);
+
+            if (productError) throw productError;
+
+            // 2. Now delete the supplier record
+            const { error: supplierError } = await supabase
+                .from('supplier')
+                .delete()
+                .eq('id', selectedSupplier.id);
+
+            if (supplierError) throw supplierError;
+            
+            setIsDeleteModalOpen(false);
+            setSelectedSupplier(null);
+            
+        } catch (error) {
+            console.error("Delete failed:", error.message);
+            alert(`Error: ${error.message}`);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -126,8 +138,6 @@ function TableSection() {
                             <span className="text-sm font-medium truncate">Add</span>
                         </button>
                     </div>
-
-                    
                 </div>
 
                 {/* Filters Section */}
@@ -166,7 +176,9 @@ function TableSection() {
                     </thead>
 
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {filteredSuppliers.map((supplier) => (
+                        {loading ? (
+                            <tr><td colSpan="5" className="p-10 text-center text-slate-400">Loading suppliers...</td></tr>
+                        ) : filteredSuppliers.map((supplier) => (
                             <tr key={supplier.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
                                 <td className="p-4 text-sm font-semibold text-blue-500 dark:text-blue-400">
                                     {supplier.supplierName}
@@ -181,13 +193,23 @@ function TableSection() {
                                     {supplier.remarks}
                                 </td>
                                 <td className="p-4 text-center">
-                                    <button 
-                                        onClick={() => handleOpenEdit(supplier)} 
-                                        className="p-2 text-blue-500"
-                                        title="View Details"
-                                    >
-                                        <Eye className="w-5 h-5" />
-                                    </button>
+                                    <div className="flex items-center justify-center gap-1">
+                                        <button 
+                                            onClick={() => handleOpenEdit(supplier)} 
+                                            className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                            title="View Details"
+                                        >
+                                            <Eye className="w-5 h-5" />
+                                        </button>
+
+                                        <button 
+                                            onClick={() => triggerDelete(supplier)} 
+                                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                            title="Delete Supplier"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -195,9 +217,9 @@ function TableSection() {
                 </table>
 
                 {/* Empty State Handler */}
-                {filteredSuppliers.length === 0 && (
+                {!loading && filteredSuppliers.length === 0 && (
                     <div className="py-20 text-center">
-                        <p className="text-slate-500 dark:text-slate-400">No suppliers found matching your criteria.</p>
+                        <p className="text-slate-500 dark:text-slate-400">No records found.</p>
                     </div>
                 )}
             </div>
@@ -215,6 +237,18 @@ function TableSection() {
                     setSelectedSupplier(null);
                 }} 
                 supplierData={selectedSupplier} 
+            />
+
+             <DeleteConfirmModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(true && setIsDeleteModalOpen(false));
+                    setSelectedSupplier(null);
+                }}
+                onConfirm={handleDelete}
+                itemId={selectedSupplier?.id}
+                itemName={selectedSupplier?.supplierName}
+                loading={isDeleting}
             />
         </div>
     )
