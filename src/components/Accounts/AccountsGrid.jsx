@@ -84,11 +84,11 @@ function AccountsGrid() {
                                     <div className="flex gap-2 mt-4">
                                         <button 
                                             onClick={() => handleEditClick(acc)} 
-                                            className="p-2 text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-md hover:bg-blue-600 hover:text-white transition-all"
+                                            className="p-2 text-blue-600 bg-blue-500/20 dark:bg-blue-500/10 rounded-md hover:bg-blue-600 hover:text-white transition-all"
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
-                                        <button className="p-2 text-red-600 bg-red-50 dark:bg-red-500/10 rounded-md hover:bg-red-600 hover:text-white transition-all">
+                                        <button className="p-2 text-red-600 bg-red-500/20 dark:bg-red-500/10 rounded-md hover:bg-red-600 hover:text-white transition-all">
                                             <Trash className="w-4 h-4" />
                                         </button>
                                     </div>
