@@ -41,20 +41,20 @@ function AddSupplierModal({ isOpen, onClose }) {
             const { data: supplierData, error: supplierError } = await supabase
                 .from('supplier')
                 .insert([{
-                    supplierName: formValues.supplier, // Matching your schema image
+                    supplierName: formValues.supplier,
                     contactNumber: formValues.contactNumber,
                     address: formValues.address,
                     remarks: formValues.remarks
                 }])
                 .select()
-                .single(); // Gets the specific record we just created
+                .single();
 
             if (supplierError) throw supplierError;
 
             // 2. Prepare items with the new supplier_id foreign key
             if (purchaseItems.length > 0) {
                 const itemsToInsert = purchaseItems.map(item => ({
-                    supplier_id: supplierData.id, // Linking to the ID from Step 1
+                    supplier_id: supplierData.id,
                     productName: item.name,
                     netUnitPrice: item.price
                 }));
@@ -65,6 +65,15 @@ function AddSupplierModal({ isOpen, onClose }) {
 
                 if (itemsError) throw itemsError;
             }
+
+            // --- NEW: Reset Form State before closing ---
+            setFormValues({
+                supplier: '',
+                contactNumber: '',
+                address: '',
+                remarks: ''
+            });
+            setPurchaseItems([]);
 
             onClose();
         } catch (err) {

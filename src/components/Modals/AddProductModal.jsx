@@ -17,13 +17,6 @@ const medicationUsageOptions = [
     { label: 'Hormones', value: 'Hormones' },
 ];
 
-// Mock data for SRP suggestions
-const mockProductSrpList = [
-    { supplier: 'B-Meg Philippines', productName: 'Pre-Starter Grower', srp: 1420 },
-    { supplier: 'Univet Nutrition', productName: 'Pre-Starter Grower', srp: 1450 },
-    { supplier: 'Purina Feeds', productName: 'Hog Starter', srp: 1550 },
-];
-
 function AddProductModal({ isOpen, onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -32,6 +25,7 @@ function AddProductModal({ isOpen, onClose }) {
     const fileInputRef = useRef(null);
 
     const [suppliers, setSuppliers] = useState([]); 
+    const [dbProductSrpList, setDbProductSrpList] = useState([]); // Dynamic SRP data
     const [isSupplierDropdownOpen, setIsSupplierDropdownOpen] = useState(false);
     const [isSrpDropdownOpen, setIsSrpDropdownOpen] = useState(false);
     
@@ -45,16 +39,47 @@ function AddProductModal({ isOpen, onClose }) {
         stock: ''
     });
 
+    // --- FETCH DATA FROM DATABASE ---
     useEffect(() => {
-        if (isOpen) {
-            const mockDbSuppliers = [
-                { id: 'SUP-001', name: 'B-Meg Philippines' },
-                { id: 'SUP-002', name: 'Purina Feeds' },
-                { id: 'SUP-003', name: 'Univet Nutrition' },
-                { id: 'SUP-004', name: 'Cargill' },
-            ];
-            setSuppliers(mockDbSuppliers);
-        }
+        const fetchData = async () => {
+            if (!isOpen) return;
+            setLoading(true);
+            try {
+                // 1. Fetch real suppliers
+                const { data: supplierData } = await supabase
+                    .from('supplier')
+                    .select('id, supplierName')
+                    .order('supplierName', { ascending: true });
+                
+                if (supplierData) {
+                    setSuppliers(supplierData.map(s => ({ id: s.id, name: s.supplierName })));
+                }
+
+                // 2. Fetch retailProducts joined with supplier to get the names for SRP suggestions
+                const { data: retailData } = await supabase
+                    .from('retailProducts')
+                    .select(`
+                        netUnitPrice,
+                        productName,
+                        supplier:supplier_id ( supplierName )
+                    `);
+                
+                if (retailData) {
+                    const formattedSrp = retailData.map(item => ({
+                        supplier: item.supplier?.supplierName || 'Unknown',
+                        productName: item.productName,
+                        srp: item.netUnitPrice
+                    }));
+                    setDbProductSrpList(formattedSrp);
+                }
+            } catch (err) {
+                console.error("Fetch error:", err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, [isOpen]);
 
     // --- HELPERS ---
@@ -80,12 +105,13 @@ function AddProductModal({ isOpen, onClose }) {
         ).sort((a, b) => a.name.localeCompare(b.name));
     }, [formValues.supplierName, suppliers]);
 
+    // Updated to use the dynamic dbProductSrpList
     const srpSuggestions = useMemo(() => {
         if (!formValues.productName) return [];
-        return mockProductSrpList.filter(item => 
-            item.productName.toLowerCase() === formValues.productName.toLowerCase()
+        return dbProductSrpList.filter(item => 
+            item.productName.toLowerCase().includes(formValues.productName.toLowerCase())
         );
-    }, [formValues.productName]);
+    }, [formValues.productName, dbProductSrpList]);
 
     // --- HANDLERS ---
     const handleInputChange = (e) => {
@@ -162,7 +188,6 @@ function AddProductModal({ isOpen, onClose }) {
         try {
             let imagePath = null;
 
-            // 1. Upload Image to Storage Bucket
             if (selectedImage) {
                 const fileExt = selectedImage.name.split('.').pop();
                 const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
@@ -171,20 +196,16 @@ function AddProductModal({ isOpen, onClose }) {
                     .from('product-images')
                     .upload(fileName, selectedImage);
 
-                if (uploadError) {
-                    console.error("Storage Error:", uploadError);
-                    throw new Error("Storage Error: Failed to upload image. Please check your Storage Policies.");
-                }
+                if (uploadError) throw new Error("Storage Error: Failed to upload image.");
                 imagePath = uploadData?.path || fileName;
             }
 
-            // Insert Record into Products Table
             const { error: insertError } = await supabase
                 .from('products')
                 .insert([{
                     name: formValues.productName,
                     price: parseFloat(formValues.srp.replace(/,/g, '')) || 0,
-                    quantity: formValues.stock.toString(), // DB schema shows varchar for quantity
+                    quantity: formValues.stock.toString(),
                     category: formValues.productType,
                     sub_category: formValues.sub_category,
                     image: imagePath,
@@ -192,11 +213,9 @@ function AddProductModal({ isOpen, onClose }) {
                     supplier_id: formValues.supplierId
                 }]);
 
-            if (insertError) {
-                console.error("Database Error:", insertError);
-                throw new Error("Database Error: Could not save product details.");
-            }
+            if (insertError) throw new Error("Database Error: Could not save product details.");
             
+            // Clean up state
             setSelectedImage(null);
             setPreviewUrl(null);
             setFormValues({
@@ -217,7 +236,7 @@ function AddProductModal({ isOpen, onClose }) {
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col max-h-[75vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col max-h-[90vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -229,7 +248,7 @@ function AddProductModal({ isOpen, onClose }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
-                    <div className="flex flex-col md:flex-row gap-8 overflow-y-auto pb-6">
+                    <div className="flex flex-col md:flex-row gap-8 overflow-y-auto pb-6 pr-1">
                         
                         {/* LEFT SIDE: Image Upload */}
                         <div className="w-full md:w-1/2 space-y-2">
@@ -280,7 +299,7 @@ function AddProductModal({ isOpen, onClose }) {
                                     onChange={handleSupplierSearch} 
                                     onFocus={() => !loading && setIsSupplierDropdownOpen(true)} 
                                     onBlur={() => setTimeout(() => setIsSupplierDropdownOpen(false), 200)} 
-                                    placeholder='Select or type supplier' 
+                                    placeholder="Select or type a supplier's name" 
                                     autoComplete="off" 
                                     disabled={loading}
                                     className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all disabled:opacity-50" 
