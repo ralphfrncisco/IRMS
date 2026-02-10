@@ -288,7 +288,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                                 <th className="px-4 py-3">Product Description</th>
                                                 <th className="px-4 py-3 text-center">Unit Price</th>
                                                 <th className="px-4 py-3 text-center">Quantity</th>
-                                                <th className="px-4 py-3 text-right">Sub-total</th>
+                                                <th className="px-4 py-3 text-center">Sub-total</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -297,7 +297,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                                     <td className="px-4 py-3 font-medium">{item.product_name}</td>
                                                     <td className="px-4 py-3 text-center">₱ {formatCurrency(item.amount)}</td>
                                                     <td className="px-4 py-3 text-center">{item.quantity}</td>
-                                                    <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white">
+                                                    <td className="px-4 py-3 text-center font-bold text-slate-900 dark:text-white">
                                                         ₱ {formatCurrency(item.amount * item.quantity)}
                                                     </td>
                                                 </tr>
