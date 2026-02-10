@@ -97,6 +97,16 @@ function TableSection() {
         return `₱ ${formatter.format(num)}`;
     };
 
+    const formatDisplayDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    };
+
     // --- DYNAMIC OPTION GENERATION ---
     const extractUniqueOptions = (key, placeholder) => {
         if (!expenseData || !Array.isArray(expenseData)) return [placeholder, ALL_OPTION];
@@ -256,7 +266,7 @@ function TableSection() {
                                         </span>
                                     </td>}
                                     
-                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{item.date}</td>}
+                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(item.date)}</td>}
                                     {visibleColumns['REMARKS'] && <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">{item.remarks || 'N/A'}</td>}
                                     <td className="p-4 text-center">
                                         <button 
