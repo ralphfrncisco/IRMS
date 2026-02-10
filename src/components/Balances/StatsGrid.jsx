@@ -1,5 +1,6 @@
-import React from 'react';
+import React ,{ useEffect, useState}from 'react';
 import { PhilippinePeso, Users } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 const statsData = [
     {title: "Active Debts", value: "3", icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500"},
@@ -7,9 +8,40 @@ const statsData = [
 ];
 
 function StatsGrid() {
+    const [salesData, setSalesData] = useState([]);
+
+    const fetchSalesData = async () => {
+        const { data, error } = await supabase
+            .from('SalesTable')
+            .select('amount, remaining_balance')
+            .gt ('remaining_balance', 0);
+
+        if (!error) setSalesData(data || []);
+    };
+
+    useEffect(() => {
+        fetchSalesData();
+
+        const channel = supabase
+            .channel('SalesTable-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'SalesTable' }, () => {
+                fetchSalesData();
+            })
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, []);
+
+    const totalReceivables = salesData.reduce((sum, row) => sum + (Number(row.remaining_balance) || 0), 0);
+
+    const statsCards = [
+        {title: "Active Debts", value: salesData.length.toString(), icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500"},
+        { title: "Account Receivables", value: `₱ ${totalReceivables.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: PhilippinePeso, bgColor: "bg-yellow-500/10", textColor: "text-yellow-500" },
+    ];
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-            {statsData.map((item, index) => (
+            {statsCards.map((item, index) => (
                 <div 
                     key={index} 
                     className="p-4 lg:p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800"
