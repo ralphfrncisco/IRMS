@@ -158,9 +158,9 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/60 z-50 flex py-4 items-center justify-center">
+        <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
             <div 
-                className="flex flex-col h-auto md:max-h-[95vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
+                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -180,7 +180,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                         <p className="text-slate-500 text-sm">Fetching records...</p>
                     </div>
                 ) : (
-                    <form id="expense-edit-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 pr-2">
+                    <form id="expense-edit-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-0 p-4 md:p-6 space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Left Column: Fields */}
                             <div className="space-y-5">
@@ -281,7 +281,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                     <Package className="w-5 h-5" />
                                     <h3 className="text-sm font-bold uppercase tracking-widest">Expense Allocation Breakdown</h3>
                                 </div>
-                                <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                                <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-x-auto shadow-sm">
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
                                             <tr>

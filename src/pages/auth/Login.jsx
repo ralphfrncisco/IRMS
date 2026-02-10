@@ -60,7 +60,7 @@ function Login() {
   };
 
   return (
-    <div id="loginForm" className="min-h-screen bg-white md:bg-slate-100 dark:bg-[#1E1E1E] flex items-center justify-center lg:p-4 transition-all duration-500 ease-in-out">
+    <div id="loginForm" className="fixed inset-0 h-screen bg-slate-100 dark:bg-[#1E1E1E] flex items-center justify-center px-3 lg:p-4 transition-all duration-500 ease-in-out">
       
       <button
         onClick={() => setDarkMode(!darkMode)}
@@ -73,7 +73,7 @@ function Login() {
         )}
       </button>
 
-      <div className={`max-w-md w-full rounded-xl bg-white dark:bg-[#111] p-8 py-17 shadow-sm md:shadow-xl transition-all duration-500 ease-in-out ${isError ? 'animate-shake' : ''}`}>
+      <div className={`max-w-md w-full rounded-2xl md:rounded-xl bg-white dark:bg-[#111] mt-[-25%] md:mt-0 p-8 py-17 shadow-sm md:shadow-xl transition-all duration-500 ease-in-out ${isError ? 'animate-shake' : ''}`}>
         <div className="flex flex-col items-center justify-center space-y-2 mb-10">
           <PiggyBank className= "w-9 h-9 transition-colors duration-500 text-black dark:text-white"/>
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white transition-colors duration-500">IRMS</h2>

@@ -235,9 +235,9 @@ function AddExpenseModal({isOpen, onClose}) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto overflow-x-hidden">
             <div 
-                className="flex flex-col h-auto max-h-[95vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-auto max-h-[83vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
                 onClick={e => e.stopPropagation()}
             >
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
@@ -248,8 +248,8 @@ function AddExpenseModal({isOpen, onClose}) {
                 </div>
 
                 <form id="expenseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-6 md:pr-2">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="w-[85vw] md:w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Receipt Image</label>
                             <div 
                                 onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
@@ -279,8 +279,8 @@ function AddExpenseModal({isOpen, onClose}) {
                             </div>
                         </div>
 
-                        <div className="col-span-2 space-y-4">
-                            <div className="relative w-full">
+                        <div className="space-y-4">
+                            <div className="relative max-w-[83vw]">
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type of Expense</label>
                                 <input 
                                     type="text" name="expenseType" value={formValues.expenseType} onChange={handleTypeChange}
@@ -301,7 +301,7 @@ function AddExpenseModal({isOpen, onClose}) {
 
                             {/* Show Supplier Name only for Stock Expense */}
                             {isStockExpense && (
-                                <div>
+                                <div className = "max-w-[83vw]">
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier Name</label>
                                     <input
                                         type="text"
@@ -317,7 +317,7 @@ function AddExpenseModal({isOpen, onClose}) {
 
                             {/* Show Amount field only for non-Stock Expense */}
                             {!isStockExpense && (
-                                <div className="relative w-full">
+                                <div className="relative w-full max-w-[83vw]">
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
                                     <div className="relative">
                                         <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
@@ -334,7 +334,7 @@ function AddExpenseModal({isOpen, onClose}) {
                                 </div>
                             )}
 
-                            <div className="relative w-full">
+                            <div className="relative max-w-[83vw]">
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Transaction Date</label>
                                 <div className="relative h-10 w-full group">
                                     <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
@@ -350,7 +350,7 @@ function AddExpenseModal({isOpen, onClose}) {
                                 </div>
                             </div>
 
-                            <div className="w-full">
+                            <div className="max-w-[83vw] md:w-full">
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
                                 <textarea name="remarks" value={formValues.remarks} onChange={handleInputChange} rows="3" placeholder="Add notes..." className="w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
                             </div>
@@ -359,7 +359,7 @@ function AddExpenseModal({isOpen, onClose}) {
 
                     {/* Items List Section - Only show for Stock Expense */}
                     {isStockExpense && (
-                        <div className="flex flex-col space-y-4 text-slate-800 dark:text-slate-200">
+                        <div className="max-w-[88vw] md:w-full flex flex-col space-y-4 text-slate-800 dark:text-slate-200">
                             <div className="flex items-center justify-between">
                                 <h1 className="text-xl font-bold">Items Bought</h1>
                                 <button type="button" onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md active:scale-95 cursor-pointer">
@@ -370,11 +370,11 @@ function AddExpenseModal({isOpen, onClose}) {
                                 <table className="w-full">
                                     <thead className="bg-slate-100 dark:bg-slate-800">
                                         <tr>
-                                            <th className="p-4 md:pl-10 text-left text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
-                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Unit Price</th>
-                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Quantity</th>
-                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Total</th>
-                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Action</th>
+                                            <th className="p-4 md:pl-10 text-left text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
+                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Unit Price</th>
+                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Quantity</th>
+                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Total</th>
+                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
