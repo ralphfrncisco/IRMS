@@ -160,7 +160,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
     return (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
             <div 
-                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
+                className="flex flex-col h-full max-h-[80vh] md:h-auto md:max-h-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
