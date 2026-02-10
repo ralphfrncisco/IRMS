@@ -1,16 +1,45 @@
-import React from 'react';
-import { BanknoteArrowUp, Package2, Package, PackagePlus } from 'lucide-react';
+import React , {useEffect, useState} from 'react';
+import { BanknoteArrowUp } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 const statsData = [
   { title: "Total Expenses", value: "₱ 15,240.00", icon: BanknoteArrowUp, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" }
 ];
 
 function StatsGrid() {
-    // const { darkMode } = useOutletContext();
+    const [expensesData, setExpensesData] = useState([]);
+
+    const fetchExpensesData = async () => {
+        const { data, error } = await supabase
+            .from('ExpensesTable')
+            .select('amount')
+
+        if (!error) setExpensesData(data || []);
+    };
+
+    useEffect(() => {
+        fetchExpensesData();
+
+        const channel = supabase
+            .channel('ExpensesTable-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'ExpensesTable' }, () => {
+                fetchExpensesData();
+            })
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, []);
+    
+    // Derived array for the UI
+    const totalExpenses = expensesData.reduce((sum, row) => sum + (Number(row.amount) || 0), 0);
+
+    const statsCards = [
+        { title: "Total Expenses", value: `₱ ${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: BanknoteArrowUp, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" }
+    ];
     
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-            {statsData.map((item, index) => (
+            {statsCards.map((item, index) => (
                 <div 
                     key={index} 
                     className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800"
