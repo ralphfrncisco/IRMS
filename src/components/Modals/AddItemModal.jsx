@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Minus, Search } from 'lucide-react';
+import { supabase } from '../../lib/supabase.js';
 
 const HOG_PRODUCTS = [
     { id: 'HP-001', name: 'Pre-Starter Pellets', price: 1450.00 },
@@ -21,10 +22,41 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
     const [selectedItems, setSelectedItems] = useState({});
     const [searchTerm, setSearchTerm] = useState("");
 
-    if (!isOpen) return null;
+    const [products, setProducts] = useState([]);
+
+  // READ
+    const fetchProducts = async () => {
+        const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true })
+
+        if (!error) setProducts(data)
+    }
+
+    useEffect(() => {
+        fetchProducts()
+
+        // REALTIME SUBSCRIPTION
+        const channel = supabase
+        .channel('products-realtime')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'products' },
+            () => {
+            fetchProducts()
+            }
+        )
+        .subscribe()
+
+        // CLEANUP
+        return () => {
+        supabase.removeChannel(channel)
+        }
+    }, [])
 
     // Filter products based on search term
-    const filteredProducts = HOG_PRODUCTS.filter(product =>
+    const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -53,21 +85,30 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
+
         const itemsToAdd = Object.keys(selectedItems).map(id => {
-            const product = HOG_PRODUCTS.find(p => p.id === id);
+            const product = products.find(p => String(p.id) === id);
+            
+            if (!product) return null;
+
             const qty = selectedItems[id].quantity;
             return {
                 ...product,
                 quantity: qty,
                 total: product.price * qty
             };
-        });
+        }).filter(Boolean);
 
-        onAdd(itemsToAdd);
+        if (itemsToAdd.length > 0) {
+            onAdd(itemsToAdd);
+        }
+
         setSelectedItems({}); 
-        setSearchTerm(""); // Reset search for next use
+        setSearchTerm(""); 
         onClose();
     };
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center overflow-y-auto">
@@ -95,7 +136,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                     />
                 </div>
 
-                <form onSubmit={handleFormSubmit} className="space-y-4">
+                <form onSubmit={handleFormSubmit} id="add-item-form" className="space-y-4">
                     {/* Scrollable List Area */}
                     <div className="max-h-[45vh] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                         {filteredProducts.length > 0 ? (
@@ -172,6 +213,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                         <button 
                             type="submit" 
                             disabled={Object.keys(selectedItems).length === 0}
+                            form = "add-item-form"
                             className="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed transition-colors shadow-md"
                         >
                             Add to List
