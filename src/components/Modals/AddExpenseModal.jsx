@@ -227,7 +227,9 @@ function AddExpenseModal({isOpen, onClose}) {
                 const inventoryData = purchaseItems.map(item => ({
                     product_name: item.name,
                     qty: item.quantity,
-                    price: item.price
+                    price: item.price,
+                    category: item.category,
+                    sub_category: item.subCategory
                 }));
 
                 const { data: rpcResult, error: rpcError } = await supabase
