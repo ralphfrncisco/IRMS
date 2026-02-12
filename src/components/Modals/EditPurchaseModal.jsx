@@ -347,7 +347,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remaining Balance</label>
                                         <div className="relative">
                                             <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                            <input type="text" value={formValues.remainingBalance} readOnly className="w-full text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-medium" />
+                                            <input type="text" value={formatInputCurrency(formValues.remainingBalance)} readOnly className="w-full text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-medium" />
                                         </div>
                                     </div>
                                 </div>

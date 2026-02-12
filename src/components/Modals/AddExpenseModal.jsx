@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { X, Plus, Trash2, PhilippinePeso, Calendar, Upload } from 'lucide-react';
-import AddItemModal from './AddItemModal';
+import AddExpenseItemModal from './AddExpenseItemModal';
 import { supabase } from "../../lib/supabase";
 
 // The specific categories you requested
@@ -222,6 +222,19 @@ function AddExpenseModal({isOpen, onClose}) {
                     .insert(itemsToInsert);
 
                 if (itemsError) throw new Error(`Items Error: ${itemsError.message}`);
+
+                // --- UPDATE INVENTORY ---
+                const inventoryData = purchaseItems.map(item => ({
+                    product_name: item.name,
+                    qty: item.quantity,
+                    price: item.price
+                }));
+
+                const { data: rpcResult, error: rpcError } = await supabase
+                    .rpc('update_inventory_from_expense', { items: inventoryData });
+
+                if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
+                // --- END UPDATE INVENTORY ---
             }
 
             onClose();
@@ -425,7 +438,7 @@ function AddExpenseModal({isOpen, onClose}) {
                     </button>
                 </div>
             </div>
-            <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
+            <AddExpenseItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
         </div>
     );
 }

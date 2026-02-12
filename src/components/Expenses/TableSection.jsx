@@ -59,7 +59,7 @@ function TableSection() {
             const { data, error } = await supabase
                 .from('ExpensesTable')
                 .select('*')
-                .order('date', { ascending: false });
+                .order('expense_id', { ascending: false });
 
             if (error) throw error;
 
