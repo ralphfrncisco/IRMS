@@ -53,18 +53,27 @@ function AddSalaryModal({ isOpen, onClose }) {
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
 
             // INSERT RECORD
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('salary')
                 .insert([{
                     employee_name: formValues.employeeName,
-                    amount: parseNum(formValues.amount), // Use parseNum for currency fields
+                    amount: parseNum(formValues.amount), 
                     date: formValues.transactionDate,
-                    // ... other fields
-                }]);
+                }])
+                .select(); // Adding select() helps confirm if the data actually landed
 
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase Error Details:", error);
+                throw error;
+            }
 
-            // SUCCESS: Close modal
+            
+            setFormValues({
+                employeeName: '',
+                amount: '',
+                transactionDate: '',
+            });
+            
             onClose();
             
         } catch (err) {
@@ -131,7 +140,6 @@ function AddSalaryModal({ isOpen, onClose }) {
                                 !formValues.transactionDate ||
                                 isSaving
                             }
-                            form = "saveSalaryForm"
                         className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95">
                             {isSaving ? "Saving..." : "Save Entry"}
                         </button>
