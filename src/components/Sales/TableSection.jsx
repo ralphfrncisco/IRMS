@@ -231,12 +231,12 @@ function TableSection() {
             </div>
 
             <div className="overflow-x-auto max-h-[600px] p-2">
-                <table className="w-full text-left">
+                <table className="w-full table-fixed text-left border-collapse">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                             {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>}
                             {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
-                            {visibleColumns['PURCHASED ITEMS'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
+                            {visibleColumns['PURCHASED ITEMS'] && <th className="w-[400px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
                             {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Paid Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
                             {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
@@ -265,7 +265,14 @@ function TableSection() {
                                         </td>
                                     )}
                                     {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
-                                    {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm">{order.purchased_items}</td>}
+                                    {visibleColumns['PURCHASED ITEMS'] && (
+                                        <td className="p-4 text-sm">
+                                            {/* Wrapping in a div with a matching width forces the truncation */}
+                                            <div className="w-[400px] truncate font-medium text-slate-600 dark:text-slate-400" title={order.purchased_items}>
+                                                {order.purchased_items}
+                                            </div>
+                                        </td>
+                                    )}
                                     {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">{formatCurrency(order.amount)}</td>}
                                     {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(order.date)}</td>}
                                     {visibleColumns['STATUS'] && (
