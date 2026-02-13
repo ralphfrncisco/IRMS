@@ -162,7 +162,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                                                 {product.name}
                                             </label>
                                             <span className="text-xs text-slate-500 dark:text-slate-400">
-                                                ₱{product.price.toLocaleString()} / bag
+                                                ₱{product.price.toLocaleString()} / item, Stock: {product.quantity}
                                             </span>
                                         </div>
                                     </div>
