@@ -340,7 +340,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount Paid</label>
                                         <div className="relative">
                                             <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                            <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none" />
+                                            <input type="text" name="amount" value={formValues.amount} placeholder="0.00" onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none" />
                                         </div>
                                     </div>
                                     <div>
