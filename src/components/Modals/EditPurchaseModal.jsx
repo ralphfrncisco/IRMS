@@ -352,7 +352,10 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                     </div>
                                 </div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Admin Remarks</label>
-                                <textarea name="remarks" rows="4" value={formValues.remarks} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none resize-none"></textarea>
+                                <textarea name="remarks" rows="4" value={formValues.remarks} 
+                                onChange={handleInputChange} 
+                                placeholder = "The user didn't left any remarks."
+                                className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none resize-none"></textarea>
                             </div>
                         </div>
                     </form>
