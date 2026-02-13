@@ -109,7 +109,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                     onClick={() => toggleMenu(item.id)}
                     className={`w-full flex items-center p-2 sm:p-3 rounded-xl transition-all duration-200
                       ${collapsed ? 'justify-center' : 'justify-start'}
-                      ${isOpen ? 'text-slate-700 dark:text-white bg-slate-100 dark:bg-slate-800' : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                      ${isOpen ? 'text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800' : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                   >
                     <item.icon className={`w-6 h-6 sm:w-5 sm:h-5 transition-all ${collapsed ? 'min-w-0' : 'min-w-[20px]'}`} />
                     {!collapsed && (
