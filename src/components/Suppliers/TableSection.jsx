@@ -167,7 +167,7 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Supplier</th>
+                            <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Supplier</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Address</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>
@@ -180,7 +180,7 @@ function TableSection() {
                             <tr><td colSpan="5" className="p-10 text-center text-slate-400">Loading suppliers...</td></tr>
                         ) : filteredSuppliers.map((supplier) => (
                             <tr key={supplier.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
-                                <td className="p-4 text-sm font-semibold text-blue-500 dark:text-blue-400">
+                                <td className="p-4 md:pl-7 text-sm font-semibold text-blue-500 dark:text-blue-400">
                                     {supplier.supplierName}
                                 </td>
                                 <td className="p-4 text-center text-sm">
