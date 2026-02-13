@@ -1,10 +1,10 @@
 import React from 'react';
-import { PhilippinePeso, ShoppingCart, Package, AlertTriangle } from 'lucide-react';
+import { PhilippinePeso, ShoppingCart, BanknoteArrowUp, AlertTriangle } from 'lucide-react';
 
 const statsData = [
-  { title: "Total Revenue", value: "₱25,000", icon: PhilippinePeso, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" },
+  { title: "Total Revenue", value: "₱ 25,000", icon: PhilippinePeso, bgColor: "bg-emerald-500/10", textColor: "text-emerald-500" },
   { title: "Total Sales", value: "150", icon: ShoppingCart, bgColor: "bg-blue-500/10", textColor: "text-blue-500" },
-  { title: "Total Expense", value: "1,240", icon: Package, bgColor: "bg-orange-500/10", textColor: "text-orange-500" },
+  { title: "Total Expense", value: "₱ 25,000", icon: BanknoteArrowUp, bgColor: "bg-orange-500/10", textColor: "text-orange-500" },
   { title: "Need Restock", value: "15", icon: AlertTriangle, bgColor: "bg-red-500/10", textColor: "text-red-500" }
 ];
 
