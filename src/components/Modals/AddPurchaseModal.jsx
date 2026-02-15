@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Plus, Trash2, PhilippinePeso } from 'lucide-react';
+import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil } from 'lucide-react';
 import AddItemModal from './AddItemModal';
-
+import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
 
 const recentOrders = [
@@ -12,6 +12,8 @@ const recentOrders = [
 
 function AddPurchaseModal({ isOpen, onClose }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [itemToEdit, setItemToEdit] = useState(null);
     const [purchaseItems, setPurchaseItems] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -118,6 +120,23 @@ function AddPurchaseModal({ isOpen, onClose }) {
             });
             return updatedList;
         });
+    };
+
+    const handleEditItem = (id) => {
+        const item = purchaseItems.find(item => item.id === id);
+        if (item) {
+            setItemToEdit(item);
+            setIsEditModalOpen(true);
+        }
+    };
+
+    // ADD THIS - Handle saving edited item
+    const handleSaveEditedItem = (editedItem) => {
+        setPurchaseItems(prev => 
+            prev.map(item => 
+                item.id === editedItem.id ? editedItem : item
+            )
+        );
     };
 
     const handleRemoveItem = (id) => {
@@ -330,6 +349,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                     <td className="p-4 text-sm text-slate-700 dark:text-slate-200">{item.quantity}</td>
                                                     <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.total.toLocaleString()}</td>
                                                     <td className="p-4 text-center">
+                                                        <button type="button" onClick={() => handleEditItem(item.id)} className="text-blue-500 hover:text-blue-700 p-1 cursor-pointer">
+                                                            <Pencil className="w-4 h-4" />
+                                                        </button>
                                                         <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700 p-1 cursor-pointer">
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
@@ -397,6 +419,12 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 </div>
             </div>
             <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
+            <EditItemModal 
+                isOpen={isEditModalOpen} 
+                onClose={() => setIsEditModalOpen(false)} 
+                item={itemToEdit}
+                onSave={handleSaveEditedItem}
+            />
         </div>
     );
 }
