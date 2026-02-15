@@ -188,89 +188,105 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
+        e.preventDefault();
+        setIsSaving(true);
 
-    try {
-        let receiptFilename = null;
+        try {
+            let receiptFilename = null;
 
-        // Upload receipt to 'receipts' bucket and store only filename
-        if (receiptFile) {
-            const fileExt = receiptFile.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
-            
-            const { error: uploadError } = await supabase.storage
-                .from('receipts')
-                .upload(fileName, receiptFile);
+            // Upload receipt to 'receipts' bucket and store only filename
+            if (receiptFile) {
+                const fileExt = receiptFile.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                
+                const { error: uploadError } = await supabase.storage
+                    .from('receipts')
+                    .upload(fileName, receiptFile);
 
-            if (uploadError) throw uploadError;
+                if (uploadError) throw uploadError;
+                receiptFilename = fileName;
+            }
 
-            receiptFilename = fileName;
+            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
+            const totalToInsert = parseNum(formValues.amount);
+            const remainingBalance = parseNum(formValues.remainingBalance);
+
+            const { data: saleData, error: saleError } = await supabase
+                .from('SalesTable')
+                .insert([{
+                    customer: formValues.customer,
+                    date: formValues.transactionDate,
+                    amount: totalToInsert,
+                    remaining_balance: remainingBalance,
+                    remarks: formValues.remarks,
+                    receipt_image: receiptFilename,
+                    status: remainingBalance <= 0 ? "Fully Paid" : "With Balance",
+                    purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
+                }])
+                .select()
+                .single();
+
+            if (saleError) throw new Error(`SalesTable Error: ${saleError.message}`);
+
+            const itemsToInsert = purchaseItems.map(item => ({
+                order_id: saleData.order_id,
+                product_name: item.name,
+                amount: item.price,
+                quantity: item.quantity
+            }));
+
+            const { error: itemsError } = await supabase
+                .from('purchasedItems')
+                .insert(itemsToInsert);
+
+            if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
+
+            // --- UPDATE INVENTORY (SUBTRACT) ---
+            const inventoryData = purchaseItems.map(item => ({
+                product_name: item.name,
+                qty: item.quantity,
+                price: item.price
+            }));
+
+            const { data: rpcResult, error: rpcError } = await supabase
+                .rpc('update_inventory_from_sale', { items: inventoryData });
+
+            if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
+
+            // Check if stock validation passed
+            if (rpcResult && !rpcResult.success) {
+                const errorMessages = rpcResult.errors.map(err => 
+                    `${err.product}: ${err.reason} (Need ${err.requested}, Have ${err.available})`
+                ).join('\n');
+                
+                throw new Error(`Cannot complete sale:\n\n${errorMessages}`);
+            }
+            // --- END UPDATE INVENTORY ---
+
+            // --- INSERT PAYMENT HISTORY (if there was an initial payment) ---
+            if (totalToInsert > 0) {
+                const { error: paymentError } = await supabase
+                    .from('paymentHistory')
+                    .insert([{
+                        order_id: saleData.order_id,
+                        payment_amount: totalToInsert,
+                        payment_date: formValues.transactionDate
+                    }]);
+
+                if (paymentError) {
+                    console.error("Payment history error:", paymentError.message);
+                    // Don't throw - we still want the sale to complete
+                }
+            }
+            // --- END PAYMENT HISTORY ---
+
+            onClose();
+        } catch (err) {
+            alert("Failed to save: " + err.message);
+        } finally {
+            setIsSaving(false);
         }
-
-        const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
-        const totalToInsert = parseNum(formValues.amount);
-
-        const { data: saleData, error: saleError } = await supabase
-            .from('SalesTable')
-            .insert([{
-                customer: formValues.customer,
-                date: formValues.transactionDate,
-                amount: totalToInsert,
-                remaining_balance: parseNum(formValues.remainingBalance),
-                remarks: formValues.remarks,
-                receipt_image: receiptFilename,
-                status: parseNum(formValues.remainingBalance) <= 0 ? "Fully Paid" : "With Balance",
-                purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
-            }])
-            .select()
-            .single();
-
-        if (saleError) throw new Error(`SalesTable Error: ${saleError.message}`);
-
-        const itemsToInsert = purchaseItems.map(item => ({
-            order_id: saleData.order_id,
-            product_name: item.name,
-            amount: item.price,
-            quantity: item.quantity
-        }));
-
-        const { error: itemsError } = await supabase
-            .from('purchasedItems')
-            .insert(itemsToInsert);
-
-        if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
-
-        // --- UPDATE INVENTORY (SUBTRACT) ---
-        const inventoryData = purchaseItems.map(item => ({
-            product_name: item.name,
-            qty: item.quantity,
-            price: item.price
-        }));
-
-        const { data: rpcResult, error: rpcError } = await supabase
-            .rpc('update_inventory_from_sale', { items: inventoryData });
-
-        if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
-
-        // Check if stock validation passed
-        if (rpcResult && !rpcResult.success) {
-            // Build error message
-            const errorMessages = rpcResult.errors.map(err => 
-                `${err.product}: ${err.reason} (Need ${err.requested}, Have ${err.available})`
-            ).join('\n');
-            
-            throw new Error(`Cannot complete sale:\n\n${errorMessages}`);
-        }
-        // --- END UPDATE INVENTORY ---
-
-        onClose();
-    } catch (err) {
-        alert("Failed to save: " + err.message);
-    } finally {
-        setIsSaving(false);
-    }
-};
+    };
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
