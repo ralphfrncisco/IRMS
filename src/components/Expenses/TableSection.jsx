@@ -237,7 +237,7 @@ function TableSection() {
                 </button>
             </div>
 
-            <div className="overflow-x-auto max-h-[600px]">
+            <div className="overflow-x-auto h-auto md:max-h-[600px] overflow-y-auto">
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
