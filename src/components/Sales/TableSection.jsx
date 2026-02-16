@@ -172,7 +172,9 @@ function TableSection() {
                 <div className = "flex items-center justify-between w-full py-2">
                     <div>
                         <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {loading ? 'Loading...' : `Total: ${filteredOrders.length} entries`}
+                        </p>
                     </div>
                     <div className="flex items-center gap-2 relative" ref={filterRef}>
                         {/* The Toggle Button */}
@@ -230,10 +232,10 @@ function TableSection() {
                 </button>
             </div>
 
-            <div className="overflow-x-auto max-h-[600px] p-2">
-                <table className="w-full text-left border-separate border-spacing-y-1">
+            <div className="overflow-x-auto h-auto md:max-h-[600px] overflow-y-auto">
+                <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
-                        <tr className="bg-slate-50/50 dark:bg-slate-800/50">
+                        <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
                             {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>}
                             {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
                             {visibleColumns['PURCHASED ITEMS'] && <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}

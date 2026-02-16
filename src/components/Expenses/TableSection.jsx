@@ -237,10 +237,10 @@ function TableSection() {
                 </button>
             </div>
 
-            <div className="overflow-x-auto p-2 no-scrollbar">
-                <table className="w-full text-left">
+            <div className="overflow-x-auto max-h-[600px]">
+                <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
-                        <tr className="bg-slate-50/50 dark:bg-slate-800/50">
+                        <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
                             {visibleColumns['ID'] && <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>}
                             {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['EXPENSE TYPE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>}
