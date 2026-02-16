@@ -192,6 +192,29 @@ function AddPurchaseModal({ isOpen, onClose }) {
         setIsSaving(true);
 
         try {
+            // --- CHECK INVENTORY FIRST (BEFORE INSERTING ANYTHING) ---
+            const inventoryData = purchaseItems.map(item => ({
+                product_name: item.name,
+                qty: item.quantity,
+                price: item.price
+            }));
+
+            const { data: rpcResult, error: rpcError } = await supabase
+                .rpc('update_inventory_from_sale', { items: inventoryData });
+
+            if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
+
+            // Check if stock validation passed
+            if (rpcResult && !rpcResult.success) {
+                const errorMessages = rpcResult.errors.map(err => 
+                    `${err.product}: ${err.reason} (Need ${err.requested}, Have ${err.available})`
+                ).join('\n');
+                
+                throw new Error(`\n${errorMessages}`);
+            }
+            // --- END INVENTORY CHECK ---
+
+            // --- NOW PROCEED WITH SALE (Only if inventory check passed) ---
             let receiptFilename = null;
 
             // Upload receipt to 'receipts' bucket and store only filename
@@ -240,28 +263,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 .insert(itemsToInsert);
 
             if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
-
-            // --- UPDATE INVENTORY (SUBTRACT) ---
-            const inventoryData = purchaseItems.map(item => ({
-                product_name: item.name,
-                qty: item.quantity,
-                price: item.price
-            }));
-
-            const { data: rpcResult, error: rpcError } = await supabase
-                .rpc('update_inventory_from_sale', { items: inventoryData });
-
-            if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
-
-            // Check if stock validation passed
-            if (rpcResult && !rpcResult.success) {
-                const errorMessages = rpcResult.errors.map(err => 
-                    `${err.product}: ${err.reason} (Need ${err.requested}, Have ${err.available})`
-                ).join('\n');
-                
-                throw new Error(`Cannot complete sale:\n\n${errorMessages}`);
-            }
-            // --- END UPDATE INVENTORY ---
 
             // --- INSERT PAYMENT HISTORY (if there was an initial payment) ---
             if (totalToInsert > 0) {

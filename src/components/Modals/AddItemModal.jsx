@@ -2,58 +2,41 @@ import React, { useState, useEffect } from 'react';
 import { X, Plus, Minus, Search } from 'lucide-react';
 import { supabase } from '../../lib/supabase.js';
 
-const HOG_PRODUCTS = [
-    { id: 'HP-001', name: 'Pre-Starter Pellets', price: 1450.00 },
-    { id: 'HP-002', name: 'Starter Pellets', price: 1380.00 },
-    { id: 'HP-003', name: 'Grower Pellets', price: 1250.00 },
-    { id: 'HP-004', name: 'Finisher Pellets', price: 1180.00 },
-    { id: 'HP-005', name: 'Brood Sow Pellets', price: 1220.00 },
-
-    { id: 'AB-001', name: 'Amoxicillin Soluble Powder', price: 850.00 },
-    { id: 'AB-002', name: 'Oxytetracycline Injection', price: 1200.00 },
-
-    { id: 'VC-001', name: 'Swine Fever Vaccine', price: 2400.00 },
-        { id: 'PA-001', name: 'Ivermectin 1% Injection', price: 750.00 },
-        { id: 'NS-001', name: 'Iron Dextran Injection', price: 890.00 },
-        { id: 'HM-001', name: 'Oxytocin Injection', price: 480.00 }
-];
-
 function AddItemModal({ isOpen, onClose, onAdd }) {
     const [selectedItems, setSelectedItems] = useState({});
     const [searchTerm, setSearchTerm] = useState("");
-
     const [products, setProducts] = useState([]);
 
-  // READ
+    // READ
     const fetchProducts = async () => {
         const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('id', { ascending: true })
+            .from('products')
+            .select('*')
+            .order('id', { ascending: true });
 
-        if (!error) setProducts(data)
-    }
+        if (!error) setProducts(data);
+    };
 
     useEffect(() => {
-        fetchProducts()
+        fetchProducts();
 
         // REALTIME SUBSCRIPTION
         const channel = supabase
-        .channel('products-realtime')
-        .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'products' },
-            () => {
-            fetchProducts()
-            }
-        )
-        .subscribe()
+            .channel('products-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'products' },
+                () => {
+                    fetchProducts();
+                }
+            )
+            .subscribe();
 
         // CLEANUP
         return () => {
-        supabase.removeChannel(channel)
-        }
-    }, [])
+            supabase.removeChannel(channel);
+        };
+    }, []);
 
     // Filter products based on search term
     const filteredProducts = products.filter(product =>
@@ -72,14 +55,86 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
         });
     };
 
-    const updateQuantity = (productId, delta) => {
+    // UPDATED: Handle both button clicks and direct input
+    const updateQuantity = (productId, newValue) => {
         setSelectedItems(prev => {
             if (!prev[productId]) return prev;
-            const newQty = Math.max(1, prev[productId].quantity + delta);
+
+            let finalQuantity;
+
+            // If newValue is a number (direct input)
+            if (typeof newValue === 'number' && !isNaN(newValue)) {
+                finalQuantity = Math.max(1, newValue);
+            } 
+            // If it's a delta (from buttons: +1 or -1)
+            else if (typeof newValue === 'string') {
+                const parsed = parseInt(newValue);
+                finalQuantity = isNaN(parsed) ? 1 : Math.max(1, parsed);
+            }
+            // Default fallback
+            else {
+                finalQuantity = 1;
+            }
+
+            return {
+                ...prev,
+                [productId]: { ...prev[productId], quantity: finalQuantity }
+            };
+        });
+    };
+
+    // NEW: Handle button increment/decrement
+    const adjustQuantity = (productId, delta) => {
+        setSelectedItems(prev => {
+            if (!prev[productId]) return prev;
+            const currentQty = prev[productId].quantity;
+            const newQty = Math.max(1, currentQty + delta);
             return {
                 ...prev,
                 [productId]: { ...prev[productId], quantity: newQty }
             };
+        });
+    };
+
+    // NEW: Handle direct text input
+    const handleQuantityInput = (productId, value) => {
+        setSelectedItems(prev => {
+            if (!prev[productId]) return prev;
+            
+            // Allow empty input for user to clear and type
+            if (value === '') {
+                return {
+                    ...prev,
+                    [productId]: { ...prev[productId], quantity: '' }
+                };
+            }
+
+            const parsed = parseInt(value);
+            if (isNaN(parsed)) return prev;
+
+            return {
+                ...prev,
+                [productId]: { ...prev[productId], quantity: parsed }
+            };
+        });
+    };
+
+    // NEW: Handle input blur (when user leaves the field)
+    const handleQuantityBlur = (productId) => {
+        setSelectedItems(prev => {
+            if (!prev[productId]) return prev;
+            
+            const currentQty = prev[productId].quantity;
+            
+            // If empty or invalid, reset to 1
+            if (currentQty === '' || currentQty < 1) {
+                return {
+                    ...prev,
+                    [productId]: { ...prev[productId], quantity: 1 }
+                };
+            }
+
+            return prev;
         });
     };
 
@@ -92,10 +147,14 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
             if (!product) return null;
 
             const qty = selectedItems[id].quantity;
+            
+            // Ensure quantity is valid number
+            const validQty = typeof qty === 'number' && qty > 0 ? qty : 1;
+
             return {
                 ...product,
-                quantity: qty,
-                total: product.price * qty
+                quantity: validQty,
+                total: product.price * validQty
             };
         }).filter(Boolean);
 
@@ -167,25 +226,26 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                                         </div>
                                     </div>
 
-                                    {/* Quantity Controls */}
+                                    {/* UPDATED: Quantity Controls with Editable Input */}
                                     <div className={`flex items-center gap-2 transition-opacity ${selectedItems[product.id] ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
                                         <button 
                                             type="button"
-                                            onClick={() => updateQuantity(product.id, -1)}
-                                            className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-sm"
+                                            onClick={() => adjustQuantity(product.id, -1)}
+                                            className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
                                         >
                                             <Minus className="w-3 h-3" />
                                         </button>
                                         <input 
                                             type="text" 
-                                            value={selectedItems[product.id]?.quantity || 0}
-                                            readOnly
-                                            className="w-8 text-center bg-transparent text-sm font-bold text-slate-700 dark:text-slate-200 outline-none border-none"
+                                            value={selectedItems[product.id]?.quantity ?? 0}
+                                            onChange={(e) => handleQuantityInput(product.id, e.target.value)}
+                                            onBlur={() => handleQuantityBlur(product.id)}
+                                            className="w-10 text-center bg-white dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none border border-slate-200 dark:border-slate-600 rounded py-1 focus:ring-2 focus:ring-blue-500/50"
                                         />
                                         <button 
                                             type="button"
-                                            onClick={() => updateQuantity(product.id, 1)}
-                                            className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-sm"
+                                            onClick={() => adjustQuantity(product.id, 1)}
+                                            className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
                                         >
                                             <Plus className="w-3 h-3" />
                                         </button>
@@ -213,7 +273,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                         <button 
                             type="submit" 
                             disabled={Object.keys(selectedItems).length === 0}
-                            form = "add-item-form"
+                            form="add-item-form"
                             className="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed transition-colors shadow-md"
                         >
                             Add to List

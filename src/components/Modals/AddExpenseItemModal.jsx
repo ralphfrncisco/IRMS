@@ -87,14 +87,58 @@ function AddExpenseItemModal({ isOpen, onClose, onAdd }) {
         });
     };
 
-    const updateQuantity = (productId, delta) => {
+    // UPDATED: Handle button increment/decrement
+    const adjustQuantity = (productId, delta) => {
         setSelectedItems(prev => {
             if (!prev[productId]) return prev;
-            const newQty = Math.max(1, prev[productId].quantity + delta);
+            const currentQty = prev[productId].quantity;
+            const newQty = Math.max(1, currentQty + delta);
             return {
                 ...prev,
                 [productId]: { ...prev[productId], quantity: newQty }
             };
+        });
+    };
+
+    // NEW: Handle direct text input
+    const handleQuantityInput = (productId, value) => {
+        setSelectedItems(prev => {
+            if (!prev[productId]) return prev;
+            
+            // Allow empty input for user to clear and type
+            if (value === '') {
+                return {
+                    ...prev,
+                    [productId]: { ...prev[productId], quantity: '' }
+                };
+            }
+
+            const parsed = parseInt(value);
+            if (isNaN(parsed)) return prev;
+
+            return {
+                ...prev,
+                [productId]: { ...prev[productId], quantity: parsed }
+            };
+        });
+    };
+
+    // NEW: Handle input blur (when user leaves the field)
+    const handleQuantityBlur = (productId) => {
+        setSelectedItems(prev => {
+            if (!prev[productId]) return prev;
+            
+            const currentQty = prev[productId].quantity;
+            
+            // If empty or invalid, reset to 1
+            if (currentQty === '' || currentQty < 1) {
+                return {
+                    ...prev,
+                    [productId]: { ...prev[productId], quantity: 1 }
+                };
+            }
+
+            return prev;
         });
     };
 
@@ -142,10 +186,14 @@ function AddExpenseItemModal({ isOpen, onClose, onAdd }) {
             if (!product) return null;
 
             const qty = selectedItems[id].quantity;
+            
+            // Ensure quantity is valid number
+            const validQty = typeof qty === 'number' && qty > 0 ? qty : 1;
+
             return {
                 ...product,
-                quantity: qty,
-                total: product.price * qty
+                quantity: validQty,
+                total: product.price * validQty
             };
         }).filter(Boolean);
 
@@ -200,9 +248,9 @@ function AddExpenseItemModal({ isOpen, onClose, onAdd }) {
                     />
                 </div>
 
-                <div className = "overflow-y-auto pr-2">
+                <div className="overflow-y-auto pr-2">
 
-                    {/* Manual Input - FIXED: Removed max-height and overflow */}
+                    {/* Manual Input */}
                     <div className="mb-4 p-4 bg-slate-100/20 dark:bg-slate-800/20 border border-blue-400 dark:border-slate-700 rounded-xl">
                         <h3 className="text-sm font-bold text-blue-600 dark:text-blue-500 mb-3">Add a Non-existing Product</h3>
                         <div className="space-y-3">
@@ -351,25 +399,26 @@ function AddExpenseItemModal({ isOpen, onClose, onAdd }) {
                                             </div>
                                         </div>
 
-                                        {/* Quantity Controls */}
+                                        {/* UPDATED: Quantity Controls with Editable Input */}
                                         <div className={`flex items-center gap-2 transition-opacity ${selectedItems[product.id] ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
                                             <button 
                                                 type="button"
-                                                onClick={() => updateQuantity(product.id, -1)}
-                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-sm"
+                                                onClick={() => adjustQuantity(product.id, -1)}
+                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
                                             >
                                                 <Minus className="w-3 h-3" />
                                             </button>
                                             <input 
                                                 type="text" 
-                                                value={selectedItems[product.id]?.quantity || 0}
-                                                readOnly
-                                                className="w-8 text-center bg-transparent text-sm font-bold text-slate-700 dark:text-slate-200 outline-none border-none"
+                                                value={selectedItems[product.id]?.quantity ?? 0}
+                                                onChange={(e) => handleQuantityInput(product.id, e.target.value)}
+                                                onBlur={() => handleQuantityBlur(product.id)}
+                                                className="w-10 text-center bg-white dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none border border-slate-200 dark:border-slate-600 rounded py-1 focus:ring-2 focus:ring-blue-500/50"
                                             />
                                             <button 
                                                 type="button"
-                                                onClick={() => updateQuantity(product.id, 1)}
-                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-sm"
+                                                onClick={() => adjustQuantity(product.id, 1)}
+                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
                                             >
                                                 <Plus className="w-3 h-3" />
                                             </button>

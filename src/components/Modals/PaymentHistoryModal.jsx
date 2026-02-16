@@ -109,7 +109,6 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                        {/* 1. MAP ONLY THE DATA ROWS */}
                                         {paymentHistory.map((payment, index) => (
                                             <tr key={payment.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                                 <td className="p-3 text-center text-sm font-medium text-slate-600 dark:text-slate-400">
@@ -124,7 +123,6 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
                                             </tr>
                                         ))}
 
-                                        {/* 2. PLACE THE TOTAL ROW OUTSIDE THE MAP */}
                                         <tr className="bg-slate-50/50 dark:bg-slate-800/50 font-bold">
                                             <td colSpan="2" className="p-3 text-right text-xs uppercase tracking-wider text-slate-500">
                                                 Total Paid:
