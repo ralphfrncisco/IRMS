@@ -109,11 +109,11 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
 
     return (
         <div 
-            className="fixed inset-0 bg-slate-900/60 z-[999] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-slate-900/60 z-[999] flex items-center justify-center overflow-y-auto p-4"
             onClick={onClose}
         >
             <div 
-                className="flex flex-col h-auto md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200" 
+                className="flex flex-col mt-30 md:mt-0 h-auto md:max-h-[50vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200" 
                 onClick={e => e.stopPropagation()}
             >
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">

@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User } from 'lucide-react';
 import { supabase } from "../lib/supabase";
+import noProfile from "../assets/no-profile.png";
+import AccountSettingsModal from './../components/Modals/AccountSettingsModal'; // Add this
+import ChangePasswordModal from './../components/Modals/ChangePasswordModal'; // Add this
 
 function Header({ onToggleSidebar, onRoleLoaded }) {
     // --- THEME STATE ---
@@ -15,6 +18,10 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
     const [isLoading, setIsLoading] = useState(true);
     const menuRef = useRef(null);
     const notifRef = useRef(null);
+
+    // --- MODAL STATE (NEW) ---
+    const [isAccountSettingsOpen, setIsAccountSettingsOpen] = useState(false);
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     // --- FETCH PROFILE DATA ---
     useEffect(() => {
@@ -31,7 +38,6 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
 
                     if (!error && data && isMounted) {
                         setProfile(data);
-                        // CRITICAL FIX: Pass the role to the parent so Sidebar can see it
                         if (onRoleLoaded) onRoleLoaded(data.role);
                     }
                 }
@@ -83,104 +89,130 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
     }, []);
 
     return (
-        <div className="sticky top-0 z-50 w-full flex items-center justify-between p-4 py-5 gap-2 border-b transition-colors duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+        <>
+            <div className="sticky top-0 z-50 w-full flex items-center justify-between p-4 py-5 gap-2 border-b transition-colors duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
 
-            <div className="flex items-center gap-3">
-                <button
-                    className="hidden md:block p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
-                    onClick={onToggleSidebar}
-                >
-                    <Menu className="w-5 h-5" />
-                </button>
-
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-                    Dashboard
-                </h1>
-            </div>
-
-            <div className="flex items-center space-x-3">
-                <button
-                    onClick={() => setDarkMode(!darkMode)}
-                    className="p-2.5 rounded-xl transition-colors hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
-                >
-                    {darkMode ? (
-                        <Moon className="w-5 h-5 text-blue-500" />
-                    ) : (
-                        <Sun className="w-5 h-5 text-yellow-400" />
-                    )}
-                </button>
-
-                <div className="relative" ref={notifRef}>
+                <div className="flex items-center gap-3">
                     <button
-                        onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
-                        className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'hover:bg-gray-200/50 dark:hover:bg-slate-800'}`}
+                        className="hidden md:block p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
+                        onClick={onToggleSidebar}
                     >
-                        <Bell className="w-5 h-5" />
-                        <span className="absolute -top-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">3</span>
+                        <Menu className="w-5 h-5" />
                     </button>
 
-                    {isNotifMenuOpen && (
-                        <div className="absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
-                            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                                <h3 className="font-bold text-slate-800 dark:text-white">Notifications</h3>
-                                <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 px-2 py-0.5 rounded-full">3 New</span>
-                            </div>
-                            <div className="max-h-[300px] overflow-y-auto">
-                                <div className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
-                                    <p className="text-sm font-semibold text-slate-800 dark:text-white">New Purchase Order</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ORD-1005 has been fully paid.</p>
-                                    <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+                        Dashboard
+                    </h1>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                    <button
+                        onClick={() => setDarkMode(!darkMode)}
+                        className="p-2.5 rounded-xl transition-colors hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
+                    >
+                        {darkMode ? (
+                            <Moon className="w-5 h-5 text-blue-500" />
+                        ) : (
+                            <Sun className="w-5 h-5 text-yellow-400" />
+                        )}
+                    </button>
+
+                    <div className="relative" ref={notifRef}>
+                        <button
+                            onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
+                            className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'hover:bg-gray-200/50 dark:hover:bg-slate-800'}`}
+                        >
+                            <Bell className="w-5 h-5" />
+                            <span className="absolute -top-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">3</span>
+                        </button>
+
+                        {isNotifMenuOpen && (
+                            <div className="absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
+                                <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                                    <h3 className="font-bold text-slate-800 dark:text-white">Notifications</h3>
+                                    <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 px-2 py-0.5 rounded-full">3 New</span>
+                                </div>
+                                <div className="max-h-[300px] overflow-y-auto">
+                                    <div className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
+                                        <p className="text-sm font-semibold text-slate-800 dark:text-white">New Purchase Order</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ORD-1005 has been fully paid.</p>
+                                        <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* --- USER PROFILE DROPDOWN --- */}
-                <div className="relative" ref={menuRef}>
-                    <div 
-                      className="flex items-center gap-3 pl-3 border-l border-slate-300 dark:border-slate-700 cursor-pointer group"
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    >
-                      <img
-                        src={profile?.avatar_url || "https://cdn-icons-png.flaticon.com/512/4042/4042171.png"}
-                        alt="User"
-                        className="w-8 h-8 rounded-full ring-2 ring-blue-500 transition-transform group-hover:scale-105"
-                      />
-                      <div className="hidden md:block">
-                        <p className="text-sm font-medium text-slate-700 dark:text-white">
-                          {isLoading ? "Fetching..." : (profile?.full_name || "Guest User")}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {isLoading ? "Please wait" : (profile?.role || "Staff")}
-                        </p>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                        )}
                     </div>
 
-                    {isUserMenuOpen && (
-                        <div className="absolute right-2 mt-4 w-50 md:w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50 px-2 animate-in fade-in zoom-in duration-100">
-                            <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                Account Settings
-                            </button>
-                            <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <KeyRound className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                Change Password
-                            </button>
-                            <div className="my-1 border-t border-slate-100 dark:border-slate-700" />
-                            <button
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                onClick={handleLogout}
-                            >
-                                <LogOut className="w-4 h-4" />
-                                Logout
-                            </button>
+                    {/* --- USER PROFILE DROPDOWN --- */}
+                    <div className="relative" ref={menuRef}>
+                        <div 
+                          className="flex items-center gap-3 pl-3 border-l border-slate-300 dark:border-slate-700 cursor-pointer group"
+                          onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                        >
+                          <img
+                            src={profile?.avatar_url || noProfile}
+                            alt="User"
+                            className="w-8 h-8 rounded-full ring-2 ring-blue-500 transition-transform group-hover:scale-105"
+                          />
+                          <div className="hidden md:block">
+                            <p className="text-sm font-medium text-slate-700 dark:text-white">
+                              {isLoading ? "Fetching..." : (profile?.full_name || "Guest User")}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              {isLoading ? "Please wait" : (profile?.role || "Staff")}
+                            </p>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                         </div>
-                    )}
+
+                        {isUserMenuOpen && (
+                            <div className="absolute right-2 mt-4 w-50 md:w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50 px-2 animate-in fade-in zoom-in duration-100">
+                                <button 
+                                    onClick={() => {
+                                        setIsAccountSettingsOpen(true);
+                                        setIsUserMenuOpen(false);
+                                    }}
+                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                >
+                                    <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    Account Settings
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        setIsChangePasswordOpen(true);
+                                        setIsUserMenuOpen(false);
+                                    }}
+                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                >
+                                    <KeyRound className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    Change Password
+                                </button>
+                                <div className="my-1 border-t border-slate-100 dark:border-slate-700" />
+                                <button
+                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Modals */}
+            <AccountSettingsModal 
+                isOpen={isAccountSettingsOpen}
+                onClose={() => setIsAccountSettingsOpen(false)}
+                currentProfile={profile}
+            />
+
+            <ChangePasswordModal 
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+            />
+        </>
     )
 }
 
