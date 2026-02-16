@@ -266,7 +266,7 @@ function TableSection() {
                                     )}
                                     {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
                                     {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className = "w-[200px] lg:w-full md:max-w-[400px] truncate">{order.purchased_items}</p></td>}
-                                    {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">{formatCurrency(order.amount)}</td>}
+                                    {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-slate-700 dark:text-white">{formatCurrency(order.amount)}</td>}
                                     {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(order.date)}</td>}
                                     {visibleColumns['STATUS'] && (
                                         <td className="p-4 text-center">
