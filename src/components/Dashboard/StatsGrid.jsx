@@ -131,7 +131,7 @@ function StatsGrid() {
             textColor: "text-orange-500" 
         },
         { 
-            title: "Need Restock", 
+            title: "Critical Stock", 
             value: stats.needRestock.toLocaleString(), 
             icon: AlertTriangle, 
             bgColor: "bg-red-500/10", 

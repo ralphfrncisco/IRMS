@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
 import { Plus, Funnel, Loader2 } from 'lucide-react'; // Added Loader2
 import { supabase } from "../../lib/supabase";
+import LedgerHistoryTable from './LedgerHistoryTable';
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter'; 
@@ -252,7 +253,9 @@ function TableSection() {
                     }} 
                 />
             </div>
-            <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
+            <LedgerHistoryTable/>
+            
+            {/* <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-1 xl:flex xl:items-center gap-4 w-full md:w-auto">
                     <div className="flex items-center justify-between w-full py-2">
                         <div>
@@ -394,7 +397,7 @@ function TableSection() {
                         fetchSalary()
                     }} 
                 />
-            </div>
+            </div> */}
         </div>
     )
 }
