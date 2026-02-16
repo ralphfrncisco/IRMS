@@ -36,7 +36,6 @@ function RevenueChart() {
       const mondayStr = monday.toISOString().split('T')[0];
       const sundayStr = sunday.toISOString().split('T')[0];
 
-      console.log('🗓️ Showing LAST week:', { mondayStr, sundayStr });
 
       // Rest of your code stays the same...
       const { data: salesData, error: salesError } = await supabase
@@ -47,7 +46,6 @@ function RevenueChart() {
 
       if (salesError) throw salesError;
 
-      console.log('💰 Sales found:', salesData?.length || 0);
 
       const { data: ledgerData, error: ledgerError } = await supabase
         .from('ledger')
@@ -56,21 +54,11 @@ function RevenueChart() {
         .eq('week_end', sundayStr)
         .single();
 
-      console.log('📋 Ledger query:', { 
-        mondayStr, 
-        sundayStr, 
-        found: !!ledgerData, 
-        error: ledgerError?.message,
-        expense: ledgerData?.total_expense 
-      });
-
       let totalWeeklyExpense = 0;
 
       if (ledgerData && !ledgerError) {
         totalWeeklyExpense = Number(ledgerData.total_expense) || 0;
-        console.log('✅ Using expense from ledger:', totalWeeklyExpense);
       } else {
-        console.log('⚠️ Ledger not found, calculating from ExpensesTable');
         
         const { data: expensesData, error: expensesError } = await supabase
           .from('ExpensesTable')
@@ -80,12 +68,10 @@ function RevenueChart() {
 
         if (!expensesError && expensesData) {
           totalWeeklyExpense = expensesData.reduce((sum, exp) => sum + (Number(exp.amount) || 0), 0);
-          console.log('✅ Calculated expense from ExpensesTable:', totalWeeklyExpense);
         }
       }
 
       const dailyExpense = totalWeeklyExpense / 7;
-      console.log('📊 Daily expense (total / 7):', dailyExpense);
 
       const dailyRevenue = {
         Monday: 0,
@@ -100,9 +86,7 @@ function RevenueChart() {
       salesData.forEach(sale => {
         const saleDate = new Date(sale.date + 'T00:00:00');
         const dayName = saleDate.toLocaleDateString('en-US', { weekday: 'long' });
-        
-        console.log('📅 Sale:', { date: sale.date, dayName, amount: sale.amount });
-        
+
         if (dailyRevenue[dayName] !== undefined) {
           dailyRevenue[dayName] += Number(sale.amount) || 0;
         }
@@ -115,11 +99,8 @@ function RevenueChart() {
         expenses: Math.round(dailyExpense * 100) / 100
       }));
 
-      console.log('📊 Final chart data:', formattedData);
-
       setChartData(formattedData);
     } catch (err) {
-      console.error('❌ Error fetching weekly data:', err);
     } finally {
       setLoading(false);
     }
@@ -164,8 +145,9 @@ function RevenueChart() {
   }
 
   return (
-    <div className="p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-      <div className="flex items-center justify-between mb-6">
+    // Reduced padding slightly to allow chart more room
+    <div className="p-4 sm:p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h3 className="text-xl font-bold text-slate-800 dark:text-white">
             Revenue Chart
@@ -189,7 +171,8 @@ function RevenueChart() {
 
       <div className="h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          {/* Adjusted margins to use more of the horizontal space */}
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid 
               strokeDasharray="3 3" 
               stroke={darkMode ? "#334155" : "#e2e8f0"} 
@@ -201,6 +184,7 @@ function RevenueChart() {
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              tick={{ dy: 10 }} 
             />
             <YAxis 
               stroke={darkMode ? "#94a3b8" : "#64748b"}
@@ -216,13 +200,12 @@ function RevenueChart() {
                 border: "none",
                 borderRadius: "12px",
                 boxShadow: "0 10px 40px rgba(0, 0, 0, 0.2)",
-                color: darkMode ? "#f8fafc" : "#1e293b"
               }}
-              itemStyle={{ color: darkMode ? "#cbd5e1" : "#475569" }}
               formatter={(value) => `₱${value.toLocaleString()}`}
             />
-            <Bar dataKey="revenue" fill="url(#revenueGradient)" radius={[4, 4, 0, 0]} maxBarSize={50} />
-            <Bar dataKey="expenses" fill="url(#expensesGradient)" radius={[4, 4, 0, 0]} maxBarSize={50} />
+            {/* Increased maxBarSize slightly */}
+            <Bar dataKey="revenue" fill="url(#revenueGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} />
+            <Bar dataKey="expenses" fill="url(#expensesGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} />
             
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
