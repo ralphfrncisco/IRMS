@@ -20,7 +20,6 @@ function AccountSettingsModal({ isOpen, onClose, currentProfile }) {
             setProfile({
                 full_name: currentProfile.full_name || '',
                 email_address: currentProfile.email_address || '',
-                phone: currentProfile.phone || '',
                 role: currentProfile.role || '',
                 avatar_url: currentProfile.avatar_url || ''
             });
@@ -79,7 +78,7 @@ function AccountSettingsModal({ isOpen, onClose, currentProfile }) {
                 .from('account')
                 .update({
                     full_name: profile.full_name,
-                    phone: profile.phone,
+                    email_address: profile.email_address,
                     avatar_url: avatarUrl
                 })
                 .eq('user_id', user.id);
@@ -101,7 +100,7 @@ function AccountSettingsModal({ isOpen, onClose, currentProfile }) {
     return (
         <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center overflow-y-auto p-4">
             <div 
-                className="mt-30 md:mt-0 h-auto md:max-h-[50vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-800"
+                className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-800"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -116,14 +115,14 @@ function AccountSettingsModal({ isOpen, onClose, currentProfile }) {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     {/* Avatar Upload */}
                     <div className="flex flex-col items-center gap-4">
                         <div className="relative">
                             <img 
                                 src={avatarPreview} 
                                 alt="Avatar" 
-                                className="w-24 h-24 rounded-full ring-4 ring-blue-500 object-cover"
+                                className="w-20 h-20 rounded-full ring-4 ring-blue-500 object-cover"
                             />
                             <label 
                                 htmlFor="avatar-upload" 
@@ -177,24 +176,6 @@ function AccountSettingsModal({ isOpen, onClose, currentProfile }) {
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed</p>
                     </div>
 
-                    {/* Phone */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            Phone Number
-                        </label>
-                        <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={profile.phone}
-                                onChange={handleInputChange}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="+63 912 345 6789"
-                            />
-                        </div>
-                    </div>
-
                     {/* Role (Read-only) */}
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -209,10 +190,11 @@ function AccountSettingsModal({ isOpen, onClose, currentProfile }) {
                                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed"
                             />
                         </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Role cannot be changed</p>
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-3 pt-1">
                         <button
                             type="button"
                             onClick={onClose}

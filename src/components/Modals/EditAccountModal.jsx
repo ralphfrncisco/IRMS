@@ -109,11 +109,11 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
 
     return (
         <div 
-            className="fixed inset-0 bg-slate-900/60 z-[999] flex items-center justify-center overflow-y-auto p-4"
+            className="fixed inset-0 bg-slate-900/60 z-[999] flex items-center justify-center overflow-y-auto p-2 md:p-4"
             onClick={onClose}
         >
             <div 
-                className="flex flex-col mt-30 md:mt-0 h-auto md:max-h-[50vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200" 
+                className="flex flex-col h-auto md:max-h-[70vh] mt-20 md:mt-0 space-y-4 bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200 overflow-y-auto" 
                 onClick={e => e.stopPropagation()}
             >
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
@@ -123,7 +123,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
                     </button>
                 </div>
 
-                <form id="edit-account-form" onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:pr-2 mb-10 overflow-y-auto">
+                <form id="edit-account-form" onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:pr-2">
                     <div className="w-full space-y-2">
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Profile Image</label>
                         <div
@@ -178,7 +178,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
                                 className="w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border outline-none transition-all duration-300 border-slate-300 dark:border-slate-100/20 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
-                        <div className="w-full">
+                        <div className="w-full mb-7">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-white/90 mb-1">New Password (Optional)</label>
                             <div className="flex items-center justify-between w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-100/20 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500">
                                 <input 
@@ -196,7 +196,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
                     </div>
                 </form>
 
-                <div className="pt-5 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 flex-shrink-0">
+                <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 flex-shrink-0">
                     <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
                         Cancel
                     </button>
