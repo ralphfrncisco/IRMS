@@ -162,28 +162,30 @@ function RevenueChart() {
     // Reduced padding slightly to allow chart more room
     <div className="p-4 sm:p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-        <div>
+        <div className = "w-full">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white">
             Revenue Chart
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Daily Revenue vs Total Expense (This Week)
+          <p className="block text-sm text-slate-500 dark:text-slate-400">
+            Daily Revenue vs Total Expense
           </p>
         </div>
 
-        <div className="flex items-center space-x-4">
+        {/* <div className="hidden md:flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
             <span className="text-sm text-slate-600 dark:text-slate-300">Revenue</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-slate-400 rounded-full"></div>
-            <span className="text-sm text-slate-600 dark:text-slate-300">Expenses</span>
-          </div>
+        </div> */}
+
+        <div className = "hidden md:flex w-full justify-end items-center mt-5 pr-2">
+          <span className="text-sm font-normal text-slate-700 dark:text-slate-300">
+            Total Weekly Expenses: <span className = "text-lg font-semibold text-slate-700 dark:text-slate-200">₱ {chartData.length > 0 ? chartData[0].expenses.toLocaleString() : '0'}</span>
+          </span>
         </div>
       </div>
 
-      <div className="h-80 w-full">
+      <div className="h-85 w-full pb-12">
         <ResponsiveContainer width="100%" height="100%">
           {/* Adjusted margins to use more of the horizontal space */}
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -219,7 +221,7 @@ function RevenueChart() {
             />
             {/* Increased maxBarSize slightly */}
             <Bar dataKey="revenue" fill="url(#revenueGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} />
-            <Bar dataKey="expenses" fill="url(#expensesGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} />
+            {/* <Bar dataKey="expenses" fill="url(#expensesGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} /> */}
             
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -233,6 +235,12 @@ function RevenueChart() {
             </defs>
           </BarChart>
         </ResponsiveContainer>
+
+        <div className = "flex md:hidden justify-end items-center mt-5 pr-2">
+          <span className="text-sm font-normal text-slate-700 dark:text-slate-300">
+            Total Weekly Expenses: <span className = "text-lg font-semibold text-slate-700 dark:text-slate-200">₱ {chartData.length > 0 ? chartData[0].expenses.toLocaleString() : '0'}</span>
+          </span>
+        </div>
       </div>
     </div>
   );
