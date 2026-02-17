@@ -15,29 +15,40 @@ function RevenueChart() {
     try {
       setLoading(true);
 
-      // Get LAST week's Monday and Sunday (more useful data)
       const now = new Date();
-      
-      // Go back to last week
-      const lastWeek = new Date(now);
-      lastWeek.setDate(now.getDate() - 7);
-      
-      const currentDay = lastWeek.getDay();
-      const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
-      
-      const monday = new Date(lastWeek);
-      monday.setDate(lastWeek.getDate() - daysFromMonday);
+      const currentDay = now.getDay(); // 0=Sun, 1=Mon, 2=Tue...
+
+      console.log('📅 Today:', now.toISOString(), '| Day of week:', currentDay);
+
+      // ✅ FIXED: Properly calculate Monday
+      // If Sunday (0), go back 6 days
+      // If Monday (1), go back 0 days
+      // If Tuesday (2), go back 1 day... etc
+      const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
+
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - daysToMonday);
       monday.setHours(0, 0, 0, 0);
 
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
       sunday.setHours(23, 59, 59, 999);
 
-      const mondayStr = monday.toISOString().split('T')[0];
-      const sundayStr = sunday.toISOString().split('T')[0];
+      // ✅ Use LOCAL date string to avoid timezone offset issues
+      const toLocalDateStr = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
 
+      const mondayStr = toLocalDateStr(monday);
+      const sundayStr = toLocalDateStr(sunday);
 
-      // Rest of your code stays the same...
+      console.log('🗓️ Current week:', { mondayStr, sundayStr });
+      // Expected: mondayStr: '2026-02-16', sundayStr: '2026-02-22'
+
+      // Fetch sales for current week
       const { data: salesData, error: salesError } = await supabase
         .from('SalesTable')
         .select('date, amount')
@@ -46,33 +57,30 @@ function RevenueChart() {
 
       if (salesError) throw salesError;
 
+      console.log('💰 Sales this week:', salesData);
 
-      const { data: ledgerData, error: ledgerError } = await supabase
-        .from('ledger')
-        .select('total_expense')
-        .eq('week_start', mondayStr)
-        .eq('week_end', sundayStr)
-        .single();
+      // Fetch expenses for current week
+      const { data: expensesData, error: expensesError } = await supabase
+        .from('ExpensesTable')
+        .select('amount')
+        .gte('date', mondayStr)
+        .lte('date', sundayStr);
 
-      let totalWeeklyExpense = 0;
+      if (expensesError) throw expensesError;
 
-      if (ledgerData && !ledgerError) {
-        totalWeeklyExpense = Number(ledgerData.total_expense) || 0;
-      } else {
-        
-        const { data: expensesData, error: expensesError } = await supabase
-          .from('ExpensesTable')
-          .select('amount')
-          .gte('date', mondayStr)
-          .lte('date', sundayStr);
+      console.log('💸 Expenses this week:', expensesData);
 
-        if (!expensesError && expensesData) {
-          totalWeeklyExpense = expensesData.reduce((sum, exp) => sum + (Number(exp.amount) || 0), 0);
-        }
-      }
+      // Calculate total weekly expense
+      const totalWeeklyExpense = expensesData.reduce((sum, exp) => {
+        return sum + (Number(exp.amount) || 0);
+      }, 0);
 
+      console.log('📊 Total weekly expense:', totalWeeklyExpense);
+
+      // Divide by 7 to get daily expense
       const dailyExpense = totalWeeklyExpense / 7;
 
+      // Group sales by day
       const dailyRevenue = {
         Monday: 0,
         Tuesday: 0,
@@ -86,7 +94,9 @@ function RevenueChart() {
       salesData.forEach(sale => {
         const saleDate = new Date(sale.date + 'T00:00:00');
         const dayName = saleDate.toLocaleDateString('en-US', { weekday: 'long' });
-
+        
+        console.log('📅 Sale:', { date: sale.date, dayName, amount: sale.amount });
+        
         if (dailyRevenue[dayName] !== undefined) {
           dailyRevenue[dayName] += Number(sale.amount) || 0;
         }
@@ -96,11 +106,15 @@ function RevenueChart() {
       const formattedData = daysOfWeek.map(day => ({
         day,
         revenue: dailyRevenue[day],
-        expenses: Math.round(dailyExpense * 100) / 100
+        // expenses: Math.round(dailyExpense * 100) / 100
+        expenses:totalWeeklyExpense
       }));
+
+      console.log('📊 Final chart data:', formattedData);
 
       setChartData(formattedData);
     } catch (err) {
+      console.error('❌ Error fetching weekly data:', err);
     } finally {
       setLoading(false);
     }

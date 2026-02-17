@@ -53,7 +53,7 @@ function PaymentStatusFilter({ options, initialValue, onSelect, iconProps }) {
             </button>
             {isOpen && (
                 <ul
-                    className="absolute z-10 top-full mt-2 w-full left-0 bg-white dark:bg-slate-700 shadow-xl rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden"
+                    className="absolute z-60 top-full mt-2 w-full left-0 bg-white dark:bg-slate-700 shadow-xl rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden"
                     role="listbox"
                 >
                     {selectableOptions.map((option) => (
