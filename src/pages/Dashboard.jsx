@@ -7,7 +7,7 @@ import TableSection from '../components/Dashboard/TableSection';
 function Dashboard() {
   
   return (
-    <div className = "pb-10">
+    <div className = "mb-30 md:mb-0">
       {/* <p className={`mt-2 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
         Welcome back to your admin panel.
       </p> */}
