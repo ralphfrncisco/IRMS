@@ -76,7 +76,7 @@ function TableSection() {
             const { data, error } = await supabase
                 .from('SalesTable')
                 .select('*')
-                .order('order_id', { ascending: false });
+                .order('date', { ascending: false });
 
             if (error) throw error;
             setOrders(data || []);
