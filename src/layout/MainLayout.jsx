@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import FloatingNotifications from "../components/Notification";
 import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {
@@ -31,6 +32,9 @@ const MainLayout = () => {
           <Outlet context={{ darkMode }} /> 
         </main>
       </div>
+
+      {/* ✅ Floating Notifications - Global across all pages */}
+      <FloatingNotifications />
     </div>
   );
 };

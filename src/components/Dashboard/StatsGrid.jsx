@@ -158,7 +158,7 @@ function StatsGrid() {
             {statsData.map((item, index) => (
                 <div 
                     key={index} 
-                    className="p-6 py-8 rounded-2xl border transition-all duration-300 hover:shadow-lg bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 group"
+                    className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 group"
                 >
                     <div className="flex items-start justify-between">
                         <div className="flex-1">

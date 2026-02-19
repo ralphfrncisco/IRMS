@@ -161,7 +161,7 @@ function RevenueChart() {
   return (
     // Reduced padding slightly to allow chart more room
     <div className="p-4 sm:p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
         <div className = "w-full">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white">
             Revenue Chart
@@ -180,12 +180,12 @@ function RevenueChart() {
 
         <div className = "hidden md:flex w-full justify-end items-center mt-5 pr-2">
           <span className="text-sm font-normal text-slate-700 dark:text-slate-300">
-            Total Weekly Expenses: <span className = "text-lg font-semibold text-slate-700 dark:text-slate-200">₱ {chartData.length > 0 ? chartData[0].expenses.toLocaleString() : '0'}</span>
+            Total Expense of this Week: <span className = "text-lg font-semibold text-slate-700 dark:text-slate-200">₱ {chartData.length > 0 ? chartData[0].expenses.toLocaleString() : '0'}</span>
           </span>
         </div>
       </div>
 
-      <div className="h-85 w-full pb-12">
+      <div className="h-85 w-full pb-12 md:pb-7">
         <ResponsiveContainer width="100%" height="100%">
           {/* Adjusted margins to use more of the horizontal space */}
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -210,9 +210,9 @@ function RevenueChart() {
               tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`}
             />
             <Tooltip
-              cursor={{ fill: darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.2)' }}
+              cursor={{ fill: darkMode ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.1)' }}
               contentStyle={{
-                backgroundColor: darkMode ? "#1e293b" : "#ffffff",
+                backgroundColor: darkMode ? "#f3f3f5" : "#ffffff",
                 border: "none",
                 borderRadius: "12px",
                 boxShadow: "0 10px 40px rgba(0, 0, 0, 0.2)",
