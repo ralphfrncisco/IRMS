@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { Loader2 } from 'lucide-react';
 
 // Predefined colors for the pie chart
-const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#f97316'];
+const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#06b6d4', '#f97316'];
 
 function SalesChart() {
     const { darkMode } = useOutletContext();

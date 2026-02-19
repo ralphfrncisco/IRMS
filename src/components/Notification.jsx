@@ -75,11 +75,11 @@ function Notification() {
   return (
     <>
 
-      <div className="fixed top-22 right-6 z-[9999] space-y-3 pointer-events-none">
+      <div className="fixed top-22 right-1 md:right-6 z-[9999] space-y-3 pointer-events-none">
         {notifications.map((notification, index) => (
           <div
             key={notification.id}
-            className={`notification-item min-w-[320px] max-w-md p-4 rounded-xl border shadow-xl pointer-events-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 ${
+            className={`notification-item w-[300px] md:w-[330px] p-4 rounded-xl border shadow-xl pointer-events-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 ${
                 notification.isExiting ? 'exiting' : ''
             }`}
             style={{ animationDelay: notification.isExiting ? '0s' : `${index * 0.1}s` }}
