@@ -4,12 +4,6 @@ import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
 
-const recentOrders = [
-    { id: 'ORD-1001', customer: 'John Doe', product: 'Wireless Headphones', amount: '$99.99', status: 'Fully Paid', date: '2026-01-11' },
-    { id: 'ORD-1002', customer: 'Jane Smith', product: 'Smart Watch', amount: '$199.99', status: 'With Balance', date: '2026-01-10' },
-    { id: 'ORD-1003', customer: 'Mike Johnson', product: 'Gaming Laptop', amount: '$1299.99', status: 'Unpaid', date: '2026-01-09' },
-];
-
 function AddPurchaseModal({ isOpen, onClose }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -20,6 +14,37 @@ function AddPurchaseModal({ isOpen, onClose }) {
     
     const [receiptFile, setReceiptFile] = useState(null);
     const [receiptFileName, setReceiptFileName] = useState('No file chosen');
+
+    // ✅ NEW: State for customer list from database
+    const [customerList, setCustomerList] = useState([]);
+    const [loadingCustomers, setLoadingCustomers] = useState(false);
+
+    // ✅ NEW: Fetch customers from database
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            setLoadingCustomers(true);
+            try {
+                const { data, error } = await supabase
+                    .from('customers')
+                    .select('full_name')
+                    .order('full_name', { ascending: true });
+
+                if (error) throw error;
+
+                // Extract unique customer names
+                const names = data.map(customer => customer.full_name);
+                setCustomerList(names);
+            } catch (err) {
+                console.error('Error fetching customers:', err);
+            } finally {
+                setLoadingCustomers(false);
+            }
+        };
+
+        if (isOpen) {
+            fetchCustomers();
+        }
+    }, [isOpen]);
 
     // Helper to get PH Date in YYYY-MM-DD format for HTML5 inputs
     const getPHDate = () => {
@@ -40,16 +65,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [formValues, setFormValues] = useState({
         PONumber: '',
         customer: '',
-        transactionDate: getPHDate(), // Adaptive to current PH date
+        transactionDate: getPHDate(),
         remarks: '',
         amount: '',
         remainingBalance: '',
     });
-
-    const customerList = useMemo(() => {
-        const names = [...new Set(recentOrders.map(order => order.customer))];
-        return names.sort((a, b) => a.localeCompare(b));
-    }, []);
 
     const totalAmount = useMemo(() => {
         return purchaseItems.reduce((sum, item) => sum + item.total, 0);
@@ -66,9 +86,12 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }));
     }, [totalAmount, formValues.amount]);
 
-    const filteredCustomers = customerList.filter(name =>
-        (name || '').toLowerCase().includes((formValues.customer || '').toLowerCase())
-    );
+    // ✅ Filter customers based on input
+    const filteredCustomers = useMemo(() => {
+        return customerList.filter(name =>
+            name.toLowerCase().includes((formValues.customer || '').toLowerCase())
+        );
+    }, [customerList, formValues.customer]);
 
     useEffect(() => {
         const prepareModal = async () => {
@@ -88,7 +111,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     setFormValues({
                         PONumber: `ORD-${nextIdNum.toString().padStart(4, '0')}`,
                         customer: '',
-                        transactionDate: getPHDate(), // Adaptive logic
+                        transactionDate: getPHDate(),
                         remarks: '',
                         amount: '',
                         remainingBalance: '',
@@ -290,14 +313,44 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
 
                         <div className="relative max-w-[83vw]">
-                            <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
-                            <input type="text" id="CustomerName" name="customer" value={formValues.customer || ''} onChange={handleCustomerChange} onFocus={() => setIsDropdownOpen(true)} onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)} placeholder='select or type a customer' autoComplete="off" className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                            <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Customer Name
+                            </label>
+                            <input 
+                                type="text" 
+                                id="CustomerName" 
+                                name="customer" 
+                                value={formValues.customer || ''} 
+                                onChange={handleCustomerChange} 
+                                onFocus={() => setIsDropdownOpen(true)} 
+                                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)} 
+                                placeholder={loadingCustomers ? 'Loading customers...' : 'Select or type a customer'} 
+                                autoComplete="off" 
+                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
+                            />
+                            
+                            {/* Dropdown List */}
                             {isDropdownOpen && filteredCustomers.length > 0 && (
-                                <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
+                                <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
                                     {filteredCustomers.map((name, index) => (
-                                        <li key={index} onClick={() => selectCustomer(name)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">{name}</li>
+                                        <li 
+                                            key={index} 
+                                            onClick={() => selectCustomer(name)} 
+                                            className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
+                                        >
+                                            {name}
+                                        </li>
                                     ))}
                                 </ul>
+                            )}
+
+                            {/* No results message */}
+                            {isDropdownOpen && formValues.customer && filteredCustomers.length === 0 && !loadingCustomers && (
+                                <div className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-3 px-4">
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
+                                        No customers found. Type to create new.
+                                    </p>
+                                </div>
                             )}
                         </div>
 
