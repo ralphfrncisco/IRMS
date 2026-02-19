@@ -33,7 +33,8 @@ function Sidebar({ collapsed, darkMode, userRole }) {
     const restrictedIds = ['activityLog', 'accounts'];
     
     if (restrictedIds.includes(item.id)) {
-       return userRole === 'Administrator';
+        // Fix: Use OR (||) or .includes() to check for multiple roles
+        return userRole === 'Administrator' || userRole === 'Super Admin';
     }
     return true;
   });

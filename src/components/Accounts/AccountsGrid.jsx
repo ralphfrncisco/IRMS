@@ -20,6 +20,7 @@ function AccountsGrid() {
             const { data, error } = await supabase
                 .from('account')
                 .select('*')
+                .in('role', ['Administrator', 'Staff'])
                 .order('full_name', { ascending: true });
 
             if (!error) {
