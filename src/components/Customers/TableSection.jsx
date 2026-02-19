@@ -223,10 +223,10 @@ function TableSection() {
                                 <td className="p-4 text-center text-sm">
                                     {customer.contact_number}
                                 </td>
-                                <td className="p-4 text-center text-sm font-normal">
+                                <td className="p-4 text-center text-sm font-semibold text-amber-600 dark:text-amber-500">
                                     {formatCurrency(customer.credit_limit)}
                                 </td>
-                                <td className="p-4 text-center text-sm font-normal">
+                                <td className="p-4 text-center text-sm font-semibold text-red-600 dark:text-red-500">
                                     {formatCurrency(customer.remaining_balance)}
                                 </td>
                                 <td className="p-4 text-center">
