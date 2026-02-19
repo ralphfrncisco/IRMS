@@ -14,7 +14,7 @@ function RecentOrdersTable() {
             const { data, error } = await supabase
                 .from('SalesTable')
                 .select('*')
-                .order('order_id', { ascending: false })
+                .order('date', { ascending: false })
                 .limit(4);
 
             if (error) throw error;
