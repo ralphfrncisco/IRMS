@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, PiggyBank, 
-  Package, FileText, Users, UserCog,
+  Package, FileText, User, Users, UserCog, ContactRound,
   ArrowLeftRight, ChevronDown
 } from 'lucide-react';
 
@@ -20,7 +20,15 @@ const menuItems = [
     ]
   },
   { id: "inventory", icon: Package, label: "Inventory", path: "/inventory" },
-  { id: "suppliers", icon: Users, label: "Suppliers", path: "/suppliers" },
+  {
+    id: "entities",
+    icon: User,
+    label: "Entities",
+    submenu: [
+      { id: "customers", label: "Customers", path: "/customers" },
+      { id: "suppliers", label: "Suppliers", path: "/suppliers" },
+    ]
+  },
   { id: "activityLog", icon: FileText, label: "Activity Logs", path: "/activityLog" },
   { id: "accounts", icon: UserCog, label: "Accounts", path: "/accounts" },
 ];

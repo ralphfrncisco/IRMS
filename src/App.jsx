@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 
 import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
+import Customers from "./pages/Customers";
 import Inventory from "./pages/Inventory";
 import Sales from './pages/Transactions/Sales/SalesPage'; 
 import Expenses from './pages/Transactions/Expenses/ExpensesPage';
@@ -71,6 +72,7 @@ function App() {
           <Route path="transactions/Sales" element={<Sales darkMode={darkMode} />} />
           <Route path="transactions/Balances" element={<Balances darkMode={darkMode} />} />
           <Route path="transactions/Ledger" element={<Ledger darkMode={darkMode} />} />
+          <Route path="customers" element={<Customers darkMode={darkMode} />} />
           <Route path="suppliers" element={<Suppliers darkMode={darkMode} />} />
           <Route path="inventory" element={<Inventory darkMode={darkMode} />} />
           <Route path="activityLog" element={<ActivityLog darkMode={darkMode} />} />
