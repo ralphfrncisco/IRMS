@@ -124,7 +124,7 @@ function LedgerHistoryTable() {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto h-auto md:max-h-[580px] overflow-y-auto custom-scrollbar">
         <table className="w-full">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800">

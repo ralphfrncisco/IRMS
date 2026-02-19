@@ -196,7 +196,7 @@ function TableSection() {
                     </button>
                 </div>
 
-                <div className="overflow-x-auto p-2">
+                <div className="overflow-x-auto h-auto md:max-h-[580px] overflow-y-auto custom-scrollbar">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50 dark:bg-slate-800/50">

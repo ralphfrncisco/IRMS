@@ -229,7 +229,7 @@ export default function TableSection() {
                 </div>
             </div>
 
-            <div className="overflow-x-auto h-auto md:max-h-[600px] overflow-y-auto">
+            <div className="overflow-x-auto h-auto md:max-h-[580px] overflow-y-auto custom-scrollbar">
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
