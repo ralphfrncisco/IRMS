@@ -17,6 +17,11 @@ function AddExpenseModal({isOpen, onClose}) {
     const [isSaving, setIsSaving] = useState(false);
     const [purchaseItems, setPurchaseItems] = useState([]);
     const fileInputRef = useRef(null);
+
+    // Helper to get PH Date in YYYY-MM-DD format
+    const getPHDate = () => {
+        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    };
     
     // REUSABLE FORMATTER: You can copy this to any modal
     const formatInputCurrency = (value) => {
@@ -34,7 +39,7 @@ function AddExpenseModal({isOpen, onClose}) {
         amount: '',
         expenseType: '',
         remarks: '',
-        transactionDate: '',
+        transactionDate: getPHDate(),
         receiptImage: null,
         supplierName: '',
     });
@@ -53,7 +58,7 @@ function AddExpenseModal({isOpen, onClose}) {
                 amount: '', 
                 expenseType: '', 
                 remarks: '', 
-                transactionDate: new Date().toISOString().split('T')[0], 
+                transactionDate: getPHDate(), 
                 receiptImage: null,
                 supplierName: ''
             });
@@ -102,8 +107,7 @@ function AddExpenseModal({isOpen, onClose}) {
     };
 
     const setToday = () => {
-        const today = new Date().toISOString().split('T')[0];
-        setFormValues(prev => ({ ...prev, transactionDate: today }));
+        setFormValues(prev => ({ ...prev, transactionDate: getPHDate() }));
     };
 
     const handleInputChange = (e) => {

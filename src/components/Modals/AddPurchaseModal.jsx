@@ -21,6 +21,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [receiptFile, setReceiptFile] = useState(null);
     const [receiptFileName, setReceiptFileName] = useState('No file chosen');
 
+    // Helper to get PH Date in YYYY-MM-DD format for HTML5 inputs
+    const getPHDate = () => {
+        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    };
+
     const formatInputCurrency = (value) => {
         if (!value || value === '0') return '';
         const cleanValue = value.toString().replace(/[^0-9.]/g, '');
@@ -35,7 +40,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [formValues, setFormValues] = useState({
         PONumber: '',
         customer: '',
-        transactionDate: '',
+        transactionDate: getPHDate(), // Adaptive to current PH date
         remarks: '',
         amount: '',
         remainingBalance: '',
@@ -83,7 +88,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     setFormValues({
                         PONumber: `ORD-${nextIdNum.toString().padStart(4, '0')}`,
                         customer: '',
-                        transactionDate: new Date().toISOString().split('T')[0],
+                        transactionDate: getPHDate(), // Adaptive logic
                         remarks: '',
                         amount: '',
                         remainingBalance: '',
@@ -130,7 +135,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }
     };
 
-    // ADD THIS - Handle saving edited item
     const handleSaveEditedItem = (editedItem) => {
         setPurchaseItems(prev => 
             prev.map(item => 
@@ -172,7 +176,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     const setToday = () => {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getPHDate(); 
         setFormValues(prev => ({ ...prev, transactionDate: today }));
     };
 
@@ -192,7 +196,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
         setIsSaving(true);
 
         try {
-            // --- CHECK INVENTORY FIRST (BEFORE INSERTING ANYTHING) ---
             const inventoryData = purchaseItems.map(item => ({
                 product_name: item.name,
                 qty: item.quantity,
@@ -204,28 +207,20 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
             if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
 
-            // Check if stock validation passed
             if (rpcResult && !rpcResult.success) {
                 const errorMessages = rpcResult.errors.map(err => 
                     `${err.product}: ${err.reason} (Need ${err.requested}, Have ${err.available})`
                 ).join('\n');
-                
                 throw new Error(`\n${errorMessages}`);
             }
-            // --- END INVENTORY CHECK ---
 
-            // --- NOW PROCEED WITH SALE (Only if inventory check passed) ---
             let receiptFilename = null;
-
-            // Upload receipt to 'receipts' bucket and store only filename
             if (receiptFile) {
                 const fileExt = receiptFile.name.split('.').pop();
                 const fileName = `${Date.now()}.${fileExt}`;
-                
                 const { error: uploadError } = await supabase.storage
                     .from('receipts')
                     .upload(fileName, receiptFile);
-
                 if (uploadError) throw uploadError;
                 receiptFilename = fileName;
             }
@@ -258,28 +253,16 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 quantity: item.quantity
             }));
 
-            const { error: itemsError } = await supabase
-                .from('purchasedItems')
-                .insert(itemsToInsert);
-
+            const { error: itemsError } = await supabase.from('purchasedItems').insert(itemsToInsert);
             if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
 
-            // --- INSERT PAYMENT HISTORY (if there was an initial payment) ---
             if (totalToInsert > 0) {
-                const { error: paymentError } = await supabase
-                    .from('paymentHistory')
-                    .insert([{
-                        order_id: saleData.order_id,
-                        payment_amount: totalToInsert,
-                        payment_date: formValues.transactionDate
-                    }]);
-
-                if (paymentError) {
-                    console.error("Payment history error:", paymentError.message);
-                    // Don't throw - we still want the sale to complete
-                }
+                await supabase.from('paymentHistory').insert([{
+                    order_id: saleData.order_id,
+                    payment_amount: totalToInsert,
+                    payment_date: formValues.transactionDate
+                }]);
             }
-            // --- END PAYMENT HISTORY ---
 
             onClose();
         } catch (err) {
@@ -291,10 +274,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
-            <div 
-                className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
-                onClick={e => e.stopPropagation()}
-            >
+            <div className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Purchase</h2>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
@@ -407,13 +387,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                         <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange} placeholder="0.00" autoComplete="off" className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                                     </div>
                                 </div>
-
                                 <div className="relative w-full">
                                     <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remaining Balance</label>
                                     <div className="relative">
                                         <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                        <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' 
-                                        className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-medium" />
+                                        <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-medium" />
                                     </div>
                                 </div>
                             </div>
@@ -425,23 +403,13 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
                 <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0 pr-5 md:pr-0">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
-                    <button 
-                        type="submit"
-                        form="purchaseForm" 
-                        disabled={purchaseItems.length === 0 || !formValues.customer || isSaving} 
-                        className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    >
+                    <button type="submit" form="purchaseForm" disabled={purchaseItems.length === 0 || !formValues.customer || isSaving} className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                         {isSaving ? "Saving..." : "Save Purchase"}
                     </button>
                 </div>
             </div>
             <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
-            <EditItemModal 
-                isOpen={isEditModalOpen} 
-                onClose={() => setIsEditModalOpen(false)} 
-                item={itemToEdit}
-                onSave={handleSaveEditedItem}
-            />
+            <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
         </div>
     );
 }
