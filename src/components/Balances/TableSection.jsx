@@ -181,8 +181,7 @@ export default function TableSection() {
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25 pb-5 md:pb-0">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-2 lg:flex lg:items-center gap-4 w-full md:w-auto">
                 <div>
-                    <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">Outstanding Accounts</h3>
-                    <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">Latest customer orders and payment statuses</p>
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Outstanding Accounts</h3>
                 </div>
 
                 <div className="flex lg:hidden items-center justify-end gap-2 relative" ref={filterRef}>

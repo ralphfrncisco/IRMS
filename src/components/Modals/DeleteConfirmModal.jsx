@@ -24,7 +24,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, itemId, itemName, load
                     </h3>
                     
                     <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5">
-                        Are you sure you want to delete this item: <span className="font-mono font-bold text-red-600 dark:text-red-400"><br></br>(ID:{itemId}) <u>{itemName}</u></span>? 
+                        Are you sure you want to delete this entry: <span className="font-mono font-bold text-red-600 dark:text-red-400"><br></br>(ID:{itemId}) <u>{itemName}</u></span>? 
                     </p>
                     
                     <div className="flex flex-col gap-3 w-full">

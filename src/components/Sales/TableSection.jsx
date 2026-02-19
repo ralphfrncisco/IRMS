@@ -171,7 +171,7 @@ function TableSection() {
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-1 xl:flex xl:items-center gap-4 w-full md:w-auto">
                 <div className = "flex items-center justify-between w-full py-2">
                     <div>
-                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
+                        <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             {loading ? 'Loading...' : `Total: ${filteredOrders.length} entries`}
                         </p>

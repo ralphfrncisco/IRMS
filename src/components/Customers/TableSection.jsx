@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye, Trash2 } from 'lucide-react';
+import { Plus, Eye, Trash2, Funnel } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 
 import CustomerFilter from '../Filters/CustomerFilter';
@@ -21,6 +21,19 @@ function TableSection() {
       size: 16, 
       className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
+
+    const [showFilters, setShowFilters] = useState(false);
+    const filterRef = React.useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setShowFilters(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const formatCurrency = (value) => {
         if (isNaN(value)) return "₱ 0.00";
@@ -125,23 +138,47 @@ function TableSection() {
                 
                 {/* Header Title Section */}
                 <div className="flex items-center justify-between w-full py-2">
-                    <div className="space-y-1">
-                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Customer List</h3>
-                        <p className="text-[7pt] md:text-sm text-slate-500 dark:text-slate-400">Manage customer details</p>
-                    </div>
-                    <div>
-                        <button 
-                            onClick={() => setIsAddModalOpen(true)} 
-                            className="block md:hidden w-full md:w-auto cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
-                        >
-                            <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium truncate">Add</span>
-                        </button>
+                    <div className="flex items-center justify-between w-full py-2">
+                        <div className = "flex items-center justify-between w-full py-2">
+                            <div>
+                                <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">Customer List</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {loading ? 'Loading...' : `Total: ${filteredCustomers.length} entries`}
+                        </p>
+                            </div>
+                            <div className="flex items-center gap-2 relative" ref={filterRef}>
+                                {/* The Toggle Button */}
+                                <button 
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className={`flex lg:hidden items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
+                                        showFilters 
+                                        ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
+                                        : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                                    }`}
+                                >
+                                    <Funnel className="w-4 h-4" />
+                                    <span className="text-sm font-medium">Filters</span>
+                                </button>
+
+                                {/* The Dropdown Menu */}
+                                {showFilters && (
+                                    <div className="absolute top-full right-0 mt-2 w-72 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
+                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
+                                        <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
+                                    </div>
+                                )}
+
+                                <button onClick={() => setIsAddModalOpen(true)} className="block md:hidden cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                                    <Plus className="w-4 h-4" />
+                                    <span className="text-sm font-medium">Add</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Filters Section */}
-                <div className="flex items-center justify-end gap-2 w-full md:w-auto">
+                <div className="hidden lg:flex items-center justify-end gap-2 w-full md:w-auto">
                     <div className="w-40 md:w-auto">
                         <CustomerFilter 
                             options={customerOptions} 
@@ -155,7 +192,7 @@ function TableSection() {
                 {/* Desktop Add Button */}
                 <button 
                     onClick={() => setIsAddModalOpen(true)} 
-                    className="hidden md:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all active:scale-95"
+                    className="hidden md:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-500 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     <span className="text-sm font-medium">Add Customer</span>

@@ -162,7 +162,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                     Updating...
                                 </>
                             ) : (
-                                'Update Customer'
+                                'Save Changes'
                             )}
                         </button>
                     </div>
