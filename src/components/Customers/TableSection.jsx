@@ -126,8 +126,8 @@ function TableSection() {
                 {/* Header Title Section */}
                 <div className="flex items-center justify-between w-full py-2">
                     <div className="space-y-1">
-                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Customers List</h3>
-                        <p className="text-[7pt] md:text-sm text-slate-500 dark:text-slate-400">Manage your customer contacts and balances</p>
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Customer List</h3>
+                        <p className="text-[7pt] md:text-sm text-slate-500 dark:text-slate-400">Manage customer details</p>
                     </div>
                     <div>
                         <button 

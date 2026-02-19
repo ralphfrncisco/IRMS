@@ -160,17 +160,17 @@ function StatsGrid() {
                     key={index} 
                     className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 group"
                 >
-                    <div className="flex items-start justify-between">
-                        <div className="flex-1">
+                    <div className="flex md:flex-col lg:flex-row items-start justify-between">
+                        <div className="flex-1 order-1 md:order-2 lg:order-1 mt-2 lg:mt-0">
                             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                                 {item.title}
                             </p>
-                            <h3 className="text-3xl font-bold mt-2 text-slate-900 dark:text-white">
+                            <h3 className="text-3xl font-bold mt-2 text-slate-900 dark:text-white md:text-2xl lg:text-4xl">
                                 {item.value}
                             </h3>
                         </div>
 
-                        <div className={`p-3 rounded-xl ${item.bgColor} group-hover:scale-110 transition-all duration-300`}>
+                        <div className={`order-2 md:order-1 mt-[-10px] lg:mt-0 lg:order-2 p-3 rounded-xl ${item.bgColor} group-hover:scale-110 transition-all duration-300`}>
                             <item.icon className={`w-6 h-6 ${item.textColor}`} />
                         </div>
                     </div>
