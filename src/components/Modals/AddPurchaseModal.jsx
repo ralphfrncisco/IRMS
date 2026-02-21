@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil } from 'lucide-react';
+import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle } from 'lucide-react';
 import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
@@ -15,38 +15,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [receiptFile, setReceiptFile] = useState(null);
     const [receiptFileName, setReceiptFileName] = useState('No file chosen');
 
-    // ✅ NEW: State for customer list from database
     const [customerList, setCustomerList] = useState([]);
     const [loadingCustomers, setLoadingCustomers] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-    // ✅ NEW: Fetch customers from database
-    useEffect(() => {
-        const fetchCustomers = async () => {
-            setLoadingCustomers(true);
-            try {
-                const { data, error } = await supabase
-                    .from('customers')
-                    .select('full_name')
-                    .order('full_name', { ascending: true });
-
-                if (error) throw error;
-
-                // Extract unique customer names
-                const names = data.map(customer => customer.full_name);
-                setCustomerList(names);
-            } catch (err) {
-                console.error('Error fetching customers:', err);
-            } finally {
-                setLoadingCustomers(false);
-            }
-        };
-
-        if (isOpen) {
-            fetchCustomers();
-        }
-    }, [isOpen]);
-
-    // Helper to get PH Date in YYYY-MM-DD format for HTML5 inputs
     const getPHDate = () => {
         return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
     };
@@ -65,11 +37,37 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [formValues, setFormValues] = useState({
         PONumber: '',
         customer: '',
+        customerId: null,
         transactionDate: getPHDate(),
         remarks: '',
         amount: '',
         remainingBalance: '',
+        currentCustomerBalance: 0,
+        creditLimit: 0
     });
+
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            setLoadingCustomers(true);
+            try {
+                const { data, error } = await supabase
+                    .from('customers')
+                    .select('customer_id, full_name, contact_number, credit_limit, remaining_balance')
+                    .order('full_name', { ascending: true });
+
+                if (error) throw error;
+                setCustomerList(data || []);
+            } catch (err) {
+                console.error('Error fetching customers:', err);
+            } finally {
+                setLoadingCustomers(false);
+            }
+        };
+
+        if (isOpen) {
+            fetchCustomers();
+        }
+    }, [isOpen]);
 
     const totalAmount = useMemo(() => {
         return purchaseItems.reduce((sum, item) => sum + item.total, 0);
@@ -86,10 +84,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }));
     }, [totalAmount, formValues.amount]);
 
-    // ✅ Filter customers based on input
     const filteredCustomers = useMemo(() => {
-        return customerList.filter(name =>
-            name.toLowerCase().includes((formValues.customer || '').toLowerCase())
+        return customerList.filter(customer =>
+            customer.full_name.toLowerCase().includes((formValues.customer || '').toLowerCase())
         );
     }, [customerList, formValues.customer]);
 
@@ -111,12 +108,16 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     setFormValues({
                         PONumber: `ORD-${nextIdNum.toString().padStart(4, '0')}`,
                         customer: '',
+                        customerId: null,
                         transactionDate: getPHDate(),
                         remarks: '',
                         amount: '',
                         remainingBalance: '',
+                        currentCustomerBalance: 0,
+                        creditLimit: 0
                     });
                     setPurchaseItems([]);
+                    setSelectedCustomer(null);
                     setReceiptFile(null);
                     setReceiptFileName('No file chosen');
                 } catch (e) {
@@ -189,12 +190,26 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     const handleCustomerChange = (e) => {
         const value = e.target.value;
-        setFormValues(prev => ({ ...prev, customer: value }));
+        setFormValues(prev => ({ 
+            ...prev, 
+            customer: value,
+            customerId: null,
+            currentCustomerBalance: 0,
+            creditLimit: 0
+        }));
+        setSelectedCustomer(null);
         setIsDropdownOpen(true);
     };
 
-    const selectCustomer = (name) => {
-        setFormValues(prev => ({ ...prev, customer: name }));
+    const selectCustomer = async (customer) => {
+        setSelectedCustomer(customer);
+        setFormValues(prev => ({ 
+            ...prev, 
+            customer: customer.full_name,
+            customerId: customer.customer_id,
+            currentCustomerBalance: customer.remaining_balance,
+            creditLimit: customer.credit_limit
+        }));
         setIsDropdownOpen(false);
     };
 
@@ -219,6 +234,54 @@ function AddPurchaseModal({ isOpen, onClose }) {
         setIsSaving(true);
 
         try {
+            // Validate customer is selected
+            if (!formValues.customerId) {
+                throw new Error('Please select a valid customer from the dropdown');
+            }
+
+            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
+            const totalToInsert = parseNum(formValues.amount);
+            const newBalance = parseNum(formValues.remainingBalance);
+
+            console.log('🔍 Sale Debug:', {
+                customer_id: formValues.customerId,
+                customer_name: formValues.customer,
+                totalAmount,
+                amountPaid: totalToInsert,
+                newBalance,
+                currentBalance: formValues.currentCustomerBalance,
+                creditLimit: formValues.creditLimit
+            });
+
+            // Credit limit check (only if there's a new balance AND customer has existing balance)
+            if (newBalance > 0 && formValues.currentCustomerBalance > 0) {
+                const { data: creditCheck, error: creditError } = await supabase
+                    .rpc('check_customer_credit_limit', {
+                        p_customer_id: formValues.customerId,
+                        p_new_balance: newBalance
+                    });
+
+                if (creditError) {
+                    console.error('Credit check error:', creditError);
+                    throw creditError;
+                }
+
+                if (!creditCheck.allowed) {
+                    const message = `❌ Credit Limit Exceeded!\n\n` +
+                        `Customer: ${formValues.customer}\n` +
+                        `Credit Limit: ₱${creditCheck.credit_limit?.toLocaleString()}\n` +
+                        `Current Balance: ₱${creditCheck.current_balance?.toLocaleString()}\n` +
+                        `New Sale Balance: ₱${newBalance.toLocaleString()}\n` +
+                        `Total Would Be: ₱${creditCheck.total_would_be?.toLocaleString()}\n\n` +
+                        `Please collect payment before creating a new sale.`;
+                    
+                    alert(message);
+                    setIsSaving(false);
+                    return;
+                }
+            }
+
+            // Inventory validation
             const inventoryData = purchaseItems.map(item => ({
                 product_name: item.name,
                 qty: item.quantity,
@@ -237,6 +300,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 throw new Error(`\n${errorMessages}`);
             }
 
+            // Upload receipt
             let receiptFilename = null;
             if (receiptFile) {
                 const fileExt = receiptFile.name.split('.').pop();
@@ -248,20 +312,16 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 receiptFilename = fileName;
             }
 
-            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
-            const totalToInsert = parseNum(formValues.amount);
-            const remainingBalance = parseNum(formValues.remainingBalance);
-
+            // Insert sale with customer_id
             const { data: saleData, error: saleError } = await supabase
                 .from('SalesTable')
                 .insert([{
-                    customer: formValues.customer,
+                    customer_id: formValues.customerId,
                     date: formValues.transactionDate,
                     amount: totalToInsert,
-                    remaining_balance: remainingBalance,
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,
-                    status: remainingBalance <= 0 ? "Fully Paid" : "With Balance",
+                    status: newBalance <= 0 ? "Fully Paid" : "With Balance",
                     purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
                 }])
                 .select()
@@ -269,6 +329,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
             if (saleError) throw new Error(`SalesTable Error: ${saleError.message}`);
 
+            console.log('✅ Sale created:', saleData);
+
+            // Insert purchased items
             const itemsToInsert = purchaseItems.map(item => ({
                 order_id: saleData.order_id,
                 product_name: item.name,
@@ -279,6 +342,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             const { error: itemsError } = await supabase.from('purchasedItems').insert(itemsToInsert);
             if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
 
+            // Insert payment history
             if (totalToInsert > 0) {
                 await supabase.from('paymentHistory').insert([{
                     order_id: saleData.order_id,
@@ -287,8 +351,36 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 }]);
             }
 
+            // ✅ ALWAYS update customer balance (even if 0)
+            console.log('💰 Updating customer balance:', {
+                customer_id: formValues.customerId,
+                adding: newBalance
+            });
+
+            const { error: balanceError } = await supabase.rpc('update_customer_balance', {
+                p_customer_id: formValues.customerId,
+                p_new_balance: newBalance
+            });
+
+            if (balanceError) {
+                console.error('❌ Balance update error:', balanceError);
+                throw new Error(`Failed to update customer balance: ${balanceError.message}`);
+            }
+
+            console.log('✅ Customer balance updated successfully');
+
+            // Verify balance was updated
+            const { data: verifyCustomer } = await supabase
+                .from('customers')
+                .select('remaining_balance')
+                .eq('customer_id', formValues.customerId)
+                .single();
+
+            console.log('✅ Verified new balance:', verifyCustomer?.remaining_balance);
+
             onClose();
         } catch (err) {
+            console.error('❌ Save error:', err);
             alert("Failed to save: " + err.message);
         } finally {
             setIsSaving(false);
@@ -297,7 +389,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
-            <div className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800">
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Purchase</h2>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
@@ -305,9 +397,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </button>
                 </div>
 
-                <form id="purchaseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2">
+                <form id="purchaseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2 custom-scrollbar">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className = "max-w-[83vw]">
+                        <div className="max-w-[83vw]">
                             <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
                             <input type="text" id="PONumber" name="PONumber" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none" />
                         </div>
@@ -324,37 +416,46 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 onChange={handleCustomerChange} 
                                 onFocus={() => setIsDropdownOpen(true)} 
                                 onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)} 
-                                placeholder={loadingCustomers ? 'Loading customers...' : 'Select or type a customer'} 
+                                placeholder={loadingCustomers ? 'Loading customers...' : 'Select a customer'} 
                                 autoComplete="off" 
                                 className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
                             />
                             
-                            {/* Dropdown List */}
                             {isDropdownOpen && filteredCustomers.length > 0 && (
                                 <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
-                                    {filteredCustomers.map((name, index) => (
+                                    {filteredCustomers.map((customer) => (
                                         <li 
-                                            key={index} 
-                                            onClick={() => selectCustomer(name)} 
-                                            className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
+                                            key={customer.customer_id} 
+                                            onClick={() => selectCustomer(customer)} 
+                                            className="px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
                                         >
-                                            {name}
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{customer.full_name}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{customer.contact_number}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">Balance</p>
+                                                    <p className={`text-sm font-semibold ${customer.remaining_balance > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                                        ₱{customer.remaining_balance.toLocaleString()}
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
                             )}
 
-                            {/* No results message */}
                             {isDropdownOpen && formValues.customer && filteredCustomers.length === 0 && !loadingCustomers && (
                                 <div className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-3 px-4">
                                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
-                                        No customers found. Type to create new.
+                                        No customers found. Please add customer in Entities menu.
                                     </p>
                                 </div>
                             )}
                         </div>
 
-                        <div className = "max-w-[83vw]">
+                        <div className="max-w-[83vw]">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Transaction Date</label>
                             <div className="relative h-10 w-full group">
                                 <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
@@ -370,6 +471,19 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             </div>
                         </div>
                     </div>
+
+                    {selectedCustomer && selectedCustomer.remaining_balance > 0 && (
+                        <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Customer has outstanding balance</p>
+                                <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
+                                    Current Balance: ₱{formValues.currentCustomerBalance.toLocaleString()} | 
+                                    Credit Limit: ₱{formValues.creditLimit.toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="mt-4 flex flex-col space-y-4 text-slate-800 dark:text-slate-200 pr-5 md:pr-0">
                         <div className="flex items-center justify-between">
@@ -441,22 +555,24 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                     </div>
                                 </div>
                                 <div className="relative w-full">
-                                    <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remaining Balance</label>
+                                    <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">New Balance</label>
                                     <div className="relative">
                                         <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                         <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-medium" />
                                     </div>
                                 </div>
                             </div>
-                            <label htmlFor="remarks" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
-                            <textarea id="remarks" name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add transaction notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
+                            <div>
+                                <label htmlFor="remarks" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
+                                <textarea id="remarks" name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add transaction notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
+                            </div>
                         </div>
                     </div>
                 </form>
 
                 <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0 pr-5 md:pr-0">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" form="purchaseForm" disabled={purchaseItems.length === 0 || !formValues.customer || isSaving} className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                    <button type="submit" form="purchaseForm" disabled={purchaseItems.length === 0 || !formValues.customerId || isSaving} className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                         {isSaving ? "Saving..." : "Save Purchase"}
                     </button>
                 </div>
