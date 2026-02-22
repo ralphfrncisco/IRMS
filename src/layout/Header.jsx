@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User } from 'lucide-react';
 import { supabase } from "../lib/supabase";
 import noProfile from "../assets/no-profile.png";
-import AccountSettingsModal from './../components/Modals/AccountSettingsModal'; // Add this
-import ChangePasswordModal from './../components/Modals/ChangePasswordModal'; // Add this
+import AccountSettingsModal from './../components/Modals/AccountSettingsModal';
+import ChangePasswordModal from './../components/Modals/ChangePasswordModal';
 
 function Header({ onToggleSidebar, onRoleLoaded }) {
     // --- THEME STATE ---
@@ -19,9 +19,13 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
     const menuRef = useRef(null);
     const notifRef = useRef(null);
 
-    // --- MODAL STATE (NEW) ---
+    // --- MODAL STATE ---
     const [isAccountSettingsOpen, setIsAccountSettingsOpen] = useState(false);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+
+    // ✅ NOTIFICATIONS STATE
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     // --- FETCH PROFILE DATA ---
     useEffect(() => {
@@ -51,6 +55,70 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
         return () => { isMounted = false; };
     }, [onRoleLoaded]);
 
+    // ✅ FETCH NOTIFICATIONS
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('activityLogs')
+                    .select('*')
+                    .order('datetime', { ascending: false })
+                    .limit(10);
+
+                if (!error && data) {
+                    setNotifications(data);
+                    // Count unread (last 24 hours)
+                    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                    const unread = data.filter(n => new Date(n.datetime) > oneDayAgo).length;
+                    setUnreadCount(unread);
+                }
+            } catch (err) {
+                console.error('Error fetching notifications:', err);
+            }
+        };
+
+        fetchNotifications();
+
+        // ✅ Real-time subscription
+        const channel = supabase
+            .channel('header-notifications')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'activityLogs'
+                },
+                (payload) => {
+                    setNotifications(prev => [payload.new, ...prev].slice(0, 10));
+                    setUnreadCount(prev => prev + 1);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
+    // ✅ FORMAT TIME (relative or absolute)
+    const formatNotificationTime = (datetime) => {
+        const now = new Date();
+        const notifTime = new Date(datetime);
+        const diffMs = now - notifTime;
+        const diffMins = Math.floor(diffMs / 60000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins === 1) return '1 minute ago';
+        if (diffMins < 30) return `${diffMins} minutes ago`;
+
+        // If >= 30 minutes, show actual time
+        return notifTime.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    };
     // --- LOGOUT HANDLER ---
     const handleLogout = async () => {
         try {
@@ -117,28 +185,64 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                         )}
                     </button>
 
+                    {/* ✅ NOTIFICATIONS DROPDOWN */}
                     <div className="relative" ref={notifRef}>
                         <button
                             onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
                             className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'hover:bg-gray-200/50 dark:hover:bg-slate-800'}`}
                         >
                             <Bell className="w-5 h-5" />
-                            <span className="absolute -top-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">3</span>
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 px-1">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
                         </button>
 
                         {isNotifMenuOpen && (
                             <div className="absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
                                 <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                                    <h3 className="font-bold text-slate-800 dark:text-white">Notifications</h3>
-                                    <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 px-2 py-0.5 rounded-full">3 New</span>
+                                    <h3 className="font-bold text-slate-800 dark:text-white"><Bell className="w-5 h-6 mt-[-2px] mr-2 inline" />Notifications</h3>
+                                    {unreadCount > 0 && (
+                                        <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 px-2 py-0.5 rounded-full">
+                                            {unreadCount} New
+                                        </span>
+                                    )}
                                 </div>
-                                <div className="max-h-[300px] overflow-y-auto">
-                                    <div className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
-                                        <p className="text-sm font-semibold text-slate-800 dark:text-white">New Purchase Order</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ORD-1005 has been fully paid.</p>
-                                        <p className="text-[10px] text-blue-500 mt-2 font-medium">2 minutes ago</p>
+                                
+                                <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    {notifications.length > 0 ? (
+                                        notifications.map((notif) => (
+                                            <div 
+                                                key={notif.id}
+                                                className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors"
+                                            >
+                                                <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                                                    {notif.activity}
+                                                </p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 whitespace-pre-line">
+                                                    {notif.description}
+                                                </p>
+                                                <p className="text-[10px] text-blue-500 dark:text-blue-400 mt-2 font-medium">
+                                                    {notif.user} • {formatNotificationTime(notif.datetime)}
+                                                </p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-8 text-center">
+                                            <Bell className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">No notifications yet</p>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {notifications.length > 0 && (
+                                    <div className="p-3 border-t border-slate-100 dark:border-slate-700 text-center">
+                                        <button className="text-xs font-medium text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                                            View All Notifications
+                                        </button>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         )}
                     </div>

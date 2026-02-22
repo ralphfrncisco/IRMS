@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, DollarSign, AlertTriangle, ShoppingCart, Bell } from 'lucide-react';
+import { X, PhilippinePeso, AlertTriangle, ShoppingCart, Bell, Package } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import '../App.css';
 
@@ -34,6 +34,7 @@ function Notification() {
           // Add to notifications
           const notification = {
             id: newLog.id,
+            activity: newLog.activity,
             keyword: newLog.keyword,
             description: newLog.description,
             datetime: newLog.datetime,
@@ -55,14 +56,18 @@ function Notification() {
 
   const getIcon = (keyword) => {
     switch (keyword) {
-      case 'New Sale':
-        return <ShoppingCart className="w-5 h-5 text-emerald-500" />;
-      case 'Low Stock':
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case 'Payment':
-        return <DollarSign className="w-5 h-5 text-blue-500" />;
-      default:
-        return <Bell className="w-5 h-5 text-slate-500" />;
+        case 'New Sale':
+            return <div className = "p-2.5 bg-green-100/50 dark:bg-green-900/30 rounded-lg"><ShoppingCart className="w-4.5 h-4.5 text-green-500" /></div>;
+        case 'Low Stock':
+            return <div className = "p-2.5 bg-yellow-100/50 dark:bg-yellow-900/30 rounded-lg"><AlertTriangle className="w-4.5 h-4.5 text-yellow-500" /></div>;
+        case 'Payment':
+            return <div className = "p-2.5 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-blue-500" /></div>;
+        case 'Expense':
+            return <div className = "p-2.5 bg-red-100/50 dark:bg-red-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-red-500" /></div>;
+        case 'Inventory':
+            return <div className = "p-2.5 bg-purple-100/50 dark:bg-purple-900/30 rounded-lg"><Package className="w-4.5 h-4.5 text-purple-500" /></div>;
+        default:
+            return <div className = "p-2.5 bg-slate-100/50 dark:bg-slate-900/30 rounded-lg"><Bell className="w-4.5 h-4.5 text-slate-500" /></div>;
     }
   };
 
@@ -79,7 +84,7 @@ function Notification() {
         {notifications.map((notification, index) => (
           <div
             key={notification.id}
-            className={`notification-item w-[300px] md:w-[330px] p-4 rounded-xl border shadow-xl pointer-events-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 ${
+            className={`notification-item w-[300px] md:w-[330px] p-4 rounded-xl border shadow-sm pointer-events-auto bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 ${
                 notification.isExiting ? 'exiting' : ''
             }`}
             style={{ animationDelay: notification.isExiting ? '0s' : `${index * 0.1}s` }}
@@ -89,13 +94,13 @@ function Notification() {
                 {getIcon(notification.keyword)}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-slate-800 dark:text-white">
-                  {notification.keyword}
+                <h4 className="text-md font-semibold text-slate-800 dark:text-white">
+                  {notification.activity}
                 </h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 break-words">
-                  {notification.description}
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 break-words whitespace-pre-line">
+                  {notification.description}  {/* ✅ This shows the details with line breaks */}
                 </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2">
+                <p className="text-[10px] text-blue-500 dark:text-blue-300 mt-3 font-medium">
                   {new Date(notification.datetime).toLocaleString('en-US', {
                     month: 'short',
                     day: 'numeric',

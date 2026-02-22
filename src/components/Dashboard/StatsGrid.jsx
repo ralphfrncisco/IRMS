@@ -154,7 +154,7 @@ function StatsGrid() {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {statsData.map((item, index) => (
                 <div 
                     key={index} 
@@ -165,13 +165,13 @@ function StatsGrid() {
                             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                                 {item.title}
                             </p>
-                            <h3 className="text-3xl font-bold mt-2 text-slate-900 dark:text-white md:text-2xl lg:text-4xl">
+                            <h3 className="text-lg sm:text-2xl lg:text-3xl xl:text-xl 2xl:text-3xl font-bold mt-2 text-slate-900 dark:text-white truncate" title={item.value}>
                                 {item.value}
                             </h3>
                         </div>
 
                         <div className={`order-2 md:order-1 mt-[-10px] lg:mt-0 lg:order-2 p-3 rounded-xl ${item.bgColor} group-hover:scale-110 transition-all duration-300`}>
-                            <item.icon className={`w-6 h-6 ${item.textColor}`} />
+                            <item.icon className={`w-5 h-5 2xl:w-6 2xl:h-6 ${item.textColor}`} />
                         </div>
                     </div>
                 </div>
