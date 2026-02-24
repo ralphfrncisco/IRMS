@@ -5,57 +5,62 @@ import { Loader2 } from 'lucide-react';
 function LedgerHistoryTable() {
   const [ledgerData, setLedgerData] = useState([]);
   const [monthlyTotals, setMonthlyTotals] = useState({ revenue: 0, expense: 0 });
+  const [yearlyTotals, setYearlyTotals] = useState({ revenue: 0, expense: 0 });
   const [loading, setLoading] = useState(true);
-
-  // Check if we need to create a new weekly ledger entry
-  const checkAndCreateWeeklyLedger = async () => {
-    const now = new Date();
-    const phtNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-    
-    const dayOfWeek = phtNow.getDay();
-    const hour = phtNow.getHours();
-    const minute = phtNow.getMinutes();
-    
-    if (dayOfWeek === 1 && hour === 0 && minute < 5) {
-      try {
-        const { error } = await supabase.rpc('create_weekly_ledger');
-        if (error) throw error;
-        console.log('✅ Weekly ledger created successfully');
-        fetchLedgerData();
-      } catch (err) {
-        console.error('Error creating weekly ledger:', err);
-      }
-    }
-  };
 
   const fetchLedgerData = async () => {
     try {
       setLoading(true);
 
-      const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      // Get start of current year (Jan 1, 2026)
+      const yearStart = new Date(new Date().getFullYear(), 0, 1);
 
       const { data, error } = await supabase
         .from('ledger')
         .select('*')
-        .gte('week_start', monthStart.toISOString().split('T')[0])
-        .lte('week_end', monthEnd.toISOString().split('T')[0])
+        .gte('week_start', yearStart.toISOString().split('T')[0])
         .order('week_start', { ascending: true });
 
       if (error) throw error;
 
       setLedgerData(data || []);
 
-      const totals = (data || []).reduce(
+      // Calculate yearly totals (all data)
+      const yearTotals = (data || []).reduce(
         (acc, week) => ({
           revenue: acc.revenue + Number(week.total_revenue || 0),
           expense: acc.expense + Number(week.total_expense || 0)
         }),
         { revenue: 0, expense: 0 }
       );
+      setYearlyTotals(yearTotals);
 
-      setMonthlyTotals(totals);
+      // Calculate monthly totals (current month only)
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      const monthTotals = (data || []).reduce(
+        (acc, week) => {
+          const weekStart = new Date(week.week_start);
+          const weekEnd = new Date(week.week_end);
+          
+          // Include week if it overlaps with current month
+          if (
+            (weekStart.getMonth() === currentMonth && weekStart.getFullYear() === currentYear) ||
+            (weekEnd.getMonth() === currentMonth && weekEnd.getFullYear() === currentYear)
+          ) {
+            return {
+              revenue: acc.revenue + Number(week.total_revenue || 0),
+              expense: acc.expense + Number(week.total_expense || 0)
+            };
+          }
+          return acc;
+        },
+        { revenue: 0, expense: 0 }
+      );
+      setMonthlyTotals(monthTotals);
+
     } catch (err) {
       console.error('Error fetching ledger data:', err);
     } finally {
@@ -64,23 +69,63 @@ function LedgerHistoryTable() {
   };
 
   useEffect(() => {
+    // Initial fetch
     fetchLedgerData();
-    checkAndCreateWeeklyLedger();
 
-    const interval = setInterval(checkAndCreateWeeklyLedger, 60000);
-
-    const channel = supabase
-      .channel('ledger-realtime')
+    // Subscribe to ledger table changes
+    const ledgerChannel = supabase
+      .channel('ledger-changes')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'ledger' },
-        () => fetchLedgerData()
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ledger'
+        },
+        (payload) => {
+          console.log('📊 Ledger updated:', payload);
+          fetchLedgerData();
+        }
       )
       .subscribe();
 
+    // Subscribe to Sales changes
+    const salesChannel = supabase
+      .channel('sales-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'SalesTable'
+        },
+        (payload) => {
+          console.log('💰 Sale changed:', payload);
+        }
+      )
+      .subscribe();
+
+    // Subscribe to Expense changes
+    const expenseChannel = supabase
+      .channel('expense-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ExpensesTable'
+        },
+        (payload) => {
+          console.log('💸 Expense changed:', payload);
+        }
+      )
+      .subscribe();
+
+    // Cleanup
     return () => {
-      clearInterval(interval);
-      supabase.removeChannel(channel);
+      supabase.removeChannel(ledgerChannel);
+      supabase.removeChannel(salesChannel);
+      supabase.removeChannel(expenseChannel);
     };
   }, []);
 
@@ -103,6 +148,10 @@ function LedgerHistoryTable() {
     return `${formatDate(start)} to ${formatDate(end)}`;
   };
 
+  const getCurrentMonthName = () => {
+    return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
   if (loading) {
     return (
       <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
@@ -115,12 +164,17 @@ function LedgerHistoryTable() {
 
   return (
     <div className="p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-          Revenue & Expense History
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Revenue and expense history per week update
+      <div className="flex items-center justify-between mb-4">
+        <div>       
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+            Revenue & Expense History
+          </h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Revenue and expense history per week update
+          </p>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mr-5">
+          Showing data from January 1, {new Date().getFullYear()} onwards
         </p>
       </div>
 
@@ -143,7 +197,7 @@ function LedgerHistoryTable() {
             {ledgerData.length === 0 ? (
               <tr>
                 <td colSpan="3" className="py-8 text-center text-slate-500 dark:text-slate-400">
-                  No data available for this month
+                  No data available for this year
                 </td>
               </tr>
             ) : (
@@ -162,15 +216,29 @@ function LedgerHistoryTable() {
                   </tr>
                 ))}
                 
-                <tr className="bg-slate-100 dark:bg-slate-800/50 font-bold">
+                {/* Monthly Total */}
+                <tr className="bg-blue-50 dark:bg-blue-900/20 font-bold">
                   <td className="py-4 px-6 text-sm text-blue-600 dark:text-blue-400">
-                    Total for the month
+                    Total for the month ({getCurrentMonthName()})
                   </td>
                   <td className="py-4 px-6 text-sm text-center text-green-600 dark:text-green-400">
                     {formatCurrency(monthlyTotals.revenue)}
                   </td>
                   <td className="py-4 px-6 text-sm text-center text-red-600 dark:text-red-400">
                     {formatCurrency(monthlyTotals.expense)}
+                  </td>
+                </tr>
+
+                {/* Yearly Total (with top margin) */}
+                <tr className="bg-slate-100 dark:bg-slate-800/50 font-bold border-t-4 border-slate-300 dark:border-slate-700">
+                  <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300">
+                    Total for the year ({new Date().getFullYear()})
+                  </td>
+                  <td className="py-4 px-6 text-sm text-center text-green-700 dark:text-green-300">
+                    {formatCurrency(yearlyTotals.revenue)}
+                  </td>
+                  <td className="py-4 px-6 text-sm text-center text-red-700 dark:text-red-300">
+                    {formatCurrency(yearlyTotals.expense)}
                   </td>
                 </tr>
               </>
