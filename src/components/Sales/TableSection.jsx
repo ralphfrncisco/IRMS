@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
 import { Plus, Eye, Funnel, Loader2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
@@ -11,7 +12,6 @@ import ColumnFilter from '../Filters/SortByFilter';
 import AddPurchaseModal from '../Modals/AddPurchaseModal';
 import EditPurchaseModal from '../Modals/EditPurchaseModal';
 
-// 1. Define Constants
 const ALL_OPTION = 'All';
 const DATE_RANGE_PLACEHOLDER = 'Date Range';
 const CUSTOMER_PLACEHOLDER = 'Customer';
@@ -44,14 +44,8 @@ function TableSection() {
         return `₱ ${formatter.format(value)}`;
     };
 
-    const formatDisplayDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
+    const formatDisplayDateTime = (dateTimeString) => {
+        return formatDateTimeShort(dateTimeString);
     };
     
     const iconProps = { 
@@ -69,17 +63,35 @@ function TableSection() {
         'ACTIONS': true
     });
 
-    // --- FETCH DATA FROM SUPABASE ---
+    // ✅ UPDATED: Fetch with LEFT JOIN to get customer data
     const fetchOrders = async () => {
         try {
             setLoading(true);
             const { data, error } = await supabase
                 .from('SalesTable')
-                .select('*')
-                .order('date', { ascending: false });
+                .select(`
+                    *,
+                    customers:customer_id (
+                        customer_id,
+                        full_name,
+                        remaining_balance,
+                        credit_limit
+                    )
+                `)
+                .order('created_at', { ascending: false });
 
             if (error) throw error;
-            setOrders(data || []);
+
+            // ✅ Transform data to flatten customer info
+            const transformedData = (data || []).map(order => ({
+                ...order,
+                customer_full_name: order.customers?.full_name || 'Unknown Customer',
+                customer_contact: order.customers?.contact_number || '',
+                customer_balance: order.customers?.remaining_balance || 0,
+                customer_credit_limit: order.customers?.credit_limit || 0
+            }));
+
+            setOrders(transformedData);
         } catch (error) {
             console.error('Error fetching orders:', error.message);
         } finally {
@@ -90,7 +102,6 @@ function TableSection() {
     useEffect(() => {
         fetchOrders();
     
-        // Real-time listener for SalesTable
         const channel = supabase
             .channel('sales-realtime')
             .on(
@@ -103,17 +114,15 @@ function TableSection() {
         return () => { supabase.removeChannel(channel) }
     }, []);
 
-    // --- DYNAMIC OPTION GENERATION ---
+    // ✅ UPDATED: Use customer_full_name for filtering
     const customerOptions = useMemo(() => {
-        // Map from the 'orders' state, not the fetch function
-        const names = [...new Set(orders.map(order => order.customer))];
+        const names = [...new Set(orders.map(order => order.customer_full_name))];
         return [CUSTOMER_PLACEHOLDER, ALL_OPTION, ...names.sort((a, b) => a.localeCompare(b))];
     }, [orders]);
 
     const dateRangeOptions = [DATE_RANGE_PLACEHOLDER, ALL_OPTION, 'Today', 'Last 7 Days', 'Last 30 Days'];
     const paymentOptions = [STATUS_PLACEHOLDER, ALL_OPTION, 'Fully Paid', 'With Balance', 'Unpaid'];
 
-    // --- STATE MANAGEMENT ---
     const [dateRangeFilter, setDateRangeFilter] = useState(DATE_RANGE_PLACEHOLDER);
     const [customerFilter, setCustomerFilter] = useState(CUSTOMER_PLACEHOLDER); 
     const [paymentStatusFilter, setPaymentStatusFilter] = useState(STATUS_PLACEHOLDER);
@@ -121,12 +130,12 @@ function TableSection() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
 
-    // --- FILTERING LOGIC ---
+    // ✅ UPDATED: Filter by customer_full_name
     const filteredOrders = useMemo(() => {
         let filtered = [...orders];
 
         if (customerFilter && customerFilter !== CUSTOMER_PLACEHOLDER && customerFilter !== ALL_OPTION) {
-            filtered = filtered.filter(order => order.customer === customerFilter);
+            filtered = filtered.filter(order => order.customer_full_name === customerFilter);
         }
 
         if (paymentStatusFilter && paymentStatusFilter !== STATUS_PLACEHOLDER && paymentStatusFilter !== ALL_OPTION) {
@@ -138,7 +147,7 @@ function TableSection() {
             today.setHours(0, 0, 0, 0);
 
             filtered = filtered.filter(order => {
-                const orderDate = new Date(order.date);
+                const orderDate = new Date(order.date || order.created_at);
                 if (dateRangeFilter === 'Today') {
                     return orderDate.toDateString() === today.toDateString();
                 } else if (dateRangeFilter === 'Last 7 Days') {
@@ -153,6 +162,7 @@ function TableSection() {
     }, [orders, dateRangeFilter, customerFilter, paymentStatusFilter]);
 
     const handleOpenEdit = (order) => {
+        console.log('📋 Opening order with customer data:', order);
         setSelectedOrder(order);
         setIsEditModalOpen(true);
     };
@@ -177,7 +187,6 @@ function TableSection() {
                         </p>
                     </div>
                     <div className="flex items-center gap-2 relative" ref={filterRef}>
-                        {/* The Toggle Button */}
                         <button 
                             onClick={() => setShowFilters(!showFilters)}
                             className={`flex sm:hidden items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
@@ -190,7 +199,6 @@ function TableSection() {
                             <span className="text-sm font-medium">Filters</span>
                         </button>
 
-                        {/* The Dropdown Menu */}
                         {showFilters && (
                             <div className="absolute top-full right-0 mt-2 w-72 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
                                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
@@ -266,10 +274,10 @@ function TableSection() {
                                             {`ORD-${order.order_id.toString().padStart(4, '0')}`}
                                         </td>
                                     )}
-                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
+                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
                                     {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className = "w-[200px] lg:w-full md:max-w-[400px] truncate">{order.purchased_items}</p></td>}
                                     {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-slate-700 dark:text-white">{formatCurrency(order.amount)}</td>}
-                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(order.date)}</td>}
+                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(order.created_at)}</td>}
                                     {visibleColumns['STATUS'] && (
                                         <td className="p-4 text-center">
                                             <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>

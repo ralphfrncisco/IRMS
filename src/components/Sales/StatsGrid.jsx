@@ -8,7 +8,14 @@ function StatsGrid() {
     const fetchSalesData = async () => {
         const { data, error } = await supabase
             .from('SalesTable')
-            .select('amount, remaining_balance')
+            .select('amount')
+
+        if (!error) setSalesData(data || []);
+    };
+    const fetchReceivablesData = async () => {
+        const { data, error } = await supabase
+            .from('customers')
+            .select('remaining_balance')
 
         if (!error) setSalesData(data || []);
     };
@@ -20,6 +27,19 @@ function StatsGrid() {
             .channel('SalesTable-realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'SalesTable' }, () => {
                 fetchSalesData();
+            })
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, []);
+
+    useEffect(() => {
+        fetchReceivablesData();
+
+        const channel = supabase
+            .channel('CustomersTable-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => {
+                fetchReceivablesData();
             })
             .subscribe();
 

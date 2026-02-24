@@ -3,6 +3,8 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import {useNavigate} from "react-router-dom";
 
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
+
 function RecentOrdersTable() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,14 +15,31 @@ function RecentOrdersTable() {
             setLoading(true);
             const { data, error } = await supabase
                 .from('SalesTable')
-                .select('*')
-                .order('date', { ascending: false })
+                .select(`
+                    *,
+                    customers:customer_id (
+                        customer_id,
+                        full_name,
+                        remaining_balance,
+                        credit_limit
+                    )
+                `)
+                .order('created_at', { ascending: false })
                 .limit(4);
 
             if (error) throw error;
-            setOrders(data || []);
+
+            // Transform the data to flatten the nested customer object
+            const transformedData = (data || []).map(order => ({
+                ...order,
+                // Map the nested join data to flat keys for the table
+                customer_full_name: order.customers?.full_name || 'N/A',
+                customer_balance: order.customers?.remaining_balance || 0
+            }));
+
+            setOrders(transformedData);
         } catch (error) {
-            console.error('Error fetching orders:', error.message);
+            console.error("Error fetching orders:", error);
         } finally {
             setLoading(false);
         }
@@ -111,17 +130,17 @@ function RecentOrdersTable() {
                                     <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
                                         {`ORD-${order.order_id.toString().padStart(4, '0')}`}
                                     </td>
-                                    <td className="p-4 text-sm text-slate-800 dark:text-slate-300">{order.customer}</td>
+                                    <td className="p-4 text-sm text-slate-800 dark:text-slate-300">{order.customer_full_name}</td>
                                     <td className="p-4 text-sm">
                                         <p className = "max-w-[200px] lg:w-full truncate dark:text-slate-300">{order.purchased_items}</p>
                                     </td>
-                                    <td className="p-4 text-sm text-center font-semibold text-slate-700 dark:text-white">{formatCurrency(order.amount)}</td>
+                                    <td className="p-4 text-sm text-center font-semibold text-slate-700 dark:text-white">{formatCurrency(order.paid_amount)}</td>
                                     <td className="p-4 text-center">
                                         <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-sm text-center text-slate-500 dark:text-slate-400">{order.date}</td>
+                                    <td className="p-4 text-sm text-center text-slate-500 dark:text-slate-400">{formatDateTimeShort(order.created_at)}</td>
                                 </tr>
                             )))}
                         </tbody>
