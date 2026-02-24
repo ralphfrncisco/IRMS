@@ -16,14 +16,7 @@ function RevenueChart() {
       setLoading(true);
 
       const now = new Date();
-      const currentDay = now.getDay(); // 0=Sun, 1=Mon, 2=Tue...
-
-      console.log('📅 Today:', now.toISOString(), '| Day of week:', currentDay);
-
-      // ✅ FIXED: Properly calculate Monday
-      // If Sunday (0), go back 6 days
-      // If Monday (1), go back 0 days
-      // If Tuesday (2), go back 1 day... etc
+      const currentDay = now.getDay();
       const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
 
       const monday = new Date(now);
@@ -34,53 +27,28 @@ function RevenueChart() {
       sunday.setDate(monday.getDate() + 6);
       sunday.setHours(23, 59, 59, 999);
 
-      // ✅ Use LOCAL date string to avoid timezone offset issues
-      const toLocalDateStr = (date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-
-      const mondayStr = toLocalDateStr(monday);
-      const sundayStr = toLocalDateStr(sunday);
-
-      console.log('🗓️ Current week:', { mondayStr, sundayStr });
-      // Expected: mondayStr: '2026-02-16', sundayStr: '2026-02-22'
-
-      // Fetch sales for current week
+      // ✅ Fetch sales using created_at and paid_amount
       const { data: salesData, error: salesError } = await supabase
         .from('SalesTable')
-        .select('date, amount')
-        .gte('date', mondayStr)
-        .lte('date', sundayStr);
+        .select('created_at, paid_amount')
+        .gte('created_at', monday.toISOString())
+        .lte('created_at', sunday.toISOString());
 
       if (salesError) throw salesError;
 
-      console.log('💰 Sales this week:', salesData);
-
-      // Fetch expenses for current week
+      // ✅ Fetch expenses using created_at
       const { data: expensesData, error: expensesError } = await supabase
         .from('ExpensesTable')
-        .select('amount')
-        .gte('date', mondayStr)
-        .lte('date', sundayStr);
+        .select('amount, created_at')
+        .gte('created_at', monday.toISOString())
+        .lte('created_at', sunday.toISOString());
 
       if (expensesError) throw expensesError;
 
-      console.log('💸 Expenses this week:', expensesData);
-
-      // Calculate total weekly expense
-      const totalWeeklyExpense = expensesData.reduce((sum, exp) => {
+      const totalWeeklyExpense = (expensesData || []).reduce((sum, exp) => {
         return sum + (Number(exp.amount) || 0);
       }, 0);
 
-      console.log('📊 Total weekly expense:', totalWeeklyExpense);
-
-      // Divide by 7 to get daily expense
-      const dailyExpense = totalWeeklyExpense / 7;
-
-      // Group sales by day
       const dailyRevenue = {
         Monday: 0,
         Tuesday: 0,
@@ -91,14 +59,15 @@ function RevenueChart() {
         Sunday: 0
       };
 
-      salesData.forEach(sale => {
-        const saleDate = new Date(sale.date + 'T00:00:00');
-        const dayName = saleDate.toLocaleDateString('en-US', { weekday: 'long' });
-        
-        console.log('📅 Sale:', { date: sale.date, dayName, amount: sale.amount });
+      (salesData || []).forEach(sale => {
+        const saleDate = new Date(sale.created_at);
+        const dayName = saleDate.toLocaleDateString('en-US', { 
+          weekday: 'long',
+          timeZone: 'Asia/Manila' 
+        });
         
         if (dailyRevenue[dayName] !== undefined) {
-          dailyRevenue[dayName] += Number(sale.amount) || 0;
+          dailyRevenue[dayName] += Number(sale.paid_amount) || 0;
         }
       });
 
@@ -106,11 +75,8 @@ function RevenueChart() {
       const formattedData = daysOfWeek.map(day => ({
         day,
         revenue: dailyRevenue[day],
-        // expenses: Math.round(dailyExpense * 100) / 100
-        expenses:totalWeeklyExpense
+        expenses: totalWeeklyExpense
       }));
-
-      console.log('📊 Final chart data:', formattedData);
 
       setChartData(formattedData);
     } catch (err) {
@@ -123,7 +89,6 @@ function RevenueChart() {
   useEffect(() => {
     fetchWeeklyData();
 
-    // Real-time updates
     const salesChannel = supabase
       .channel('sales-chart-realtime')
       .on(
@@ -159,7 +124,6 @@ function RevenueChart() {
   }
 
   return (
-    // Reduced padding slightly to allow chart more room
     <div className="p-4 sm:p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
         <div className = "w-full">
@@ -171,13 +135,6 @@ function RevenueChart() {
           </p>
         </div>
 
-        {/* <div className="hidden md:flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span className="text-sm text-slate-600 dark:text-slate-300">Revenue</span>
-          </div>
-        </div> */}
-
         <div className = "hidden md:flex w-full justify-end items-center mt-5 pr-2">
           <span className="text-sm font-normal text-slate-700 dark:text-slate-300">
             Total Expense of this Week: <span className = "text-lg font-semibold text-slate-700 dark:text-slate-200">₱ {chartData.length > 0 ? chartData[0].expenses.toLocaleString() : '0'}</span>
@@ -187,7 +144,6 @@ function RevenueChart() {
 
       <div className="h-85 w-full pb-12 md:pb-7">
         <ResponsiveContainer width="100%" height="100%">
-          {/* Adjusted margins to use more of the horizontal space */}
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid 
               strokeDasharray="3 3" 
@@ -219,18 +175,12 @@ function RevenueChart() {
               }}
               formatter={(value) => `₱${value.toLocaleString()}`}
             />
-            {/* Increased maxBarSize slightly */}
             <Bar dataKey="revenue" fill="url(#revenueGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} />
-            {/* <Bar dataKey="expenses" fill="url(#expensesGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} /> */}
             
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#3b82f6" />
                 <stop offset="100%" stopColor="#8b5cf6" />
-              </linearGradient>
-              <linearGradient id="expensesGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#94a3b8" />
-                <stop offset="100%" stopColor="#64748b" />
               </linearGradient>
             </defs>
           </BarChart>

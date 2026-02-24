@@ -15,36 +15,40 @@ function StatsGrid() {
         try {
             setLoading(true);
 
-            // Fetch Total Revenue (sum of all sales amounts)
+            // ✅ Fetch Total Revenue (sum of paid_amount from all sales)
             const { data: salesData, error: salesError } = await supabase
                 .from('SalesTable')
-                .select('amount');
+                .select('paid_amount');
 
             if (salesError) throw salesError;
 
-            const totalRevenue = salesData.reduce((sum, sale) => sum + (sale.amount || 0), 0);
+            const totalRevenue = (salesData || []).reduce((sum, sale) => {
+                return sum + (Number(sale.paid_amount) || 0);
+            }, 0);
 
-            // Fetch Total Sales Count
+            // ✅ Fetch Total Sales Count
             const { count: salesCount, error: countError } = await supabase
                 .from('SalesTable')
                 .select('*', { count: 'exact', head: true });
 
             if (countError) throw countError;
 
-            // Fetch Total Expenses (sum of all expenses)
+            // ✅ Fetch Total Expenses
             const { data: expensesData, error: expensesError } = await supabase
                 .from('ExpensesTable')
                 .select('amount');
 
             if (expensesError) throw expensesError;
 
-            const totalExpense = expensesData.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+            const totalExpense = (expensesData || []).reduce((sum, expense) => {
+                return sum + (Number(expense.amount) || 0);
+            }, 0);
 
-            // Fetch Products Needing Restock (quantity <= 10, for example)
+            // ✅ Fetch Products Needing Restock
             const { count: restockCount, error: restockError } = await supabase
                 .from('products')
                 .select('*', { count: 'exact', head: true })
-                .lte('quantity', 10); // Products with 10 or fewer items
+                .lte('quantity', 10);
 
             if (restockError) throw restockError;
 
@@ -56,7 +60,7 @@ function StatsGrid() {
             });
 
         } catch (error) {
-            console.error('Error fetching stats:', error.message);
+            console.error('❌ Error fetching stats:', error);
         } finally {
             setLoading(false);
         }
@@ -65,7 +69,6 @@ function StatsGrid() {
     useEffect(() => {
         fetchStats();
 
-        // Real-time listeners for all relevant tables
         const salesChannel = supabase
             .channel('sales-stats-realtime')
             .on(
