@@ -234,44 +234,33 @@ function AddPurchaseModal({ isOpen, onClose }) {
         setIsSaving(true);
 
         try {
-            // Validate customer is selected
             if (!formValues.customerId) {
                 throw new Error('Please select a valid customer from the dropdown');
             }
 
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
-            const totalToInsert = parseNum(formValues.amount);
-            const newBalance = parseNum(formValues.remainingBalance);
+            
+            // ✅ NEW: Separate values for new structure
+            const totalAmount_value = totalAmount; // Grand total of all items
+            const paidAmount_value = parseNum(formValues.amount); // What customer paid
+            const remainingBalance_value = parseNum(formValues.remainingBalance); // Unpaid balance for THIS sale
 
-            console.log('🔍 Sale Debug:', {
-                customer_id: formValues.customerId,
-                customer_name: formValues.customer,
-                totalAmount,
-                amountPaid: totalToInsert,
-                newBalance,
-                currentBalance: formValues.currentCustomerBalance,
-                creditLimit: formValues.creditLimit
-            });
-
-            // Credit limit check (only if there's a new balance AND customer has existing balance)
-            if (newBalance > 0 && formValues.currentCustomerBalance > 0) {
+            // Credit limit check
+            if (remainingBalance_value > 0 && formValues.currentCustomerBalance > 0) {
                 const { data: creditCheck, error: creditError } = await supabase
                     .rpc('check_customer_credit_limit', {
                         p_customer_id: formValues.customerId,
-                        p_new_balance: newBalance
+                        p_new_balance: remainingBalance_value
                     });
 
-                if (creditError) {
-                    console.error('Credit check error:', creditError);
-                    throw creditError;
-                }
+                if (creditError) throw creditError;
 
                 if (!creditCheck.allowed) {
                     const message = `❌ Credit Limit Exceeded!\n\n` +
                         `Customer: ${formValues.customer}\n` +
                         `Credit Limit: ₱${creditCheck.credit_limit?.toLocaleString()}\n` +
                         `Current Balance: ₱${creditCheck.current_balance?.toLocaleString()}\n` +
-                        `New Sale Balance: ₱${newBalance.toLocaleString()}\n` +
+                        `New Sale Balance: ₱${remainingBalance_value.toLocaleString()}\n` +
                         `Total Would Be: ₱${creditCheck.total_would_be?.toLocaleString()}\n\n` +
                         `Please collect payment before creating a new sale.`;
                     
@@ -312,24 +301,23 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 receiptFilename = fileName;
             }
 
-            // Insert sale with customer_id
+            // ✅ Insert sale with NEW column structure
             const { data: saleData, error: saleError } = await supabase
                 .from('SalesTable')
                 .insert([{
                     customer_id: formValues.customerId,
-                    date: formValues.transactionDate,
-                    amount: totalToInsert,
+                    total_amount: totalAmount_value,           // ✅ Total cost of items
+                    paid_amount: paidAmount_value,             // ✅ Amount customer paid
+                    remaining_balance: remainingBalance_value,  // ✅ Unpaid balance for this sale
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,
-                    status: newBalance <= 0 ? "Fully Paid" : "With Balance",
+                    status: remainingBalance_value <= 0 ? "Fully Paid" : "With Balance",
                     purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
                 }])
                 .select()
                 .single();
 
             if (saleError) throw new Error(`SalesTable Error: ${saleError.message}`);
-
-            console.log('✅ Sale created:', saleData);
 
             // Insert purchased items
             const itemsToInsert = purchaseItems.map(item => ({
@@ -342,45 +330,27 @@ function AddPurchaseModal({ isOpen, onClose }) {
             const { error: itemsError } = await supabase.from('purchasedItems').insert(itemsToInsert);
             if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
 
-            // Insert payment history
-            if (totalToInsert > 0) {
+            // Insert payment history (only if payment was made)
+            if (paidAmount_value > 0) {
                 await supabase.from('paymentHistory').insert([{
                     order_id: saleData.order_id,
-                    payment_amount: totalToInsert,
+                    payment_amount: paidAmount_value,
                     payment_date: formValues.transactionDate
                 }]);
             }
 
-            // ✅ ALWAYS update customer balance (even if 0)
-            console.log('💰 Updating customer balance:', {
-                customer_id: formValues.customerId,
-                adding: newBalance
-            });
-
+            // ✅ Update customer's total balance (add this sale's remaining balance)
             const { error: balanceError } = await supabase.rpc('update_customer_balance', {
                 p_customer_id: formValues.customerId,
-                p_new_balance: newBalance
+                p_new_balance: remainingBalance_value
             });
 
             if (balanceError) {
-                console.error('❌ Balance update error:', balanceError);
                 throw new Error(`Failed to update customer balance: ${balanceError.message}`);
             }
 
-            console.log('✅ Customer balance updated successfully');
-
-            // Verify balance was updated
-            const { data: verifyCustomer } = await supabase
-                .from('customers')
-                .select('remaining_balance')
-                .eq('customer_id', formValues.customerId)
-                .single();
-
-            console.log('✅ Verified new balance:', verifyCustomer?.remaining_balance);
-
             onClose();
         } catch (err) {
-            console.error('❌ Save error:', err);
             alert("Failed to save: " + err.message);
         } finally {
             setIsSaving(false);
