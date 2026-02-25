@@ -8,39 +8,38 @@ const statsData = [
 ];
 
 function StatsGrid() {
-    const [salesData, setSalesData] = useState([]);
+    const [balanceData, setBalanceData] = useState([]);
 
-    const fetchSalesData = async () => {
+    const fetchBalanceData = async () => {
         const { data, error } = await supabase
-            .from('SalesTable')
-            .select('amount, remaining_balance')
-            .gt ('remaining_balance', 0);
+            .from('customers')
+            .select('remaining_balance');
 
-        if (!error) setSalesData(data || []);
+        if (!error) setBalanceData(data || []);
     };
 
     useEffect(() => {
-        fetchSalesData();
+        fetchBalanceData();
 
         const channel = supabase
-            .channel('SalesTable-realtime')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'SalesTable' }, () => {
-                fetchSalesData();
+            .channel('customers-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => {
+                fetchBalanceData();
             })
             .subscribe();
 
         return () => { supabase.removeChannel(channel); };
     }, []);
 
-    const totalReceivables = salesData.reduce((sum, row) => sum + (Number(row.remaining_balance) || 0), 0);
+    const totalReceivables = balanceData.reduce((sum, row) => sum + (Number(row.remaining_balance) || 0), 0);
 
     const statsCards = [
-        {title: "Active Debts", value: salesData.length.toString(), icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500"},
+        {title: "Active Debts", value: balanceData.length.toString(), icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500"},
         { title: "Account Receivables", value: `₱ ${totalReceivables.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: PhilippinePeso, bgColor: "bg-yellow-500/10", textColor: "text-yellow-500" },
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {statsCards.map((item, index) => (
                 <div 
                     key={index} 
@@ -48,16 +47,16 @@ function StatsGrid() {
                 >
                     <div className="flex items-start justify-between">
                         <div className="flex-1">
-                            <p className="text-normal md:text-sm lg:text-normal font-medium text-slate-600 dark:text-slate-400">
+                            <p className="text-md font-medium text-slate-600 dark:text-slate-400">
                                 {item.title}
                             </p>
-                            <h3 className="text-xl lg:text-3xl font-bold mt-1 text-slate-900/90 dark:text-white">
+                            <h3 className="text-2xl lg:text-3xl xl:text-xl 2xl:text-3xl font-bold mt-2 text-slate-900 dark:text-white truncate" title={item.value}>
                                 {item.value}
                             </h3>
                         </div>
 
                         <div className={`p-3 rounded-xl ${item.bgColor} group-hover:scale-110 transition-all duration-300`}>
-                            <item.icon className={`md:w-5 md:h-5 lg:w-6 lg:h-6 ${item.textColor}`} />
+                            <item.icon className={`w-5 h-5 2xl:w-6 2xl:h-6 ${item.textColor}`} />
                         </div>
                     </div>
                 </div>
