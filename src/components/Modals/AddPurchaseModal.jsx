@@ -262,7 +262,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         `Current Balance: ₱${creditCheck.current_balance?.toLocaleString()}\n` +
                         `New Sale Balance: ₱${remainingBalance_value.toLocaleString()}\n` +
                         `Total Would Be: ₱${creditCheck.total_would_be?.toLocaleString()}\n\n` +
-                        `Please collect payment before creating a new sale.`;
+                        `Please collect the remaining balance first before creating a new sale.`;
                     
                     alert(message);
                     setIsSaving(false);

@@ -4,53 +4,62 @@ import { supabase } from '../../lib/supabase';
 
 function StatsGrid() {
     const [salesData, setSalesData] = useState([]);
+    const [receivablesData, setReceivablesData] = useState([]);
 
     const fetchSalesData = async () => {
         const { data, error } = await supabase
             .from('SalesTable')
-            .select('amount')
+            .select('paid_amount'); // ✅ Changed from 'amount' to 'paid_amount'
 
         if (!error) setSalesData(data || []);
     };
+
     const fetchReceivablesData = async () => {
         const { data, error } = await supabase
             .from('customers')
-            .select('remaining_balance')
+            .select('remaining_balance');
 
-        if (!error) setSalesData(data || []);
+        if (!error) setReceivablesData(data || []); // ✅ Fixed: was overwriting salesData
     };
 
     useEffect(() => {
         fetchSalesData();
 
-        const channel = supabase
-            .channel('SalesTable-realtime')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'SalesTable' }, () => {
+        const salesChannel = supabase
+            .channel('sales-stats-channel') // ✅ Unique channel name
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'SalesTable' 
+            }, () => {
                 fetchSalesData();
             })
             .subscribe();
 
-        return () => { supabase.removeChannel(channel); };
+        return () => { supabase.removeChannel(salesChannel); };
     }, []);
 
     useEffect(() => {
         fetchReceivablesData();
 
-        const channel = supabase
-            .channel('CustomersTable-realtime')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => {
+        const receivablesChannel = supabase
+            .channel('customers-stats-channel') // ✅ Unique channel name
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'customers' 
+            }, () => {
                 fetchReceivablesData();
             })
             .subscribe();
 
-        return () => { supabase.removeChannel(channel); };
+        return () => { supabase.removeChannel(receivablesChannel); };
     }, []);
 
-    // --- CALCULATIONS ---
-    const totalProfit = salesData.reduce((sum, row) => sum + (Number(row.amount) || 0), 0);
-    const totalReceivables = salesData.reduce((sum, row) => sum + (Number(row.remaining_balance) || 0), 0);
+    // ✅ Fixed calculations
+    const totalProfit = salesData.reduce((sum, row) => sum + (Number(row.paid_amount) || 0), 0);
+    const totalReceivables = receivablesData.reduce((sum, row) => sum + (Number(row.remaining_balance) || 0), 0);
     
-    // Derived array for the UI
     const statsCards = [
         { 
             title: "Total Number of Sales", 
@@ -61,14 +70,14 @@ function StatsGrid() {
         },
         { 
             title: "Total Amount of Profit", 
-            value: `₱ ${totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, 
+            value: `₱ ${totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 
             icon: Wallet, 
             bgColor: "bg-blue-500/10", 
             textColor: "text-blue-500" 
         },
         { 
             title: "Account Receivables", 
-            value: `₱ ${totalReceivables.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, 
+            value: `₱ ${totalReceivables.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 
             icon: PhilippinePeso, 
             bgColor: "bg-orange-500/10", 
             textColor: "text-red-500" 
