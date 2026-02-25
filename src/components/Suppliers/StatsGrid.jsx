@@ -1,16 +1,53 @@
-import React from 'react';
-import { Users, Plus } from 'lucide-react';
+import React, {useState, useEffect} from 'react';
+import { Users } from 'lucide-react';
+import { supabase } from "../../lib/supabase";
 
 const statsData = [
   { title: "Total Suppliers", value: "15", icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500" },
 ];
 
 function StatsGrid() {
-    // const { darkMode } = useOutletContext();
+    const [supplierData, setSupplierData] = useState([])
+
     
+    const fetchSuppliers = async () => {
+        const { data, error } = await supabase
+            .from('supplier')
+            .select('*')
+            .order('id', { ascending: true })
+    
+        if (!error) setSupplierData(data);
+    }
+    
+    useEffect(() => {
+        fetchSuppliers();
+    
+        // Real-time listener for SupplierTable
+        const channel = supabase
+            .channel('supplier-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'supplier' },
+                () => { fetchSuppliers() }
+            )
+            .subscribe();
+    
+        return () => { supabase.removeChannel(channel) }
+    }, []);
+
+    const statsCards = [
+        { 
+            title: "Total Suppliers", 
+            value: supplierData.length.toString(), 
+            icon: Users, 
+            bgColor: "bg-blue-500/10", 
+            textColor: "text-blue-500" 
+        }
+    ];
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {statsData.map((item, index) => (
+            {statsCards.map((item, index) => (
                 <div 
                     key={index} 
                     className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800"
