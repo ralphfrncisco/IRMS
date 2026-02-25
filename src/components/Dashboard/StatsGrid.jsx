@@ -165,10 +165,10 @@ function StatsGrid() {
                 >
                     <div className="flex md:flex-col lg:flex-row items-start justify-between">
                         <div className="flex-1 order-1 md:order-2 lg:order-1 mt-0 md:mt-2 lg:mt-0">
-                            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                            <p className="text-md font-medium text-slate-600 dark:text-slate-400">
                                 {item.title}
                             </p>
-                            <h3 className="text-lg sm:text-2xl lg:text-3xl xl:text-xl 2xl:text-3xl font-bold mt-2 text-slate-900 dark:text-white truncate" title={item.value}>
+                            <h3 className="text-2xl lg:text-3xl xl:text-xl 2xl:text-3xl font-bold mt-2 text-slate-900 dark:text-white truncate" title={item.value}>
                                 {item.value}
                             </h3>
                         </div>
