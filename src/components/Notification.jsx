@@ -100,7 +100,7 @@ function Notification() {
                 <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 break-words whitespace-pre-line">
                   {notification.description}  {/* ✅ This shows the details with line breaks */}
                 </p>
-                <p className="text-[10px] text-blue-500 dark:text-blue-300 mt-3 font-medium">
+                <p className="text-[10px] text-blue-500 mt-3 font-medium">
                   {new Date(notification.datetime).toLocaleString('en-US', {
                     month: 'short',
                     day: 'numeric',
