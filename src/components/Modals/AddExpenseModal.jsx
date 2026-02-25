@@ -221,7 +221,6 @@ function AddExpenseModal({isOpen, onClose}) {
                 .insert([{
                     expense_type: formValues.expenseType,
                     supplier_name: isStockExpense ? formValues.supplierName : null,
-                    date: formValues.transactionDate,
                     amount: finalAmount,
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,

@@ -238,9 +238,8 @@ function TableSection() {
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
                             {visibleColumns['ID'] && <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>}
-                            {visibleColumns['NAME'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Paid To</th>}
-                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['EXPENSE TYPE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>}
+                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
                             {visibleColumns['REMARKS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>}
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
@@ -254,18 +253,14 @@ function TableSection() {
                             filteredExpenses.map((item) => (
                                 <tr key={item.expense_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                     {visibleColumns['ID'] && <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">EXP-{item.expense_id.toString().padStart(4, '0')}</td>}
-                                    {visibleColumns['NAME'] && <td className="p-4 text-sm font-normal">
-                                        {item.supplier_name}
-                                    </td>}
-                                    {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">
-                                        {formatCurrency(item.amount)}
-                                    </td>}
                                     {visibleColumns['EXPENSE TYPE'] && <td className="p-4 text-center">
                                         <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getTypeColor(item.expense_type)}`}>
                                             {item.expense_type}
                                         </span>
                                     </td>}
-                                    
+                                    {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">
+                                        {formatCurrency(item.amount)}
+                                    </td>}
                                     {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(item.created_at)}</td>}
                                     {visibleColumns['REMARKS'] && <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">{item.remarks || 'N/A'}</td>}
                                     <td className="p-4 text-center">
