@@ -137,14 +137,14 @@ function TableSection() {
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
                 
                 {/* Header Title Section */}
-                <div className="flex items-center justify-between w-full py-2">
+                <div className="flex items-center justify-between w-full">
                     <div className="flex items-center justify-between w-full py-2">
-                        <div className = "flex items-center justify-between w-full py-2">
+                        <div className = "flex items-center justify-between w-full">
                             <div>
                                 <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">Customer List</h3>
                                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {loading ? 'Loading...' : `Total: ${filteredCustomers.length} entries`}
-                        </p>
+                                    {loading ? 'Loading...' : `Total: ${filteredCustomers.length} entries`}
+                                </p>
                             </div>
                             <div className="flex items-center gap-2 relative" ref={filterRef}>
                                 {/* The Toggle Button */}
@@ -206,8 +206,8 @@ function TableSection() {
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                             <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Name</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Credit Limit</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Balance</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Credit Limit</th>  
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
                     </thead>
@@ -223,11 +223,11 @@ function TableSection() {
                                 <td className="p-4 text-center text-sm">
                                     {customer.contact_number}
                                 </td>
-                                <td className="p-4 text-center text-sm font-semibold text-amber-600 dark:text-amber-500">
-                                    {formatCurrency(customer.credit_limit)}
-                                </td>
                                 <td className="p-4 text-center text-sm font-semibold text-red-600 dark:text-red-500">
                                     {formatCurrency(customer.remaining_balance)}
+                                </td>
+                                <td className="p-4 text-center text-sm font-semibold text-amber-600 dark:text-amber-500">
+                                    {formatCurrency(customer.credit_limit)}
                                 </td>
                                 <td className="p-4 text-center">
                                     <div className="flex items-center justify-center gap-1">

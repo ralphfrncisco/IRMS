@@ -105,25 +105,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                             />
                         </div>
                     </div>
-
-                    {/* Credit Limit */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            Credit Limit
-                        </label>
-                        <div className="relative">
-                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input
-                                type="number"
-                                name="credit_limit"
-                                value={formData.credit_limit}
-                                onChange={handleInputChange}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                step="0.01"
-                            />
-                        </div>
-                    </div>
-
+                    
                     {/* Remaining Balance */}
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -141,6 +123,24 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                             />
                         </div>
                     </div>
+                    {/* Credit Limit */}
+                    <div>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Credit Limit
+                        </label>
+                        <div className="relative">
+                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <input
+                                type="number"
+                                name="credit_limit"
+                                value={formData.credit_limit}
+                                onChange={handleInputChange}
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                step="0.01"
+                            />
+                        </div>
+                    </div>
+                    
 
                     {/* Buttons */}
                     <div className="flex gap-3 pt-4">
