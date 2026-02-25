@@ -100,7 +100,7 @@ function RecentOrdersTable() {
                     </div>
                 </div>
 
-                <div className="h-auto overflow-x-auto">
+                <div className="h-auto overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-separate border-spacing-y-1">
                         <thead>
                             <tr className="bg-slate-50/50 dark:bg-slate-800/50">
