@@ -38,15 +38,31 @@ input[type="number"] {
   appearance: textfield;
 }
 
-/* ... (approx 10 lines before) */
+
+#input-form-83vw {
+    max-width: 83vw;
+}
+
+@media screen and (min-width: 500px) {
+    #input-form-83vw {
+      max-width: 86.5vw;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    #input-form-83vw {
+        max-width: 100%;
+    }
+}
+
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px; /* Slightly thinner for a cleaner look */
-  height: 6px; /* For horizontal scrollbars */
+  width: 6px;
+  height: 6px;
   
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent; /* Makes it blend into your cards */
+  background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {

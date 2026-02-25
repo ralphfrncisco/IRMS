@@ -455,11 +455,12 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 type="text" 
                                                 name="additionalPayment" 
                                                 value={formValues.additionalPayment} 
+                                                placeholder = {(formValues.paidAmount + (parseFloat(formValues.additionalPayment.replace(/,/g, '')) || 0)).toLocaleString()}
                                                 onChange={handleInputChange} 
                                                 className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none" 
                                             />
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                                             Total Paid: ₱{(formValues.paidAmount + (parseFloat(formValues.additionalPayment.replace(/,/g, '')) || 0)).toLocaleString()}
                                         </p>
                                     </div>
