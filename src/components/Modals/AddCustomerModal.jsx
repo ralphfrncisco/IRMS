@@ -11,9 +11,26 @@ function AddCustomerModal({ isOpen, onClose }) {
     });
     const [isSaving, setIsSaving] = useState(false);
 
+    const formatInputCurrency = (value) => {
+        if (!value || value === '0') return '';
+        const cleanValue = value.toString().replace(/[^0-9.]/g, '');
+        const parts = cleanValue.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if (parts.length > 1) {
+            return `${parts[0]}.${parts[1].substring(0, 2)}`;
+        }
+        return parts[0];
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // ✅ Format currency fields
+        if (name === 'credit_limit' || name === 'remaining_balance') {
+            setFormData(prev => ({ ...prev, [name]: formatInputCurrency(value) }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -21,13 +38,16 @@ function AddCustomerModal({ isOpen, onClose }) {
         setIsSaving(true);
 
         try {
+            // ✅ Parse formatted currency values
+            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
+
             const { error } = await supabase
                 .from('customers')
                 .insert([{
                     full_name: formData.full_name,
                     contact_number: formData.contact_number,
-                    credit_limit: parseFloat(formData.credit_limit) || 0,
-                    remaining_balance: parseFloat(formData.remaining_balance) || 0
+                    credit_limit: parseNum(formData.credit_limit),
+                    remaining_balance: parseNum(formData.remaining_balance)
                 }]);
 
             if (error) throw error;
@@ -78,7 +98,7 @@ function AddCustomerModal({ isOpen, onClose }) {
                                 name="full_name"
                                 value={formData.full_name}
                                 onChange={handleInputChange}
-                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 required
                             />
                         </div>
@@ -111,13 +131,13 @@ function AddCustomerModal({ isOpen, onClose }) {
                         <div className="relative">
                             <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
-                                type="number"
+                                type="text"
                                 name="credit_limit"
                                 value={formData.credit_limit}
                                 onChange={handleInputChange}
                                 className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 placeholder="0.00"
-                                step="0.01"
+                                autoComplete="off"
                             />
                         </div>
                     </div>
@@ -130,13 +150,13 @@ function AddCustomerModal({ isOpen, onClose }) {
                         <div className="relative">
                             <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
-                                type="number"
+                                type="text"
                                 name="remaining_balance"
                                 value={formData.remaining_balance}
                                 onChange={handleInputChange}
                                 className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 placeholder="0.00"
-                                step="0.01"
+                                autoComplete="off"
                             />
                         </div>
                     </div>

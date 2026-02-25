@@ -11,20 +11,37 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
     });
     const [isUpdating, setIsUpdating] = useState(false);
 
+    const formatInputCurrency = (value) => {
+        if (!value || value === '0') return '';
+        const cleanValue = value.toString().replace(/[^0-9.]/g, '');
+        const parts = cleanValue.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if (parts.length > 1) {
+            return `${parts[0]}.${parts[1].substring(0, 2)}`;
+        }
+        return parts[0];
+    };
+
     useEffect(() => {
         if (customerData) {
             setFormData({
                 full_name: customerData.full_name || '',
                 contact_number: customerData.contact_number || '',
-                credit_limit: customerData.credit_limit || '',
-                remaining_balance: customerData.remaining_balance || ''
+                credit_limit: formatInputCurrency(customerData.credit_limit?.toString() || ''),
+                remaining_balance: formatInputCurrency(customerData.remaining_balance?.toString() || '')
             });
         }
     }, [customerData]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // ✅ Format currency fields
+        if (name === 'credit_limit' || name === 'remaining_balance') {
+            setFormData(prev => ({ ...prev, [name]: formatInputCurrency(value) }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -32,13 +49,16 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
         setIsUpdating(true);
 
         try {
+            // ✅ Parse formatted currency values
+            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
+
             const { error } = await supabase
                 .from('customers')
                 .update({
                     full_name: formData.full_name,
                     contact_number: formData.contact_number,
-                    credit_limit: parseFloat(formData.credit_limit) || 0,
-                    remaining_balance: parseFloat(formData.remaining_balance) || 0
+                    credit_limit: parseNum(formData.credit_limit),
+                    remaining_balance: parseNum(formData.remaining_balance)
                 })
                 .eq('customer_id', customerData.customer_id);
 
@@ -106,23 +126,6 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                         </div>
                     </div>
                     
-                    {/* Remaining Balance */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            Remaining Balance
-                        </label>
-                        <div className="relative">
-                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input
-                                type="number"
-                                name="remaining_balance"
-                                value={formData.remaining_balance}
-                                onChange={handleInputChange}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                step="0.01"
-                            />
-                        </div>
-                    </div>
                     {/* Credit Limit */}
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -131,16 +134,33 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                         <div className="relative">
                             <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
-                                type="number"
+                                type="text"
                                 name="credit_limit"
                                 value={formData.credit_limit}
                                 onChange={handleInputChange}
                                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                step="0.01"
+                                autoComplete="off"
                             />
                         </div>
                     </div>
-                    
+
+                    {/* Remaining Balance */}
+                    <div>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Remaining Balance
+                        </label>
+                        <div className="relative">
+                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <input
+                                type="text"
+                                name="remaining_balance"
+                                value={formData.remaining_balance}
+                                onChange={handleInputChange}
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                autoComplete="off"
+                            />
+                        </div>
+                    </div>
 
                     {/* Buttons */}
                     <div className="flex gap-3 pt-4">
