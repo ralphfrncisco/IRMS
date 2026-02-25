@@ -63,7 +63,7 @@ function TableSection() {
         'ACTIONS': true
     });
 
-    // ✅ UPDATED: Fetch with LEFT JOIN to get customer data
+
     const fetchOrders = async () => {
         try {
             setLoading(true);
@@ -82,7 +82,6 @@ function TableSection() {
 
             if (error) throw error;
 
-            // ✅ Transform data to flatten customer info
             const transformedData = (data || []).map(order => ({
                 ...order,
                 customer_full_name: order.customers?.full_name || 'Unknown Customer',
@@ -162,7 +161,6 @@ function TableSection() {
     }, [orders, dateRangeFilter, customerFilter, paymentStatusFilter]);
 
     const handleOpenEdit = (order) => {
-        console.log('📋 Opening order with customer data:', order);
         setSelectedOrder(order);
         setIsEditModalOpen(true);
     };

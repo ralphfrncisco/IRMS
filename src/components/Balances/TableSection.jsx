@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useOutletContext } from 'react-router-dom';
 import { Funnel, Eye, Loader2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter';
@@ -44,14 +45,8 @@ export default function TableSection() {
         return `₱ ${formatter.format(value)}`;
     };
 
-    const formatDisplayDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
+    const formatDisplayDateTime = (dateTimeString) => {
+        return formatDateTimeShort(dateTimeString);
     };
     
     const iconProps = { 
@@ -75,19 +70,29 @@ export default function TableSection() {
             setLoading(true);
             const { data, error } = await supabase
                 .from('SalesTable')
-                .select('*')
+                .select(`
+                    *,
+                    customers:customer_id (
+                        customer_id,
+                        full_name,
+                        remaining_balance,
+                        credit_limit
+                    )
+                `)
                 .in('status', ['With Balance', 'Unpaid'])
-                .order('order_id', { ascending: false });
+                .order('created_at', { ascending: false });
 
             if (error) throw error;
 
-            // Map id to db_id to ensure Modal consistency
-            const formattedData = (data || []).map(item => ({
-                ...item,
-                db_id: item.id 
+            const transformedData = (data || []).map(order => ({
+                ...order,
+                customer_full_name: order.customers?.full_name || 'Unknown Customer',
+                customer_contact: order.customers?.contact_number || '',
+                customer_balance: order.customers?.remaining_balance || 0,
+                customer_credit_limit: order.customers?.credit_limit || 0
             }));
 
-            setSalesData(formattedData);
+            setSalesData(transformedData);
         } catch (error) {
             console.error('Error fetching orders:', error.message);
         } finally {
@@ -112,13 +117,12 @@ export default function TableSection() {
     
 
     // --- DYNAMIC OPTION GENERATION ---
-    const extractUniqueOptions = (key, placeholder) => {
-        const uniqueValues = [...new Set(salesData.map(order => order[key]))];
-        return [placeholder, ALL_OPTION, ...uniqueValues.sort()];
-    };
+    const customerOptions = useMemo(() => {
+        const names = [...new Set(salesData.map(order => order.customer_full_name))];
+        return [CUSTOMER_PLACEHOLDER, ALL_OPTION, ...names.sort((a, b) => a.localeCompare(b))];
+    }, [salesData]);
 
     const dateRangeOptions = [DATE_RANGE_PLACEHOLDER, ALL_OPTION, 'Today', 'Last 7 Days', 'Last 30 Days'];
-    const customerOptions = extractUniqueOptions('customer', CUSTOMER_PLACEHOLDER);
     const paymentOptions = [STATUS_PLACEHOLDER, ALL_OPTION, 'With Balance', 'Unpaid', 'Fully Paid'];
 
     // --- STATE MANAGEMENT ---
@@ -130,7 +134,7 @@ export default function TableSection() {
 
     // --- FILTERING LOGIC ---
     const filteredOrders = useMemo(() => {
-        let filtered = salesData;
+        let filtered = [...salesData];
 
         if (customerFilter !== CUSTOMER_PLACEHOLDER && customerFilter !== ALL_OPTION) {
             filtered = filtered.filter(order => order.customer === customerFilter);
@@ -180,8 +184,11 @@ export default function TableSection() {
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25 pb-5 md:pb-0">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-2 lg:flex lg:items-center gap-4 w-full md:w-auto">
-                <div>
+                <div className = "w-full">
                     <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Outstanding Accounts</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {loading ? 'Loading...' : `Total: ${filteredOrders.length} entries`}
+                    </p>
                 </div>
 
                 <div className="flex lg:hidden items-center justify-end gap-2 relative" ref={filterRef}>
@@ -234,7 +241,7 @@ export default function TableSection() {
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
                             {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>}
                             {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
-                            {visibleColumns['PURCHASED ITEMS'] && <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
+                            {visibleColumns['PURCHASED ITEMS'] && <th className="w-[80px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
                             {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remaining Balance</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
                             {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
@@ -259,10 +266,10 @@ export default function TableSection() {
                                             {`ORD-${order.order_id?.toString().padStart(4, '0')}`}
                                         </td>
                                     )}
-                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer}</td>}
-                                    {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className = "max-w-[400px] truncate">{order.purchased_items}</p></td>}
+                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
+                                    {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className = "w-full max-w-[100px] lg:max-w-[200px] xl:max-w-[400px] truncate">{order.purchased_items}</p></td>}
                                     {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-red-500">{formatCurrency(order.remaining_balance)}</td>}
-                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(order.date)}</td>}
+                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(order.created_at)}</td>}
                                     {visibleColumns['STATUS'] && (
                                         <td className="p-4 text-center">
                                             <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
