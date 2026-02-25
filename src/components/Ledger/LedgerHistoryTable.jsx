@@ -163,8 +163,8 @@ function LedgerHistoryTable() {
   }
 
   return (
-    <div className="p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-      <div className="flex items-center justify-between mb-4">
+    <div className="py-5 px-3 md:p-4 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <div className="px-0 flex flex-col md:flex-row items-center md:justify-between mb-5">
         <div>       
           <h3 className="text-xl font-bold text-slate-800 dark:text-white">
             Revenue & Expense History
@@ -173,15 +173,22 @@ function LedgerHistoryTable() {
             Revenue and expense history per week update
           </p>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mr-5">
-          Showing data from January 1, {new Date().getFullYear()} onwards
-        </p>
+        <div className = "w-full md:w-auto pl-4 md:pl-0 mt-7 md:mt-0 mr-0 md:mr-5">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Showing data from January 1, {new Date().getFullYear()} onwards
+          </p>
+        </div>
       </div>
 
       <div className="overflow-x-auto h-auto md:max-h-[580px] overflow-y-auto custom-scrollbar">
         <table className="w-full">
+
+          {/* <caption className="md:hidden text-xs text-slate-500 dark:text-slate-400 mt-4 mb-4 text-left md:text-right">
+            Showing data from January 1, {new Date().getFullYear()} onwards
+          </caption> */}
+          
           <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800">
+            <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
               <th className="py-4 px-6 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Time Frame
               </th>
@@ -230,14 +237,14 @@ function LedgerHistoryTable() {
                 </tr>
 
                 {/* Yearly Total (with top margin) */}
-                <tr className="bg-slate-100 dark:bg-slate-800/50 font-bold border-t-4 border-slate-300 dark:border-slate-700">
+                <tr className="bg-slate-100 dark:bg-slate-800/50 font-bold border border-slate-300 dark:border-slate-900">
                   <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300">
                     Total for the year ({new Date().getFullYear()})
                   </td>
-                  <td className="py-4 px-6 text-sm text-center text-green-700 dark:text-green-300">
+                  <td className="py-4 px-6 text-sm text-center text-green-700 dark:text-green-500">
                     {formatCurrency(yearlyTotals.revenue)}
                   </td>
-                  <td className="py-4 px-6 text-sm text-center text-red-700 dark:text-red-300">
+                  <td className="py-4 px-6 text-sm text-center text-red-700 dark:text-red-500">
                     {formatCurrency(yearlyTotals.expense)}
                   </td>
                 </tr>

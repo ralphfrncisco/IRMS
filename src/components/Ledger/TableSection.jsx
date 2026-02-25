@@ -132,7 +132,7 @@ function TableSection() {
     }, [dateRangeFilter, employeeFilter, salaryData]);
 
     return (
-        <div>
+        <div className = "mb-30 md:mb-0">
 
             <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-10">
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-1 xl:flex xl:items-center gap-4 w-full md:w-auto">
