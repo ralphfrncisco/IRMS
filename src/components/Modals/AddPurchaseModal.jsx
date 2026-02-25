@@ -306,9 +306,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 .from('SalesTable')
                 .insert([{
                     customer_id: formValues.customerId,
-                    total_amount: totalAmount_value,           // ✅ Total cost of items
-                    paid_amount: paidAmount_value,             // ✅ Amount customer paid
-                    remaining_balance: remainingBalance_value,  // ✅ Unpaid balance for this sale
+                    total_amount: totalAmount_value,
+                    paid_amount: paidAmount_value,
+                    remaining_balance: remainingBalance_value,
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,
                     status: remainingBalance_value <= 0 ? "Fully Paid" : "With Balance",
@@ -359,7 +359,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
-            <div className="flex flex-col h-full md:max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800">
+            <div className="flex flex-col h-full md:max-h-[100vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl md:max-w-4xl mx-2 border border-slate-200 dark:border-slate-800">
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Purchase</h2>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
