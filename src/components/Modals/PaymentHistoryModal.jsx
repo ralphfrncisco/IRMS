@@ -28,7 +28,7 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
             try {
                 setLoading(true);
 
-                // Fetch payment history for this order
+                // ✅ Fetch payment history for this order
                 const { data: payments, error: paymentsError } = await supabase
                     .from('paymentHistory')
                     .select('*')
@@ -37,19 +37,25 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
 
                 if (paymentsError) throw paymentsError;
 
-                // Fetch customer name from SalesTable
+                // ✅ Fetch customer name using JOIN (fixed from old 'customer' column)
                 const { data: sale, error: saleError } = await supabase
                     .from('SalesTable')
-                    .select('customer')
+                    .select(`
+                        customer_id,
+                        customers:customer_id (
+                            full_name
+                        )
+                    `)
                     .eq('order_id', orderData.order_id)
                     .single();
 
                 if (saleError) throw saleError;
 
                 setPaymentHistory(payments || []);
-                setCustomerName(sale?.customer || 'Unknown Customer');
+                setCustomerName(sale?.customers?.full_name || 'Unknown Customer');
             } catch (err) {
-                console.error("Error fetching payment history:", err.message);
+                console.error("❌ Error fetching payment history:", err);
+                alert('Error loading payment history: ' + err.message);
             } finally {
                 setLoading(false);
             }

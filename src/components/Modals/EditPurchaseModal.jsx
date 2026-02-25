@@ -306,7 +306,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
     return (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex py-4 items-center justify-center">
-            <div className="flex flex-col h-full md:max-h-[87vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col h-full md:max-h-[100vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
                 <div className="w-full flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Invoice Details</h2>
@@ -410,7 +410,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="space-y-3">
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Receipt Image</label>
-                                <div className="relative aspect-[4/3] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
+                                <div className="relative w-85 h-80 md:w-75 md:h-55 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
                                     {receiptPreview ? (
                                         <>
                                             <img 
@@ -437,8 +437,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                 </div>
                             </div>
 
-                            <div className="col-span-2 space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
+                            <div className="col-span-2 space-y-4 mt-1">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <div className="flex items-center justify-between">
                                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Additional Payment</label>
