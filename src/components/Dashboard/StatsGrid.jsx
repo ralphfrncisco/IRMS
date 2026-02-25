@@ -164,7 +164,7 @@ function StatsGrid() {
                     className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 group"
                 >
                     <div className="flex md:flex-col lg:flex-row items-start justify-between">
-                        <div className="flex-1 order-1 md:order-2 lg:order-1 mt-2 lg:mt-0">
+                        <div className="flex-1 order-1 md:order-2 lg:order-1 mt-0 md:mt-2 lg:mt-0">
                             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                                 {item.title}
                             </p>

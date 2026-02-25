@@ -110,7 +110,7 @@ function SalesChart() {
     }
 
     return (
-        <div className="p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
+        <div className="h-auto max-h-[50vh] p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
             <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                     Top Products Sold

@@ -9,7 +9,7 @@ const activities = [
 
 function ActivityFeed() {
   return (
-    <div className="rounded-2xl border transition-all duration-300 bg-white border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
+    <div className="h-[39vh] rounded-2xl border transition-all duration-300 bg-white border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
       <div className="p-6 border-b flex items-center justify-between border-slate-100 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">

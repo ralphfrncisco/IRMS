@@ -28,7 +28,7 @@ const MainLayout = () => {
         />
 
         {/* pb-16 ensures content isn't covered by the mobile bottom nav */}
-        <main className="p-4 pt-5 pb-20 sm:pb-4 overflow-y-auto flex-1">
+        <main className="p-4 pt-5 pb-20 sm:pb-4 h-full overflow-auto">
           <Outlet context={{ darkMode }} /> 
         </main>
       </div>
