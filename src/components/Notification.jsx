@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, PhilippinePeso, AlertTriangle, ShoppingCart, Bell, Package } from 'lucide-react';
+import { X, PhilippinePeso, AlertTriangle, ShoppingCart, Bell, Package, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import '../App.css';
 
@@ -11,14 +11,12 @@ function Notification() {
       n.id === id ? { ...n, isExiting: true } : n
     ));
 
-    // Wait for animation (400ms) then remove from state
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, 400);
   };
 
   useEffect(() => {
-    // Subscribe to real-time activity logs
     const channel = supabase
       .channel('activity-logs-realtime')
       .on(
@@ -31,7 +29,6 @@ function Notification() {
         (payload) => {
           const newLog = payload.new;
           
-          // Add to notifications
           const notification = {
             id: newLog.id,
             activity: newLog.activity,
@@ -41,9 +38,8 @@ function Notification() {
             timestamp: Date.now()
           };
 
-          setNotifications(prev => [notification, ...prev].slice(0, 3)); // Keep max 3
+          setNotifications(prev => [notification, ...prev].slice(0, 3));
 
-          // Auto-remove after 5 seconds
           setTimeout(() => triggerExit(notification.id), 5000);
         }
       )
@@ -57,17 +53,19 @@ function Notification() {
   const getIcon = (keyword) => {
     switch (keyword) {
         case 'New Sale':
-            return <div className = "p-2.5 bg-green-100/50 dark:bg-green-900/30 rounded-lg"><ShoppingCart className="w-4.5 h-4.5 text-green-500" /></div>;
+            return <div className="p-2.5 bg-green-100/50 dark:bg-green-900/30 rounded-lg"><ShoppingCart className="w-4.5 h-4.5 text-green-500" /></div>;
         case 'Low Stock':
-            return <div className = "p-2.5 bg-yellow-100/50 dark:bg-yellow-900/30 rounded-lg"><AlertTriangle className="w-4.5 h-4.5 text-yellow-500" /></div>;
+            return <div className="p-2.5 bg-red-100/50 dark:bg-red-900/30 rounded-lg"><AlertTriangle className="w-4.5 h-4.5 text-red-500" /></div>;
         case 'Payment':
-            return <div className = "p-2.5 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-blue-500" /></div>;
+            return <div className="p-2.5 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-blue-500" /></div>;
         case 'Expense':
-            return <div className = "p-2.5 bg-red-100/50 dark:bg-red-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-red-500" /></div>;
+            return <div className="p-2.5 bg-red-100/50 dark:bg-red-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-red-500" /></div>;
         case 'Inventory':
-            return <div className = "p-2.5 bg-purple-100/50 dark:bg-purple-900/30 rounded-lg"><Package className="w-4.5 h-4.5 text-purple-500" /></div>;
+            return <div className="p-2.5 bg-purple-100/50 dark:bg-purple-900/30 rounded-lg"><Package className="w-4.5 h-4.5 text-purple-500" /></div>;
+        case 'Salary':
+            return <div className="p-2.5 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg"><Users className="w-4.5 h-4.5 text-blue-500" /></div>;
         default:
-            return <div className = "p-2.5 bg-slate-100/50 dark:bg-slate-900/30 rounded-lg"><Bell className="w-4.5 h-4.5 text-slate-500" /></div>;
+            return <div className="p-2.5 bg-slate-100/50 dark:bg-slate-900/30 rounded-lg"><Bell className="w-4.5 h-4.5 text-slate-500" /></div>;
     }
   };
 
@@ -79,7 +77,6 @@ function Notification() {
 
   return (
     <>
-
       <div className="fixed top-22 right-1 md:right-6 z-[9999] space-y-3 pointer-events-none">
         {notifications.map((notification, index) => (
           <div
@@ -98,7 +95,7 @@ function Notification() {
                   {notification.activity}
                 </h4>
                 <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 break-words whitespace-pre-line">
-                  {notification.description}  {/* ✅ This shows the details with line breaks */}
+                  {notification.description}
                 </p>
                 <p className="text-[10px] text-blue-500 mt-3 font-medium">
                   {new Date(notification.datetime).toLocaleString('en-US', {

@@ -7,6 +7,7 @@ import LedgerHistoryTable from './LedgerHistoryTable';
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter'; 
 import ColumnFilter from '../Filters/SortByFilter';
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
 import AddSalaryModal from '../Modals/AddSalaryModal';
 
@@ -42,14 +43,8 @@ function TableSection() {
         return `₱ ${formatter.format(value)}`;
     };
 
-    const formatDisplayDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
+    const formatDisplayDateTime = (dateTimeString) => {
+        return formatDateTimeShort(dateTimeString);
     };
     
     const iconProps = { 
@@ -62,7 +57,7 @@ function TableSection() {
         const { data, error } = await supabase
             .from('salary')
             .select('*')
-            .order('id', { ascending: true })
+            .order('created_at', { ascending: false })
 
         if (!error) setSalaryData(data);
         setIsLoading(false); // Stop loading
@@ -225,7 +220,7 @@ function TableSection() {
                                     <tr key={entry.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                         {visibleColumns['ID'] && (
                                             <td className="text-center p-4 text-sm font-medium text-blue-600 dark:text-blue-500 whitespace-nowrap">
-                                                {entry.id}
+                                                {entry.employee_id}
                                             </td>
                                         )}
                                         {visibleColumns['EMPLOYEE'] && (
@@ -237,7 +232,7 @@ function TableSection() {
                                             <td className="p-4 text-center text-sm font-semibold text-emerald-600 dark:text-emerald-500">
                                                 {formatCurrency(entry.amount)}
                                             </td>}
-                                        {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDate(entry.date)}</td>}
+                                        {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(entry.created_at)}</td>}
                                     </tr>
                                 ))
                             )}
@@ -254,150 +249,6 @@ function TableSection() {
                 />
             </div>
             <LedgerHistoryTable/>
-            
-            {/* <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
-                <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-1 xl:flex xl:items-center gap-4 w-full md:w-auto">
-                    <div className="flex items-center justify-between w-full py-2">
-                        <div>
-                            <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Revenue & Expense History</h3>
-                            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">Revenue and expense history per week update</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto p-2">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                                {visibleColumns['ID'] && <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Time Frame</th>}
-                                {visibleColumns['EMPLOYEE'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Revenue</th>}
-                                {visibleColumns['AMOUNT'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Expense</th>}
-                            </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    February 1 2025 to February 7 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    February 8 2025 to February 14 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    February 15 2025 to February 21 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    February 22 2025 to February 28 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 pb-8 text-sm font-bold text-blue-500">
-                                    Total for the month
-                                </td>
-                                <td className="p-4 pb-8 text-sm font-medium text-emerald-500">
-                                    ₱ 100,000.00
-                                </td>
-                                <td className="p-4 pb-8 text-sm font-medium text-red-500">
-                                    ₱ 60,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    March 1 2025 to March 7 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    March 8 2025 to March 14 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    March 15 2025 to March 21 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    March 22 2025 to March 28 2025
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 25,000.00
-                                </td>
-                                <td className="p-4 text-sm font-normal text-slate-900 dark:text-white">
-                                    ₱ 15,000.00
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="text-center p-4 pb-8 text-sm font-bold text-blue-500">
-                                    Total for the month
-                                </td>
-                                <td className="p-4 pb-8 text-sm font-medium text-emerald-500">
-                                    ₱ 100,000.00
-                                </td>
-                                <td className="p-4 pb-8 text-sm font-medium text-red-500">
-                                    ₱ 60,000.00
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <AddSalaryModal
-                    isOpen={isModalOpen} 
-                    onClose={() => {
-                        setIsModalOpen(false)
-                        fetchSalary()
-                    }} 
-                />
-            </div> */}
         </div>
     )
 }

@@ -6,6 +6,7 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
     const [paymentHistory, setPaymentHistory] = useState([]);
     const [loading, setLoading] = useState(false);
     const [customerName, setCustomerName] = useState('');
+    const [remainingBalance, setRemainingBalance] = useState(0); // ✅ Add state for remaining balance
 
     const formatDisplayDate = (dateString) => {
         if (!dateString) return '';
@@ -37,11 +38,12 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
 
                 if (paymentsError) throw paymentsError;
 
-                // ✅ Fetch customer name using JOIN (fixed from old 'customer' column)
+                // ✅ Fetch customer name AND remaining balance using JOIN
                 const { data: sale, error: saleError } = await supabase
                     .from('SalesTable')
                     .select(`
                         customer_id,
+                        remaining_balance,
                         customers:customer_id (
                             full_name
                         )
@@ -53,6 +55,7 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
 
                 setPaymentHistory(payments || []);
                 setCustomerName(sale?.customers?.full_name || 'Unknown Customer');
+                setRemainingBalance(sale?.remaining_balance || 0); // ✅ Store remaining balance
             } catch (err) {
                 console.error("❌ Error fetching payment history:", err);
                 alert('Error loading payment history: ' + err.message);
@@ -120,7 +123,7 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
                                                 <td className="p-3 text-center text-sm text-slate-700 dark:text-slate-300">
                                                     {formatDisplayDate(payment.payment_date)}
                                                 </td>
-                                                <td className="p-3 text-center text-sm font-semibold text-green-600 dark:text-green-400">
+                                                <td className="p-3 text-center text-sm font-semibold text-blue-600 dark:text-blue-400">
                                                     {formatCurrency(payment.payment_amount)}
                                                 </td>
                                             </tr>
@@ -132,6 +135,16 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
                                             </td>
                                             <td className="p-3 text-center text-sm text-green-600 dark:text-green-400">
                                                 {formatCurrency(totalPaid)}
+                                            </td>
+                                        </tr>
+
+                                        {/* ✅ Fixed: Use remainingBalance state */}
+                                        <tr className="bg-slate-50/50 dark:bg-slate-800/50 font-bold">
+                                            <td colSpan="2" className="p-3 text-right text-xs uppercase tracking-wider text-slate-500">
+                                                Remaining Balance:
+                                            </td>
+                                            <td className="p-3 text-center text-sm text-red-500 dark:text-red-500">
+                                                {formatCurrency(remainingBalance)}
                                             </td>
                                         </tr>
                                     </tbody>

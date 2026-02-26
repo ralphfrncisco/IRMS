@@ -13,22 +13,27 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
     const [loading, setLoading] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [receiptPreview, setReceiptPreview] = useState(null);
+    
+    // ✅ Store original values (NEVER modified)
+    const [originalValues, setOriginalValues] = useState({
+        paidAmount: 0,
+        remainingBalance: 0,
+        totalAmount: 0
+    });
+
     const [formValues, setFormValues] = useState({
         PONumber: '',
         customer: '',
         customerId: null,
         transactionDate: '',
         remarks: '',
-        additionalPayment: '', // New payment input (starts empty)
-        totalAmount: 0, // Total cost of items
-        paidAmount: 0, // Already paid for THIS sale
-        remainingBalance: 0, // Unpaid for THIS sale
+        additionalPayment: '',
     });
 
     // ✅ Customer info (separate from sale)
     const [customerInfo, setCustomerInfo] = useState({
         full_name: '',
-        total_balance: 0, // Customer's overall balance across ALL sales
+        total_balance: 0,
         credit_limit: 0
     });
 
@@ -56,6 +61,33 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         return data?.publicUrl || null;
     };
 
+    // ✅ Calculate remaining balance using useMemo
+    const calculatedRemainingBalance = useMemo(() => {
+        const parseNum = (val) => {
+            if (!val) return 0;
+            return parseFloat(val.toString().replace(/,/g, '')) || 0;
+        };
+        
+        const additionalPayment = parseNum(formValues.additionalPayment);
+        
+        if (formValues.additionalPayment !== '') {
+            const newBalance = originalValues.remainingBalance - additionalPayment;
+            return Math.max(0, newBalance);
+        }
+        
+        return originalValues.remainingBalance;
+    }, [formValues.additionalPayment, originalValues.remainingBalance]);
+
+    // ✅ Calculate total paid using useMemo
+    const calculatedTotalPaid = useMemo(() => {
+        const parseNum = (val) => {
+            if (!val) return 0;
+            return parseFloat(val.toString().replace(/,/g, '')) || 0;
+        };
+        
+        return originalValues.paidAmount + parseNum(formValues.additionalPayment);
+    }, [formValues.additionalPayment, originalValues.paidAmount]);
+
     useEffect(() => {
         const fetchOrderData = async () => {
             if (!orderData?.order_id || !isOpen) return;
@@ -63,9 +95,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             try {
                 setLoading(true);
 
-                console.log('📋 Fetching order data for:', orderData.order_id);
-
-                // ✅ Fetch the FULL sale record from database (to get latest values)
                 const { data: saleData, error: saleError } = await supabase
                     .from('SalesTable')
                     .select(`
@@ -83,9 +112,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
                 if (saleError) throw saleError;
 
-                console.log('📊 Sale Data:', saleData);
-
-                // ✅ Fetch purchased items
                 const { data: items, error: itemsError } = await supabase
                     .from('purchasedItems')
                     .select('*')
@@ -93,26 +119,26 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
                 if (itemsError) throw itemsError;
 
-                console.log('🛒 Items:', items);
-
-                // ✅ Set customer info
                 setCustomerInfo({
                     full_name: saleData.customers?.full_name || 'Unknown Customer',
                     total_balance: saleData.customers?.remaining_balance || 0,
                     credit_limit: saleData.customers?.credit_limit || 0
                 });
 
-                // ✅ Set form values from THIS sale
+                // ✅ Store original values
+                setOriginalValues({
+                    paidAmount: saleData.paid_amount || 0,
+                    remainingBalance: saleData.remaining_balance || 0,
+                    totalAmount: saleData.total_amount || 0
+                });
+
                 setFormValues({
                     PONumber: `ORD-${saleData.order_id.toString().padStart(4, '0')}`,
                     customer: saleData.customers?.full_name || '',
                     customerId: saleData.customer_id,
                     transactionDate: saleData.created_at || '',
                     remarks: saleData.remarks || '',
-                    additionalPayment: '', // Starts empty for new payment
-                    totalAmount: saleData.total_amount || 0,
-                    paidAmount: saleData.paid_amount || 0,
-                    remainingBalance: saleData.remaining_balance || 0,
+                    additionalPayment: '',
                 });
 
                 const imageUrl = getImageUrl(saleData.receipt_image);
@@ -153,26 +179,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         return purchaseItems.reduce((sum, item) => sum + (item.total || 0), 0);
     }, [purchaseItems]);
 
-    // ✅ Calculate new balance when additional payment changes
-    useEffect(() => {
-        const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
-        const additionalPayment = parseNum(formValues.additionalPayment);
-        
-        if (formValues.additionalPayment !== '') {
-            const newBalance = formValues.remainingBalance - additionalPayment;
-            setFormValues(prev => ({
-                ...prev,
-                remainingBalance: Math.max(0, newBalance)
-            }));
-        } else {
-            // Reset to original balance when input is cleared
-            setFormValues(prev => ({
-                ...prev,
-                remainingBalance: (orderData?.remaining_balance || prev.remainingBalance)
-            }));
-        }
-    }, [formValues.additionalPayment]);
-
     const handleAddItem = (newItems) => {
         setPurchaseItems(prev => {
             const updatedList = [...prev];
@@ -210,18 +216,11 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
             
             const additionalPayment = formValues.additionalPayment === '' ? 0 : parseNum(formValues.additionalPayment);
-            const newTotalPaid = formValues.paidAmount + additionalPayment;
-            const newBalance = Math.max(0, formValues.remainingBalance - additionalPayment);
             
-            console.log('💰 Updating sale:', {
-                order_id: orderData.order_id,
-                oldPaid: formValues.paidAmount,
-                additionalPayment,
-                newTotalPaid,
-                newBalance
-            });
+            // ✅ Use calculated values
+            const newTotalPaid = calculatedTotalPaid;
+            const newBalance = calculatedRemainingBalance;
 
-            // ✅ Update sale record with new columns
             const { error: updateError } = await supabase
                 .from('SalesTable')
                 .update({
@@ -236,9 +235,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
             if (updateError) throw updateError;
 
-            console.log('✅ Sale updated');
-
-            // ✅ Insert payment history (only if additional payment was made)
             if (additionalPayment > 0) {
                 const today = new Date().toISOString().split('T')[0];
                 
@@ -252,20 +248,10 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
                 if (paymentError) {
                     console.error("❌ Payment history error:", paymentError);
-                } else {
-                    console.log('✅ Payment history inserted');
                 }
 
-                // ✅ Update customer's total balance
                 const oldCustomerBalance = customerInfo.total_balance;
                 const newCustomerBalance = oldCustomerBalance - additionalPayment;
-
-                console.log('👤 Updating customer balance:', {
-                    customer_id: formValues.customerId,
-                    oldBalance: oldCustomerBalance,
-                    payment: additionalPayment,
-                    newBalance: newCustomerBalance
-                });
 
                 const { error: customerError } = await supabase
                     .from('customers')
@@ -276,12 +262,9 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
                 if (customerError) {
                     console.error('❌ Customer balance update error:', customerError);
-                } else {
-                    console.log('✅ Customer balance updated');
                 }
             }
             
-            // ✅ Delete and re-insert items
             await supabase.from('purchasedItems').delete().eq('order_id', orderData.order_id);
             
             const itemsToInsert = purchaseItems.map(item => ({
@@ -292,7 +275,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             }));
             await supabase.from('purchasedItems').insert(itemsToInsert);
             
-            console.log('✅ All updates complete');
             onClose();
         } catch (err) {
             console.error('❌ Update error:', err);
@@ -455,13 +437,14 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 type="text" 
                                                 name="additionalPayment" 
                                                 value={formValues.additionalPayment} 
-                                                placeholder = {(formValues.paidAmount + (parseFloat(formValues.additionalPayment.replace(/,/g, '')) || 0)).toLocaleString()}
+                                                placeholder= {formatInputCurrency(originalValues.paidAmount.toString())}
                                                 onChange={handleInputChange} 
+                                                autoComplete="off"
                                                 className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none" 
                                             />
                                         </div>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                                            Total Paid: ₱{(formValues.paidAmount + (parseFloat(formValues.additionalPayment.replace(/,/g, '')) || 0)).toLocaleString()}
+                                            Total Paid: ₱{calculatedTotalPaid.toLocaleString()}
                                         </p>
                                     </div>
                                     <div>
@@ -472,7 +455,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                             <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                             <input 
                                                 type="text" 
-                                                value={formatInputCurrency(formValues.remainingBalance.toString())} 
+                                                value={formatInputCurrency(calculatedRemainingBalance.toString())} 
                                                 readOnly 
                                                 className="w-full text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-medium cursor-not-allowed" 
                                             />
