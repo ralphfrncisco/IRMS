@@ -111,7 +111,7 @@ function Login() {
                 required
                 value={password}
                 onChange={handleInputChange(setPassword)}
-                placeholder="••••••••••••••••" 
+                placeholder="" 
                 className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none" 
               />
               <button 
