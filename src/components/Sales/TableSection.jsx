@@ -242,13 +242,13 @@ function TableSection() {
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
-                            {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>}
+                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>
                             {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
                             {visibleColumns['PURCHASED ITEMS'] && <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
                             {visibleColumns['PAID AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Paid Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
                             {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
-                            {visibleColumns['ACTIONS'] &&<th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>}
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
                     </thead>
 
@@ -267,11 +267,11 @@ function TableSection() {
                             </tr>
                         ) : (filteredOrders.map((order) => (
                                 <tr key={order.order_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                    {visibleColumns['ORDER ID'] && (
-                                        <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
-                                            {`ORD-${order.order_id.toString().padStart(4, '0')}`}
-                                        </td>
-                                    )}
+                                    
+                                    <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
+                                        {`ORD-${order.order_id.toString().padStart(4, '0')}`}
+                                    </td>
+                                    
                                     {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
                                     {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className = "w-[200px] lg:w-full md:max-w-[400px] truncate">{order.purchased_items}</p></td>}
                                     {visibleColumns['PAID AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-slate-700 dark:text-white">{formatCurrency(order.paid_amount)}</td>}
@@ -283,13 +283,11 @@ function TableSection() {
                                             </span>
                                         </td>
                                     )}
-                                    {visibleColumns['ACTIONS'] && (
-                                        <td className="p-4 text-center">
-                                            <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                                <Eye className="w-5 h-5 text-blue-500" />
-                                            </button>
-                                        </td>
-                                    )}
+                                    <td className="p-4 text-center">
+                                        <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                            <Eye className="w-5 h-5 text-blue-500" />
+                                        </button>
+                                    </td>
                                 </tr>
                             ))
                         )}

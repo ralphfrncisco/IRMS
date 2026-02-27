@@ -37,8 +37,7 @@ function TableSection() {
     };
 
     const [visibleColumns, setVisibleColumns] = useState({
-        'ID': true,
-        'NAME': true,
+        'RECORDED BY' : true,
         'EXPENSE TYPE': true,
         'AMOUNT': true,
         'DATE': true,
@@ -61,7 +60,7 @@ function TableSection() {
             const { data, error } = await supabase
                 .from('ExpensesTable')
                 .select('*')
-                .order('expense_id', { ascending: false });
+                .order('created_at', { ascending: false });
 
             if (error) throw error;
 
@@ -237,7 +236,8 @@ function TableSection() {
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
-                            {visibleColumns['ID'] && <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>}
+                            <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>
+                            {visibleColumns['RECORDED BY'] && <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Recorded By</th>}
                             {visibleColumns['EXPENSE TYPE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>}
                             {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
@@ -252,7 +252,12 @@ function TableSection() {
                         ) : filteredExpenses.length > 0 ? (
                             filteredExpenses.map((item) => (
                                 <tr key={item.expense_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                    {visibleColumns['ID'] && <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">EXP-{item.expense_id.toString().padStart(4, '0')}</td>}
+                                    <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">EXP-{item.expense_id.toString().padStart(4, '0')}</td>
+                                    {visibleColumns['RECORDED BY'] && (
+                                        <td className="p-4 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            {item.recorded_by || 'N/A'}
+                                        </td>
+                                    )}
                                     {visibleColumns['EXPENSE TYPE'] && <td className="p-4 text-center">
                                         <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getTypeColor(item.expense_type)}`}>
                                             {item.expense_type}

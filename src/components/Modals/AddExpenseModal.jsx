@@ -215,6 +215,20 @@ function AddExpenseModal({isOpen, onClose}) {
             // Use totalAmount for Stock Expense, otherwise use manual amount input
             const finalAmount = isStockExpense ? totalAmount : parseNum(formValues.amount);
 
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('No authenticated user found');
+
+            // Get user's full name from account table
+            const { data: accountData, error: accountError } = await supabase
+                .from('account')
+                .select('full_name')
+                .eq('user_id', user.id)
+                .single();
+
+            if (accountError) throw accountError;
+
+            const recordedBy = accountData?.full_name || 'Unknown User';
+
             // Insert expense data
             const { data: expenseData, error: expenseError } = await supabase
                 .from('ExpensesTable')
@@ -224,6 +238,7 @@ function AddExpenseModal({isOpen, onClose}) {
                     amount: finalAmount,
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,
+                    recorded_by: recordedBy,
                     purchased_items: isStockExpense ? purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ') : null
                 }])
                 .select()
