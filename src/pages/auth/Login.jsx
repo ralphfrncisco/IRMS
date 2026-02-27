@@ -90,7 +90,7 @@ function Login() {
               required
               value={email}
               onChange={handleInputChange(setEmail)}
-              placeholder="Enter your email" 
+              placeholder="" 
               className={`w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border outline-none transition-all duration-300 ring-offset-transparent
                 ${isError 
                   ? 'border-red-500 ring-2 ring-red-500/20 dark:bg-red-500/5' 
