@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Image as ImageIcon, PhilippinePeso, Package, Loader2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
 function EditExpenseModal({ isOpen, onClose, expenseData }) {
     const [loading, setLoading] = useState(false);
@@ -12,7 +13,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
         expenseType: '',
         supplier: '',
         amount: '',
-        date: '',
+        created_at: '', // ✅ Store raw timestamp for display only
         remarks: '',
     });
 
@@ -24,7 +25,6 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
         }).format(value);
     };
 
-    // Helper to get Supabase URL
     const getImageUrl = (path) => {
         if (!path) return null;
         if (path.startsWith('http')) return path; 
@@ -38,7 +38,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
             
             try {
                 setLoading(true);
-                // 1. Fetch Main Expense Details (if not fully provided by props)
+                
                 const { data: expense, error: expError } = await supabase
                     .from('ExpensesTable')
                     .select('*')
@@ -47,7 +47,6 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
 
                 if (expError) throw expError;
 
-                // 2. Fetch Allocation Items
                 const { data: items, error: itemsError } = await supabase
                     .from('ExpenseItems')
                     .select('*')
@@ -55,13 +54,13 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
 
                 if (itemsError) throw itemsError;
 
-                // Update State
+                // ✅ Store raw timestamp (don't format it)
                 setFormValues({
                     id: `EXP-${expense.expense_id.toString().padStart(4, '0')}`,
                     expenseType: expense.expense_type || '',
                     supplier: expense.supplier_name || '',
                     amount: formatCurrency(expense.amount),
-                    date: expense.date || '',
+                    created_at: expense.created_at || '', // ✅ Raw ISO timestamp
                     remarks: expense.remarks || '',
                 });
 
@@ -90,20 +89,12 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
         if (receiptPreview) {
             const newTab = window.open();
             newTab.document.body.innerHTML = `
-                <body style="margin:0; background: #0f172a; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+                <body style="margin:0; background: #0f172a; display: flex; align-items: center; justify-center; min-height: 100vh;">
                     <img src="${receiptPreview}" style="max-width: 100%; max-height: 100vh; object-fit: contain; box-shadow: 0 20px 50px rgba(0,0,0,0.5);" />
                 </body>
             `;
             newTab.document.title = `Receipt - ${formValues.id}`;
         }
-    };
-
-    const formatDateDisplay = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            month: 'long', day: 'numeric', year: 'numeric'
-        }).format(date).toUpperCase();
     };
 
     const handleFormSubmit = async (e) => {
@@ -112,22 +103,21 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
         try {
             const parseCurrency = (val) => parseFloat(val.toString().replace(/[^0-9.]/g, '')) || 0;
 
-            // 1. Update the Main Expense Record
+            // ✅ Update only editable fields (NOT created_at)
             const { error: updateError } = await supabase
                 .from('ExpensesTable')
                 .update({
                     expense_type: formValues.expenseType,
                     supplier_name: formValues.expenseType === 'Stock Expense' ? formValues.supplier : null,
                     amount: parseCurrency(formValues.amount),
-                    date: formValues.date,
                     remarks: formValues.remarks
+                    // ✅ Do NOT update created_at - it's auto-generated
                 })
                 .eq('expense_id', expenseData.expense_id);
 
             if (updateError) throw updateError;
 
-            // 2. Sync Allocation Items (Delete and Re-insert)
-            // Only relevant if the list is editable or needs to be refreshed
+            // Delete and re-insert allocation items
             await supabase
                 .from('ExpenseItems')
                 .delete()
@@ -180,8 +170,10 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                         <p className="text-slate-500 text-sm">Fetching records...</p>
                     </div>
                 ) : (
-                    <form id="expense-edit-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-0 p-4 md:p-6 space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form id="expense-edit-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 mt-[-0.70rem]">
+                        <span className = "text-slate-700 dark:text-slate-200"><span className = "text-sm font-semibold">Date of Transaction:</span> {formatDateTimeShort(expenseData.created_at)}</span>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
                             {/* Left Column: Fields */}
                             <div className="space-y-5">
                                 <div>
@@ -194,6 +186,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                         className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                                     />
                                 </div>
+
                                 {formValues.expenseType === 'Stock Expense' && (
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier</label>
@@ -207,8 +200,21 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                         />
                                     </div>
                                 )}
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
+                                    <div className="relative">
+                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            name="amount"
+                                            value={formValues.amount}
+                                            onChange={handleInputChange}
+                                            className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                {/* <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
                                         <div className="relative">
@@ -222,17 +228,24 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                             />
                                         </div>
                                     </div>
+
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
-                                        <div className="relative h-10 w-full">
-                                            <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200">
-                                                <span className="truncate mr-2">{formValues.date ? formatDateDisplay(formValues.date) : "Select Date"}</span>
-                                                <Calendar className="w-4 h-4 text-slate-400" />
-                                            </div>
-                                            <input type="date" name="date" value={formValues.date} onChange={handleInputChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Date Created</label>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            <input
+                                                type="text"
+                                                name="created_at"
+                                                value={formValues.created_at ? formatDateTimeShort(formValues.created_at) : "No date"}
+                                                onChange={handleInputChange}
+                                                className="cursor-not-allowed w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                                            />
                                         </div>
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 italic">
+                                            Auto-generated (cannot be edited)
+                                        </p>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
