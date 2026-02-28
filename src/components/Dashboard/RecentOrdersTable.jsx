@@ -89,7 +89,7 @@ function RecentOrdersTable() {
 
     return (
         <div className="space-y-6">
-            <div className="max-h-[120vh] rounded-2xl border transition-all duration-300 overflow-hidden bg-white border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
+            <div className="max-h-[120vh] rounded-2xl border transition-all duration-300 overflow-hidden bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between">
                         <div>

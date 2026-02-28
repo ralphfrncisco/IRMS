@@ -4,12 +4,25 @@ import {
   Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, BarChart
 } from "recharts";
 import { supabase } from "../../lib/supabase";
-import { Loader2 } from 'lucide-react';
+import { Loader2, Funnel } from 'lucide-react';
 
 function RevenueChart() {
   const { darkMode } = useOutletContext();
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [showFilters, setShowFilters] = useState(false);
+  const filterRef = React.useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilters(false);
+      }
+    }
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const fetchWeeklyData = async () => {
     try {
@@ -126,23 +139,53 @@ function RevenueChart() {
   return (
     <div className="p-4 sm:p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
-        <div className = "w-full">
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-            Revenue Chart
-          </h3>
-          <p className="block text-sm text-slate-500 dark:text-slate-400">
-            Daily Revenue vs Total Expense
-          </p>
+        <div className = "flex w-full">
+          <div className = "flex-1">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+              Revenue Chart
+            </h3>
+            <p className="block text-sm text-slate-500 dark:text-slate-400">
+              Daily Revenue vs Total Expense
+            </p>
+          </div>
+
+          <div className = "h-10 px-2 pr-1.5 py-[1rem] hidden md:flex justify-center items-center gap-1 border border-slate-300 dark:bg-slate-800/20 dark:border-slate-700/80 text-sm text-slate-700 dark:text-slate-100 rounded-lg shadow-xs dark:shadow-none">
+            <button className = "px-3 py-1.5 dark:bg-slate-90/10 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors rounded-md font-medium tracking-wide leading-snug">Day</button>
+            <button className = "px-3 py-1.5 dark:bg-slate-90/10 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors rounded-md font-medium tracking-wide leading-snug">Week</button>
+            <button className = "px-3 py-1.5 dark:bg-slate-90/10 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors rounded-md font-medium tracking-wide leading-snug">Month</button>
+          </div>
+
+          <div className="flex md:hidden items-center gap-2 relative" ref={filterRef}>
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center cursor-pointer space-x-2 py-2.5 px-4 rounded-md transition-all ${
+                  showFilters 
+                  ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+              }`}
+            >
+                <Funnel className="w-4 h-4" />
+            </button>
+
+            {showFilters && (
+              <div className="absolute top-full right-0 mt-2 w-32 p-4 text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
+                <p>Daily</p>
+                <p>Weekly</p>
+                <p>Monthly</p>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className = "hidden md:flex w-full justify-end items-center mt-5 pr-2">
+        {/* <div className = "hidden md:flex w-full justify-end items-center mt-5 pr-2">
           <span className="text-sm font-normal text-slate-700 dark:text-slate-300">
             Total Expense of this Week: <span className = "text-lg font-semibold text-slate-700 dark:text-slate-200">₱ {chartData.length > 0 ? chartData[0].expenses.toLocaleString() : '0'}</span>
           </span>
-        </div>
+        </div> */}
+        
       </div>
 
-      <div className="h-85 w-full pb-12 md:pb-7">
+      <div className="h-85 w-full pb-12 md:pb-10">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid 
@@ -186,7 +229,7 @@ function RevenueChart() {
           </BarChart>
         </ResponsiveContainer>
 
-        <div className = "flex md:hidden justify-end items-center mt-5 pr-2">
+        <div className = "flex justify-end items-center mt-5 pr-2">
           <span className="text-sm font-normal text-slate-700 dark:text-slate-300">
             Total Weekly Expenses: <span className = "text-lg font-semibold text-slate-700 dark:text-slate-200">₱ {chartData.length > 0 ? chartData[0].expenses.toLocaleString() : '0'}</span>
           </span>
