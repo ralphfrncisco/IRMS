@@ -311,7 +311,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     remaining_balance: remainingBalance_value,
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,
-                    status: remainingBalance_value <= 0 ? "Fully Paid" : "With Balance",
+                    status: remainingBalance_value <= 0 
+                        ? "Fully Paid" 
+                        : paidAmount_value === 0 
+                            ? "Unpaid" 
+                            : "With Balance",
                     purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
                 }])
                 .select()

@@ -228,7 +228,11 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     paid_amount: newTotalPaid,
                     remaining_balance: newBalance,
                     remarks: formValues.remarks,
-                    status: newBalance <= 0 ? "Fully Paid" : "With Balance",
+                    status: newBalance <= 0 
+                        ? "Fully Paid" 
+                        : calculatedTotalPaid === 0 
+                            ? "Unpaid" 
+                            : "With Balance",
                     purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
                 })
                 .eq('order_id', orderData.order_id);
