@@ -168,7 +168,6 @@ function AddSupplierModal({ isOpen, onClose }) {
                                 !formValues.supplier || 
                                 !formValues.contactNumber || 
                                 !formValues.address ||
-                                !formValues.remarks ||
                                 isSaving
                             }
                             form = "addSupplierForm"
