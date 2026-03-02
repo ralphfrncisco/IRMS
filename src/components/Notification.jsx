@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, PhilippinePeso, AlertTriangle, ShoppingCart, Bell, Package, Users, PackageCheck } from 'lucide-react';
+import { X, PhilippinePeso, AlertTriangle, ShoppingCart, Bell, PartyPopper, Users, PackageCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import '../App.css';
 
@@ -58,6 +58,8 @@ function Notification() {
             return <div className="p-2.5 bg-red-100/50 dark:bg-red-900/30 rounded-lg"><AlertTriangle className="w-4.5 h-4.5 text-red-500" /></div>;
         case 'Payment':
             return <div className="p-2.5 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-blue-500" /></div>;
+        case 'Celebration': 
+            return <div className="p-2.5 bg-yellow-100/50 dark:bg-yellow-900/30 rounded-lg"><PartyPopper className="w-4.5 h-4.5 text-yellow-500" /></div>;
         case 'Expense':
             return <div className="p-2.5 bg-red-100/50 dark:bg-red-900/30 rounded-lg"><PhilippinePeso className="w-4.5 h-4.5 text-red-500" /></div>;
         case 'Inventory':

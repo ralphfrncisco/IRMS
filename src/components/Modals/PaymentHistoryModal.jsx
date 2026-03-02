@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
 function PaymentHistoryModal({ isOpen, onClose, orderData }) {
     const [paymentHistory, setPaymentHistory] = useState([]);
@@ -8,14 +9,8 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
     const [customerName, setCustomerName] = useState('');
     const [remainingBalance, setRemainingBalance] = useState(0); // ✅ Add state for remaining balance
 
-    const formatDisplayDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
+    const formatDisplayDateTime = (dateTimeString) => {
+        return formatDateTimeShort(dateTimeString);
     };
 
     const formatCurrency = (amount) => {
@@ -121,7 +116,7 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
                                                     {index + 1}
                                                 </td>
                                                 <td className="p-3 text-center text-sm text-slate-700 dark:text-slate-300">
-                                                    {formatDisplayDate(payment.payment_date)}
+                                                    {formatDisplayDateTime(payment.created_at)}
                                                 </td>
                                                 <td className="p-3 text-center text-sm font-semibold text-blue-600 dark:text-blue-400">
                                                     {formatCurrency(payment.payment_amount)}

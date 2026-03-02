@@ -253,20 +253,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 if (paymentError) {
                     console.error("❌ Payment history error:", paymentError);
                 }
-
-                const oldCustomerBalance = customerInfo.total_balance;
-                const newCustomerBalance = oldCustomerBalance - additionalPayment;
-
-                const { error: customerError } = await supabase
-                    .from('customers')
-                    .update({
-                        remaining_balance: Math.max(0, newCustomerBalance)
-                    })
-                    .eq('customer_id', formValues.customerId);
-
-                if (customerError) {
-                    console.error('❌ Customer balance update error:', customerError);
-                }
             }
             
             await supabase.from('purchasedItems').delete().eq('order_id', orderData.order_id);

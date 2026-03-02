@@ -165,9 +165,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                         <button 
                             type="submit" 
                             disabled={
-                                !formValues.supplier || 
-                                !formValues.contactNumber || 
-                                !formValues.address ||
+                                !formValues.supplier ||
                                 isSaving
                             }
                             form = "addSupplierForm"
