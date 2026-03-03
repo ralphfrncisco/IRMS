@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
 import { supabase } from "../../lib/supabase";
 import { Loader2, Package } from 'lucide-react';
 
 const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444'];
 
-function SalesChart() {
-    const { darkMode } = useOutletContext();
+function TopProductsSold() {
     const [chartData, setChartData] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -69,8 +67,8 @@ function SalesChart() {
 
     if (loading) {
         return (
-            <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-                <div className="flex items-center justify-center h-64">
+            <div className="h-auto lg:h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+                <div className="flex items-center justify-center h-119.5">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                 </div>
             </div>
@@ -143,4 +141,4 @@ function SalesChart() {
     );
 }
 
-export default SalesChart;
+export default TopProductsSold;

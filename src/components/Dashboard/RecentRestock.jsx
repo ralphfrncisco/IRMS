@@ -1,60 +1,135 @@
-import { Clock, ShoppingCart, User } from 'lucide-react'
-import React from 'react'
+import React, {useEffect, useState} from 'react';
+import { Loader2, Package2, Clock } from "lucide-react";
+import { supabase } from "../../lib/supabase";
+import {useNavigate} from "react-router-dom";
 
-const activities = [
-    { id: 1, type: "user", icon: User, title: "New user registered", description: "John Smith created an account", time: "2 minutes ago", color: "text-blue-500", bgStyles: "bg-blue-100 dark:bg-blue-500/20" },
-    { id: 2, type: "order", icon: ShoppingCart, title: "New order received", description: "Order #3847 for $2,399", time: "5 minutes ago", color: "text-emerald-500", bgStyles: "bg-emerald-100 dark:bg-emerald-500/20" },
-    { id: 3, type: "order", icon: ShoppingCart, title: "New order received", description: "Order #3847 for $2,399", time: "5 minutes ago", color: "text-emerald-500", bgStyles: "bg-emerald-100 dark:bg-emerald-500/20" }
-]
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
-function ActivityFeed() {
+function RecentRestock() {
+  const [RestockData, setRestockData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const fetchExpenses = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('ExpensesTable')
+      .select('expense_type, amount, created_at, supplier_name, purchased_items, recorded_by')
+      .eq('expense_type', 'Stock Expense')
+      .order('created_at', { ascending: false })
+      .limit(4);
+
+    if (!error) setRestockData(data);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    fetchExpenses ();
+
+    // Real-time listener for customers
+    const channel = supabase
+      .channel('expenses-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ExpensesTable' },
+        () => { fetchExpenses () }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel) }
+  }, []);
+
+  const formatCurrency = (value) => {
+    if (isNaN(value)) return "₱ 0.00";
+    const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+    return `₱ ${formatter.format(value)}`;
+  };
+
+  if (RestockData.length === 0) {
+    return (
+      <div className="h-80 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+        <div>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+            Recent Restock
+          </h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            View your recent restock
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-slate-600 mt-[-10%]">
+          <Package2 className="w-8 h-8" />
+          <p className="text-sm">No sales data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleViewAll = () => {
+      navigate('/transactions/Expenses');
+  }
+
   return (
-    <div className="h-auto max-h-[60vh] rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+    <div className="h-full pb-6 space-y-5 rounded-2xl border transition-all duration-300 bg-white border-slate-200 border-red-500 dark:bg-slate-900 dark:border-slate-800">
       <div className="p-6 border-b flex items-center justify-between border-slate-100 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-            Activity Feed
+            Recent Restock
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Recent System Activities
+            View your recent restock
           </p>
         </div>
-        <button className="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
+        <button onClick = {handleViewAll} className="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
           View All
         </button>
       </div>
 
-      <div className="p-6">
-        <div className="space-y-5">
-          {activities.map((activity) => (
-            <div 
-              key={activity.id} 
-              className="flex items-start space-x-4 px-3 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
-            >
-              <div className={`p-2 rounded-lg shrink-0 ${activity.bgStyles}`}>
-                  <activity.icon className={`w-4 h-4 ${activity.color}`} />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                      {activity.title}
-                  </h4>
-                  <p className="text-sm truncate text-slate-600 dark:text-slate-400">
-                      {activity.description}
-                  </p>
-                  <div className="flex items-center space-x-1 mt-1">
-                      <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                      <span className="text-xs text-slate-500">
-                          {activity.time}
-                      </span>
-                  </div>
-              </div>
-            </div>
-          ))}
+      {loading ? (
+        <div className = "h-80 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
         </div>
-      </div>
+      ) : 
+      (
+        <div className="p-3">
+          <div className="space-y-7">
+            {RestockData.map((expense) => (
+              <div key={expense.expense_id} className="flex items-start space-x-4 px-3 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <div className = "p-2 rounded-lg shrink-0 bg-blue-500/10 transition-all duration-300">
+                  <Package2 className = "w-4 h-4 text-blue-500"/>
+                </div>
+
+                <div className = "flex-1 min-w-0 space-y-1">
+                  <p className = "max-w-[250px] text-sm text-slate-700 font-medium dark:text-slate-400 truncate">
+                    {expense.purchased_items || expense.expense_type}
+                  </p>
+
+                  <p className = "text-xs text-slate-500 dark:text-slate-400 truncate">
+                    Bought from {expense.supplier_name}
+                  </p>
+
+                  <div className = "flex items-center space-x-2 mt-2">
+                    <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+                    <span className="text-xs text-slate-500">
+                      {formatDateTimeShort(expense.created_at)} • {expense.recorded_by}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-400">
+                    {formatCurrency(expense.amount)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-export default ActivityFeed;
+export default RecentRestock;

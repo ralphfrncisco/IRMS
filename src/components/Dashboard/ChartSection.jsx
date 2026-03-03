@@ -1,6 +1,6 @@
 import React from 'react';
 import RevenueChart from './RevenueChart';
-import SalesChart from './SalesChart';
+import TopProductsSold from './TopProductsSold';
 
 function ChartSection() {
   return (
@@ -9,7 +9,7 @@ function ChartSection() {
         <RevenueChart />
       </div>
       <div className = "lg:col-span-1">
-        <SalesChart />
+        <TopProductsSold />
       </div>
     </div>
   )

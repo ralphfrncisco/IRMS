@@ -15,20 +15,11 @@ function RevenueChart() {
     try {
       setLoading(true);
       switch (filter) {
-        case 'day':
-          await fetchHourlyData();
-          break;
-        case 'week':
-          await fetchWeeklyData();
-          break;
-        case 'month':
-          await fetchMonthlyData();
-          break;
-        case 'year':
-          await fetchYearlyData();
-          break;
-        default:
-          await fetchWeeklyData();
+        case 'day':   await fetchHourlyData(); break;
+        case 'week':  await fetchWeeklyData(); break;
+        case 'month': await fetchMonthlyData(); break;
+        case 'year':  await fetchYearlyData(); break;
+        default:      await fetchWeeklyData();
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -40,7 +31,6 @@ function RevenueChart() {
   const fetchHourlyData = async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
@@ -62,7 +52,6 @@ function RevenueChart() {
       const saleDate = new Date(sale.created_at);
       const hour = saleDate.getHours();
       const hourLabel = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
-      
       if (hourlyRevenue[hourLabel] !== undefined) {
         hourlyRevenue[hourLabel] += Number(sale.paid_amount) || 0;
       }
@@ -73,12 +62,11 @@ function RevenueChart() {
       '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM'
     ];
 
-    const formattedData = hoursOrder.map(hour => ({
+    setChartData(hoursOrder.map(hour => ({
       day: hour,
+      label: hour, // hours are already short
       revenue: hourlyRevenue[hour]
-    }));
-
-    setChartData(formattedData);
+    })));
   };
 
   const fetchWeeklyData = async () => {
@@ -102,42 +90,41 @@ function RevenueChart() {
 
     if (salesError) throw salesError;
 
-    const dailyRevenue = {
-      Monday: 0,
-      Tuesday: 0,
-      Wednesday: 0,
-      Thursday: 0,
-      Friday: 0,
-      Saturday: 0,
-      Sunday: 0
-    };
+    // Full names used for matching, short labels for display
+    const dayMap = [
+      { day: 'Monday',    label: 'Mon' },
+      { day: 'Tuesday',   label: 'Tue' },
+      { day: 'Wednesday', label: 'Wed' },
+      { day: 'Thursday',  label: 'Thu' },
+      { day: 'Friday',    label: 'Fri' },
+      { day: 'Saturday',  label: 'Sat' },
+      { day: 'Sunday',    label: 'Sun' },
+    ];
+
+    const dailyRevenue = {};
+    dayMap.forEach(({ day }) => dailyRevenue[day] = 0);
 
     (salesData || []).forEach(sale => {
-      const saleDate = new Date(sale.created_at);
-      const dayName = saleDate.toLocaleDateString('en-US', { 
+      const dayName = new Date(sale.created_at).toLocaleDateString('en-US', {
         weekday: 'long',
-        timeZone: 'Asia/Manila' 
+        timeZone: 'Asia/Manila'
       });
-      
       if (dailyRevenue[dayName] !== undefined) {
         dailyRevenue[dayName] += Number(sale.paid_amount) || 0;
       }
     });
 
-    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const formattedData = daysOfWeek.map(day => ({
+    setChartData(dayMap.map(({ day, label }) => ({
       day,
+      label,  // ✅ short label for X-axis display
       revenue: dailyRevenue[day]
-    }));
-
-    setChartData(formattedData);
+    })));
   };
 
   const fetchMonthlyData = async () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     firstDay.setHours(0, 0, 0, 0);
-    
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     lastDay.setHours(23, 59, 59, 999);
 
@@ -149,40 +136,28 @@ function RevenueChart() {
 
     if (salesError) throw salesError;
 
-    const weeklyRevenue = {
-      'Week 1': 0,
-      'Week 2': 0,
-      'Week 3': 0,
-      'Week 4': 0,
-    };
-
-    const daysInMonth = lastDay.getDate();
-    if (daysInMonth > 28) weeklyRevenue['Week 5'] = 0;
+    const weeklyRevenue = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 };
+    if (lastDay.getDate() > 28) weeklyRevenue['Week 5'] = 0;
 
     (salesData || []).forEach(sale => {
-      const saleDate = new Date(sale.created_at);
-      const dayOfMonth = saleDate.getDate();
-      const weekNumber = Math.ceil(dayOfMonth / 7);
-      const weekLabel = `Week ${weekNumber}`;
-      
+      const dayOfMonth = new Date(sale.created_at).getDate();
+      const weekLabel = `Week ${Math.ceil(dayOfMonth / 7)}`;
       if (weeklyRevenue[weekLabel] !== undefined) {
         weeklyRevenue[weekLabel] += Number(sale.paid_amount) || 0;
       }
     });
 
-    const formattedData = Object.keys(weeklyRevenue).map(week => ({
+    setChartData(Object.keys(weeklyRevenue).map(week => ({
       day: week,
+      label: week, // "Week 1" is already short enough
       revenue: weeklyRevenue[week]
-    }));
-
-    setChartData(formattedData);
+    })));
   };
 
   const fetchYearlyData = async () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), 0, 1);
     firstDay.setHours(0, 0, 0, 0);
-    
     const lastDay = new Date(now.getFullYear(), 11, 31);
     lastDay.setHours(23, 59, 59, 999);
 
@@ -194,40 +169,25 @@ function RevenueChart() {
 
     if (salesError) throw salesError;
 
-    const monthlyRevenue = {
-      'Jan': 0,
-      'Feb': 0,
-      'Mar': 0,
-      'Apr': 0,
-      'May': 0,
-      'Jun': 0,
-      'Jul': 0,
-      'Aug': 0,
-      'Sep': 0,
-      'Oct': 0,
-      'Nov': 0,
-      'Dec': 0
-    };
+    const monthsOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyRevenue = {};
+    monthsOrder.forEach(m => monthlyRevenue[m] = 0);
 
     (salesData || []).forEach(sale => {
-      const saleDate = new Date(sale.created_at);
-      const monthName = saleDate.toLocaleDateString('en-US', { 
+      const monthName = new Date(sale.created_at).toLocaleDateString('en-US', {
         month: 'short',
-        timeZone: 'Asia/Manila' 
+        timeZone: 'Asia/Manila'
       });
-      
       if (monthlyRevenue[monthName] !== undefined) {
         monthlyRevenue[monthName] += Number(sale.paid_amount) || 0;
       }
     });
 
-    const monthsOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const formattedData = monthsOrder.map(month => ({
+    setChartData(monthsOrder.map(month => ({
       day: month,
+      label: month,
       revenue: monthlyRevenue[month]
-    }));
-
-    setChartData(formattedData);
+    })));
   };
 
   const handleFilterChange = (filter) => {
@@ -243,9 +203,7 @@ function RevenueChart() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'SalesTable' }, () => fetchData(selectedFilter))
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(salesChannel);
-    };
+    return () => supabase.removeChannel(salesChannel);
   }, [selectedFilter]);
 
   if (loading) {
@@ -269,20 +227,20 @@ function RevenueChart() {
       <div className="h-85 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              stroke={darkMode ? "#334155" : "#e2e8f0"} 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={darkMode ? "#334155" : "#e2e8f0"}
               vertical={false}
             />
-            <XAxis 
-              dataKey="day" 
+            <XAxis
+              dataKey="label"  // ✅ display short label
               stroke={darkMode ? "#94a3b8" : "#64748b"}
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tick={{ dy: 10 }} 
+              tick={{ dy: 10 }}
             />
-            <YAxis 
+            <YAxis
               stroke={darkMode ? "#94a3b8" : "#64748b"}
               fontSize={12}
               tickLine={false}
@@ -297,10 +255,10 @@ function RevenueChart() {
                 borderRadius: "12px",
                 boxShadow: "0 10px 40px rgba(0, 0, 0, 0.2)",
               }}
-              formatter={(value) => `₱${value.toLocaleString()}`}
+              labelFormatter={(label, payload) => payload?.[0]?.payload?.day ?? label} // ✅ show full name in tooltip
+              formatter={(value) => [`₱${value.toLocaleString()}`, 'Revenue']}
             />
             <Bar dataKey="revenue" fill="url(#revenueGradient)" radius={[4, 4, 0, 0]} maxBarSize={60} />
-            
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00BC7D" />
