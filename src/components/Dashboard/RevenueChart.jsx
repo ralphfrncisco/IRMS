@@ -69,8 +69,8 @@ function RevenueChart() {
     });
 
     const hoursOrder = [
-      '12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM',
-      '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM'
+      '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM',
+      '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM'
     ];
 
     const formattedData = hoursOrder.map(hour => ({
@@ -250,7 +250,7 @@ function RevenueChart() {
 
   if (loading) {
     return (
-      <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <div className="h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center justify-center h-80">
           <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
         </div>

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { supabase } from "../../lib/supabase";
-import { Loader2 } from 'lucide-react';
+import { Loader2, Package } from 'lucide-react';
 
-// Predefined colors for the pie chart
-const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#06b6d4', '#f97316'];
+const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444'];
 
 function SalesChart() {
     const { darkMode } = useOutletContext();
@@ -17,46 +15,41 @@ function SalesChart() {
             try {
                 setLoading(true);
 
-                // Fetch all purchased items and aggregate by product name
                 const { data, error } = await supabase
                     .from('purchasedItems')
-                    .select('product_name, quantity');
+                    .select('product_name, quantity, amount');
 
                 if (error) throw error;
 
-                // Aggregate quantities by product name
+                // Aggregate both quantity and revenue per product in one pass
                 const productTotals = {};
                 data.forEach(item => {
-                    const productName = item.product_name;
+                    const name = item.product_name;
                     const qty = Number(item.quantity) || 0;
-                    
-                    if (productTotals[productName]) {
-                        productTotals[productName] += qty;
-                    } else {
-                        productTotals[productName] = qty;
+                    const amount = Number(item.amount) || 0;
+
+                    if (!productTotals[name]) {
+                        productTotals[name] = { quantity: 0, revenue: 0 };
                     }
+
+                    productTotals[name].quantity += qty;
+                    productTotals[name].revenue += amount * qty; // ✅ Fixed: was using wrong accumulator
                 });
 
-                // Convert to array and sort by quantity (descending)
-                const sortedProducts = Object.entries(productTotals)
-                    .map(([name, quantity]) => ({ name, quantity }))
-                    .sort((a, b) => b.quantity - a.quantity);
+                const sorted = Object.entries(productTotals)
+                    .map(([name, { quantity, revenue }]) => ({ name, quantity, revenue }))
+                    .sort((a, b) => b.quantity - a.quantity)
+                    .slice(0, 5);
 
-                // Take top 5 products
-                const topProducts = sortedProducts.slice(0, 5);
+                const max = sorted[0]?.quantity || 1;
 
-                // Calculate total quantity for percentage calculation
-                const totalQuantity = topProducts.reduce((sum, product) => sum + product.quantity, 0);
-
-                // Format data for pie chart with percentages
-                const formattedData = topProducts.map((product, index) => ({
-                    name: product.name,
-                    value: Math.round((product.quantity / totalQuantity) * 100),
-                    quantity: product.quantity,
-                    color: COLORS[index % COLORS.length]
+                const formatted = sorted.map((product, index) => ({
+                    ...product,
+                    percentage: Math.round((product.quantity / max) * 100),
+                    color: COLORS[index % COLORS.length],
                 }));
 
-                setChartData(formattedData);
+                setChartData(formatted);
             } catch (err) {
                 console.error('Error fetching top products:', err);
             } finally {
@@ -66,19 +59,12 @@ function SalesChart() {
 
         fetchTopProducts();
 
-        // Real-time listener for purchasedItems
         const channel = supabase
             .channel('purchased-items-realtime')
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'purchasedItems' },
-                () => fetchTopProducts()
-            )
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'purchasedItems' }, fetchTopProducts)
             .subscribe();
 
-        return () => {
-            supabase.removeChannel(channel);
-        };
+        return () => supabase.removeChannel(channel);
     }, []);
 
     if (loading) {
@@ -93,16 +79,13 @@ function SalesChart() {
 
     if (chartData.length === 0) {
         return (
-            <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+            <div className="h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
                 <div className="mb-6">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                        Top Products Sold
-                    </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Most Purchased Items
-                    </p>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Most Purchased Items</p>
                 </div>
-                <div className="flex items-center justify-center h-48 text-slate-500 dark:text-slate-400">
+                <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-slate-600 mt-[-10%]">
+                    <Package className="w-8 h-8" />
                     <p className="text-sm">No sales data available</p>
                 </div>
             </div>
@@ -110,72 +93,49 @@ function SalesChart() {
     }
 
     return (
-        <div className="h-auto max-h-[100vh] p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 ">
+        <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
+            {/* Header */}
             <div className="mb-6">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                    Top Products Sold
-                </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Most Purchased Items (All Time)
-                </p>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Most Purchased Items (All Time)</p>
             </div>
 
-            <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={80}
-                            paddingAngle={5}
-                            dataKey="value"
-                            stroke={darkMode ? "#0f172a" : "#fff"} 
-                            strokeWidth={2}
-                        >
-                            {chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Pie>
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: darkMode ? '#1e293b' : 'rgba(255, 255, 255, 0.95)',
-                                border: 'none',
-                                borderRadius: '12px',
-                                boxShadow: "0 10px 40px rgba(0, 0, 0, 0.2)",
-                                color: darkMode ? '#f8fafc' : '#1e293b'
-                            }}
-                            itemStyle={{ color: darkMode ? '#cbd5e1' : '#475569' }}
-                            formatter={(value, name, props) => [
-                                `${props.payload.quantity} units (${value}%)`,
-                                props.payload.name
-                            ]}
-                        />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
-
-            <div className="space-y-3 mt-4">
+            {/* Bar Chart Rows */}
+            <div className="space-y-5">
                 {chartData.map((item, index) => (
-                    <div className="flex items-center justify-between" key={index}>
-                        <div className="flex items-center space-x-3">
+                    <div key={index}>
+                        {/* Top row: Product Name + Revenue */}
+                        <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <span
+                                    className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: item.color }}
+                                />
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate max-w-[160px]">
+                                    {item.name}
+                                </span>
+                            </div>
+                            {/* Revenue on the right */}
+                            <span className="text-sm font-semibold text-slate-800 dark:text-white tabular-nums flex-shrink-0 ml-2">
+                                ₱{item.revenue.toLocaleString()}
+                            </span>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                             <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: item.color }}
+                                className="h-full rounded-full transition-all duration-700 ease-out"
+                                style={{
+                                    width: `${item.percentage}%`,
+                                    backgroundColor: item.color,
+                                }}
                             />
-                            <span className="text-sm text-slate-600 dark:text-slate-400">
-                                {item.name}
-                            </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs text-slate-500 dark:text-slate-500">
-                                {item.quantity} units
-                            </span>
-                            <span className="text-sm font-semibold text-slate-800 dark:text-white">
-                                {item.value}%
-                            </span>
-                        </div>
+
+                        {/* Bottom label: quantity sold */}
+                        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                            {item.quantity.toLocaleString()} {item.quantity === 1 ? 'item' : 'items'} sold
+                        </p>
                     </div>
                 ))}
             </div>
