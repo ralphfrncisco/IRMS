@@ -93,7 +93,7 @@ function SalesChart() {
     }
 
     return (
-        <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
+        <div className="h-auto lg:h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
             {/* Header */}
             <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
