@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Loader2, Package2, Clock } from "lucide-react";
+import { Loader2, Package2, Clock, User } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import {useNavigate} from "react-router-dom";
 
@@ -82,7 +82,7 @@ function RecentRestock() {
             View your recent restock
           </p>
         </div>
-        <button onClick = {handleViewAll} className="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
+        <button onClick = {handleViewAll} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
           View All
         </button>
       </div>
@@ -94,32 +94,39 @@ function RecentRestock() {
       ) : 
       (
         <div className="p-3">
-          <div className="space-y-7">
+          <div className="space-y-2">
             {RestockData.map((expense) => (
-              <div key={expense.expense_id} className="flex items-start space-x-4 px-3 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+              <div key={expense.expense_id} className="flex items-start py-2.5 space-x-4 px-4 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer">
                 <div className = "p-2 rounded-lg shrink-0 bg-blue-500/10 transition-all duration-300">
                   <Package2 className = "w-4 h-4 text-blue-500"/>
                 </div>
 
                 <div className = "flex-1 min-w-0 space-y-1">
-                  <p className = "max-w-[250px] text-sm text-slate-700 font-medium dark:text-slate-400 truncate">
+                  <p className = "max-w-[250px] text-sm text-slate-700 font-medium dark:text-slate-200 truncate">
                     {expense.purchased_items || expense.expense_type}
                   </p>
 
-                  <p className = "text-xs text-slate-500 dark:text-slate-400 truncate">
+                  <p className = "text-xs text-slate-500 dark:text-slate-300 truncate">
                     Bought from {expense.supplier_name}
                   </p>
 
                   <div className = "flex items-center space-x-2 mt-2">
                     <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                     <span className="text-xs text-slate-500">
-                      {formatDateTimeShort(expense.created_at)} • {expense.recorded_by}
+                      {formatDateTimeShort(expense.created_at)}
+                    </span>
+                  </div>
+
+                  <div className = "flex items-center space-x-2 mt-2">
+                    <User className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+                    <span className="text-xs text-slate-500">
+                      {expense.recorded_by}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-400">
+                  <p className="text-sm font-medium text-orange-500 dark:text-orange-400">
                     {formatCurrency(expense.amount)}
                   </p>
                 </div>

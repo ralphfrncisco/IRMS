@@ -96,7 +96,7 @@ function RecentOrdersTable() {
                             <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Sales</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
                         </div>
-                        <button onClick = {handleViewAll} className="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">View All</button>
+                        <button onClick = {handleViewAll} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">View All</button>
                     </div>
                 </div>
 

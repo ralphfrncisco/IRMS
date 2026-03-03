@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye, Funnel, Loader2 } from 'lucide-react';
+import { Plus, Eye, Funnel, Loader2, Search } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
@@ -113,10 +113,9 @@ function TableSection() {
         return () => { supabase.removeChannel(channel) }
     }, []);
 
-    // ✅ UPDATED: Use customer_full_name for filtering
     const customerOptions = useMemo(() => {
         const names = [...new Set(orders.map(order => order.customer_full_name))];
-        return [CUSTOMER_PLACEHOLDER, ALL_OPTION, ...names.sort((a, b) => a.localeCompare(b))];
+        return [CUSTOMER_PLACEHOLDER, ALL_OPTION, ...names.sort((a, b) => a.localeCompare(b)).slice(0, 5)];
     }, [orders]);
 
     const dateRangeOptions = [DATE_RANGE_PLACEHOLDER, ALL_OPTION, 'Today', 'Last 7 Days', 'Last 30 Days'];
@@ -176,66 +175,77 @@ function TableSection() {
 
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-1 xl:flex xl:items-center gap-4 w-full md:w-auto">
-                <div className = "flex items-center justify-between w-full py-2">
-                    <div>
-                        <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {loading ? 'Loading...' : `Total: ${filteredOrders.length} entries`}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2 relative" ref={filterRef}>
-                        <button 
-                            onClick={() => setShowFilters(!showFilters)}
-                            className={`flex sm:hidden items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
-                                showFilters 
-                                ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
-                            }`}
-                        >
-                            <Funnel className="w-4 h-4" />
-                            <span className="text-sm font-medium">Filters</span>
-                        </button>
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 gap-4 w-full md:w-auto space-y-2">
+                <div className = "flex items-center justify-between">
+                    <div className = "flex items-center justify-between w-full py-2">
+                        <div>
+                            <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                {loading ? 'Loading...' : `Total: ${filteredOrders.length} entries`}
+                            </p>
+                        </div>
 
-                        {showFilters && (
-                            <div className="absolute top-full right-0 mt-2 w-72 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
-                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
-                                <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
-                                <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
-                                <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
-                                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                                    <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} 
-                                    dropdownClassName="mt-[-330px] w-full"/>
+                        <div className="flex items-center gap-2 relative" ref={filterRef}>
+                            <div className = "hidden xl:flex flex-1 items-center justify-between w-full">
+                                <div className="relative w-full flex">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Search className="h-4 w-4 text-slate-400" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search products..."
+                                        className="block w-50 lg:w-100 lg:max-w-xl pl-9 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                                        value= ""
+                                    />
                                 </div>
                             </div>
-                        )}
 
-                        <button onClick={() => setIsModalOpen(true)} className="block xl:hidden cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
-                            <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add</span>
-                        </button>
+                            <button 
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`flex items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
+                                    showFilters 
+                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
+                                    : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                                }`}
+                            >
+                                <Funnel className="w-4 h-4" />
+                                <span className="text-sm font-medium">Filters</span>
+                            </button>
+
+                            {showFilters && (
+                                <div className="absolute top-full right-0 mt-2 w-72 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
+                                    <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
+                                    <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
+                                    <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
+                                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                                        <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} 
+                                        dropdownClassName="mt-[-330px] w-full"/>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button onClick={() => setIsModalOpen(true)} className="block cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                                <Plus className="w-4 h-4" />
+                                <span className="text-sm font-medium">Add <span className = "hidden md:inline">Purchase</span></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <div className="hidden sm:grid sm:grid-cols-2 lg:flex lg:items-center md:justify-end gap-2 w-full md:w-auto">
-                    <div className="col-span-1">
-                        <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
-                    </div>
-                    <div className="col-span-1">
-                        <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
-                    </div>
-                    <div className="col-span-1">
-                        <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
-                    </div>
-                    <div className = "ml-0 lg:ml-3">
-                        <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} />
+                            
+                <div className = "flex xl:hidden items-center justify-between">
+                    <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Search className="h-4 w-4 text-slate-400" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                            value= ""
+                        />
                     </div>
                 </div>
-                
-                <button onClick={() => setIsModalOpen(true)} className="hidden xl:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
-                    <Plus className="w-4 h-4" />
-                    <span className="text-sm font-medium">Add Purchase</span>
-                </button>
             </div>
 
             <div className="overflow-x-auto h-auto md:max-h-[580px] overflow-y-auto custom-scrollbar">

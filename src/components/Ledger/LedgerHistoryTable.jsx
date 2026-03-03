@@ -224,7 +224,7 @@ function LedgerHistoryTable() {
                 ))}
                 
                 {/* Monthly Total */}
-                <tr className="bg-blue-50 dark:bg-blue-900/20 font-bold">
+                <tr className="bg-slate-50/50 dark:bg-slate-800/50 font-bold">
                   <td className="py-4 px-6 text-sm text-blue-600 dark:text-blue-400">
                     Total for the month ({getCurrentMonthName()})
                   </td>
@@ -237,14 +237,14 @@ function LedgerHistoryTable() {
                 </tr>
 
                 {/* Yearly Total (with top margin) */}
-                <tr className="bg-slate-100 dark:bg-slate-800/50 font-bold border border-slate-300 dark:border-slate-900">
+                <tr className="bg-slate-100 dark:bg-slate-800/70 font-bold">
                   <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300">
                     Total for the year ({new Date().getFullYear()})
                   </td>
                   <td className="py-4 px-6 text-sm text-center text-green-700 dark:text-green-500">
                     {formatCurrency(yearlyTotals.revenue)}
                   </td>
-                  <td className="py-4 px-6 text-sm text-center text-red-700 dark:text-red-500">
+                  <td className="py-4 px-6 text-sm text-center text-red-600 dark:text-red-500">
                     {formatCurrency(yearlyTotals.expense)}
                   </td>
                 </tr>
