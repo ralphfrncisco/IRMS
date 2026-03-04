@@ -223,7 +223,7 @@ function TableSection() {
                             <div className="absolute top-full right-0 lg:right-36 mt-2 w-60 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
                                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
                                 <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
-                                <CustomerFilter options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
+                                <CustomerFilter className = "w-full" options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
                                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                                     <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} 
                                     dropdownClassName="mt-[-270px] w-full"/>

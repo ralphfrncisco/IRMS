@@ -185,6 +185,7 @@ function TableSection() {
                             initialValue={customerFilter} 
                             onSelect={setCustomerFilter} 
                             iconProps={iconProps}
+                            className = "w-36"
                         />
                     </div>
                 </div>

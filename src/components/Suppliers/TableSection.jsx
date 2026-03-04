@@ -148,6 +148,7 @@ function TableSection() {
                             initialValue={supplierFilter} 
                             onSelect={setSupplierFilter} 
                             iconProps={iconProps}
+                            className = "w-28"
                         />
                     </div>
                 </div>
