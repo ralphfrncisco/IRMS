@@ -40,7 +40,7 @@ function DateRangeFilter({ options, initialValue, onSelect, iconProps }) {
             {/* Display Button */}
             <button
                 type="button"
-                className={`w-full lg:w-32 bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
+                className={`w-full bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"

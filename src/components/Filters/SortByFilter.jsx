@@ -27,7 +27,7 @@ function SortByFilter({ options, onSelect, iconProps, dropdownClassName = "mt-2"
         <div ref={dropdownRef} className="relative w-full transition-all">
             <button
                 type="button"
-                className={`w-full lg:w-38 py-1 px-3 bg-slate-300/30 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between text-slate-700 dark:text-slate-300 transition-colors 
+                className={`w-full py-1 px-3 bg-slate-300/30 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between text-slate-700 dark:text-slate-300 transition-colors 
                     ${isOpen ? 'ring-2 ring-blue-500/20 border-blue-500' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
             >

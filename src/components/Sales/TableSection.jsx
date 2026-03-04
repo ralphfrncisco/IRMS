@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye, Funnel, Loader2, Search } from 'lucide-react';
+import { Plus, Eye, Funnel, Loader2, Search, X } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
@@ -21,6 +21,7 @@ function TableSection() {
     const { darkMode } = useOutletContext();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const [showFilters, setShowFilters] = useState(false);
     const filterRef = React.useRef(null);
@@ -49,8 +50,8 @@ function TableSection() {
     };
     
     const iconProps = { 
-      size: 16, 
-      className: darkMode ? "text-slate-400" : "text-slate-500" 
+        size: 16, 
+        className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
 
     const [visibleColumns, setVisibleColumns] = useState({
@@ -62,7 +63,6 @@ function TableSection() {
         'STATUS': true,
         'ACTIONS': true
     });
-
 
     const fetchOrders = async () => {
         try {
@@ -128,9 +128,20 @@ function TableSection() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
 
-    // ✅ UPDATED: Filter by customer_full_name
     const filteredOrders = useMemo(() => {
         let filtered = [...orders];
+
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(order =>
+                order.purchased_items?.toLowerCase().includes(q) ||
+                order.customer_full_name?.toLowerCase().includes(q) ||
+                `ord-${order.order_id.toString().padStart(4, '0')}`.includes(q) ||
+                order.status?.toLowerCase().includes(q) ||
+                formatDisplayDateTime(order.created_at)?.toLowerCase().includes(q) ||
+                formatCurrency(order.paid_amount)?.toLowerCase().includes(q)
+            );
+        }
 
         if (customerFilter && customerFilter !== CUSTOMER_PLACEHOLDER && customerFilter !== ALL_OPTION) {
             filtered = filtered.filter(order => order.customer_full_name === customerFilter);
@@ -156,8 +167,9 @@ function TableSection() {
                 return true;
             });
         }
+
         return filtered;
-    }, [orders, dateRangeFilter, customerFilter, paymentStatusFilter]);
+    }, [orders, searchQuery, dateRangeFilter, customerFilter, paymentStatusFilter]);
 
     const handleOpenEdit = (order) => {
         setSelectedOrder(order);
@@ -176,8 +188,8 @@ function TableSection() {
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 gap-4 w-full md:w-auto space-y-2">
-                <div className = "flex items-center justify-between">
-                    <div className = "flex items-center justify-between w-full py-2">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between w-full py-2">
                         <div>
                             <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -186,18 +198,27 @@ function TableSection() {
                         </div>
 
                         <div className="flex items-center gap-2 relative" ref={filterRef}>
-                            <div className = "hidden xl:flex flex-1 items-center justify-between w-full">
-                                <div className="relative w-full flex">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="h-4 w-4 text-slate-400" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Search products..."
-                                        className="block w-50 lg:w-100 lg:max-w-xl pl-9 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
-                                        value= ""
-                                    />
+
+                            {/* Desktop search — inlined to prevent remount focus loss */}
+                            <div className="relative hidden xl:block w-72">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Search className="h-4 w-4 text-slate-400" />
                                 </div>
+                                <input
+                                    type="text"
+                                    placeholder="Search by product, customer, or order ID..."
+                                    className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
                             </div>
 
                             <button 
@@ -213,7 +234,7 @@ function TableSection() {
                             </button>
 
                             {showFilters && (
-                                <div className="absolute top-full right-0 mt-2 w-72 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
+                                <div className="absolute top-full right-0 lg:right-37 mt-2 w-60 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
                                     <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
                                     <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
@@ -227,24 +248,32 @@ function TableSection() {
 
                             <button onClick={() => setIsModalOpen(true)} className="block cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                                 <Plus className="w-4 h-4" />
-                                <span className="text-sm font-medium">Add <span className = "hidden md:inline">Purchase</span></span>
+                                <span className="text-sm font-medium">Add <span className="hidden md:inline">Purchase</span></span>
                             </button>
                         </div>
                     </div>
                 </div>
-                            
-                <div className = "flex xl:hidden items-center justify-between">
-                    <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-4 w-4 text-slate-400" />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
-                            value= ""
-                        />
+
+                {/* Mobile search — inlined to prevent remount focus loss */}
+                <div className="relative flex xl:hidden">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-4 w-4 text-slate-400" />
                     </div>
+                    <input
+                        type="text"
+                        placeholder="Search by product, customer, or order ID..."
+                        className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -265,8 +294,7 @@ function TableSection() {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {loading ? (
                             <tr><td colSpan="7" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
-                        ) : filteredOrders.length === 0 ?
-                        (
+                        ) : filteredOrders.length === 0 ? (
                             <tr>
                                 <td colSpan="7" className="p-10 text-center text-slate-500">
                                     <div className="flex flex-col items-center justify-center py-4">
@@ -275,32 +303,29 @@ function TableSection() {
                                     </div>
                                 </td>
                             </tr>
-                        ) : (filteredOrders.map((order) => (
-                                <tr key={order.order_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                    
-                                    <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
-                                        {`ORD-${order.order_id.toString().padStart(4, '0')}`}
-                                    </td>
-                                    
-                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
-                                    {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className = "w-[200px] lg:w-full md:max-w-[400px] truncate">{order.purchased_items}</p></td>}
-                                    {visibleColumns['PAID AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-slate-700 dark:text-white">{formatCurrency(order.paid_amount)}</td>}
-                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(order.created_at)}</td>}
-                                    {visibleColumns['STATUS'] && (
-                                        <td className="p-4 text-center">
-                                            <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                    )}
+                        ) : filteredOrders.map((order) => (
+                            <tr key={order.order_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
+                                    {`ORD-${order.order_id.toString().padStart(4, '0')}`}
+                                </td>
+                                {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
+                                {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className="w-[200px] lg:w-full md:max-w-[400px] truncate">{order.purchased_items}</p></td>}
+                                {visibleColumns['PAID AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-slate-700 dark:text-white">{formatCurrency(order.paid_amount)}</td>}
+                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(order.created_at)}</td>}
+                                {visibleColumns['STATUS'] && (
                                     <td className="p-4 text-center">
-                                        <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                            <Eye className="w-5 h-5 text-blue-500" />
-                                        </button>
+                                        <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
+                                            {order.status}
+                                        </span>
                                     </td>
-                                </tr>
-                            ))
-                        )}
+                                )}
+                                <td className="p-4 text-center">
+                                    <button onClick={() => handleOpenEdit(order)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                        <Eye className="w-5 h-5 text-blue-500" />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
@@ -323,7 +348,7 @@ function TableSection() {
                 orderData={selectedOrder} 
             />
         </div>
-    )
+    );
 }
 
 export default TableSection;

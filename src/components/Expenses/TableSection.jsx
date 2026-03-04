@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye, Funnel, Loader2 } from 'lucide-react';
+import { Plus, Eye, Funnel, Loader2, Search, X } from 'lucide-react'; // ✅ added Search, X
 import { supabase } from "../../lib/supabase";
 
 import DateRangeFilter from '../Filters/DateRangeFilter';
@@ -11,7 +11,6 @@ import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 import AddExpenseModal from '../Modals/AddExpenseModal';
 import EditExpenseModal from '../Modals/EditExpenseModal';
 
-// 1. Define Constants
 const ALL_OPTION = 'All';
 const DATE_RANGE_PLACEHOLDER = 'Date Range';
 const TYPE_PLACEHOLDER = 'Expense Type';
@@ -19,6 +18,7 @@ const TYPE_PLACEHOLDER = 'Expense Type';
 function TableSection() {
     const { darkMode } = useOutletContext();
     const [showFilters, setShowFilters] = useState(false);
+    const [searchQuery, setSearchQuery] = useState(''); // ✅ search state
     const filterRef = React.useRef(null);
 
     useEffect(() => {
@@ -32,8 +32,8 @@ function TableSection() {
     }, []);
     
     const iconProps = { 
-      size: 16, 
-      className: darkMode ? "text-slate-400" : "text-slate-500" 
+        size: 16, 
+        className: darkMode ? "text-slate-400" : "text-slate-500" 
     };
 
     const [visibleColumns, setVisibleColumns] = useState({
@@ -44,7 +44,6 @@ function TableSection() {
         'REMARKS': true
     });
 
-    // --- STATE MANAGEMENT ---
     const [expenseData, setExpenseData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dateRangeFilter, setDateRangeFilter] = useState(DATE_RANGE_PLACEHOLDER);
@@ -53,7 +52,6 @@ function TableSection() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedExpense, setSelectedExpense] = useState(null);
 
-    // --- FETCH DATA FROM SUPABASE ---
     const fetchExpenses = async () => {
         try {
             setLoading(true);
@@ -63,7 +61,6 @@ function TableSection() {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-
             setExpenseData(data || []);
         } catch (err) {
             console.error("Error fetching expenses:", err.message);
@@ -76,7 +73,6 @@ function TableSection() {
         fetchExpenses();
     }, []);
 
-    // Refresh data when modals close
     const handleCloseAddModal = () => {
         setIsAddModalOpen(false);
         fetchExpenses();
@@ -87,7 +83,6 @@ function TableSection() {
         fetchExpenses();
     };
 
-    // --- CURRENCY FORMATTING LOGIC ---
     const formatCurrency = (value) => {
         const num = parseFloat(value);
         if (isNaN(num)) return "₱ 0.00";
@@ -99,10 +94,9 @@ function TableSection() {
     };
 
     const formatDisplayDateTime = (dateTimeString) => {
-        return formatDateTimeShort(dateTimeString); // "Feb 24, 2026 - 1:26 PM"
+        return formatDateTimeShort(dateTimeString);
     };
 
-    // --- DYNAMIC OPTION GENERATION ---
     const extractUniqueOptions = (key, placeholder) => {
         if (!expenseData || !Array.isArray(expenseData)) return [placeholder, ALL_OPTION];
         const uniqueValues = [...new Set(expenseData.map(item => item[key]).filter(Boolean))];
@@ -117,17 +111,27 @@ function TableSection() {
         setIsEditModalOpen(true);
     };
 
-    // --- FILTERING LOGIC ---
     const filteredExpenses = useMemo(() => {
         try {
             let filtered = Array.isArray(expenseData) ? [...expenseData] : [];
 
-            // Type Filter
+            // ✅ Search filter — matches recorded_by, expense_type, amount, date, remarks
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(item =>
+                    item.recorded_by?.toLowerCase().includes(q) ||
+                    item.expense_type?.toLowerCase().includes(q) ||
+                    item.remarks?.toLowerCase().includes(q) ||
+                    formatCurrency(item.amount)?.toLowerCase().includes(q) ||
+                    formatDisplayDateTime(item.created_at)?.toLowerCase().includes(q) ||
+                    `exp-${item.expense_id.toString().padStart(4, '0')}`.includes(q)
+                );
+            }
+
             if (typeFilter !== TYPE_PLACEHOLDER && typeFilter !== ALL_OPTION) {
                 filtered = filtered.filter(item => item.expense_type === typeFilter);
             }
 
-            // Date Filter
             if (dateRangeFilter !== DATE_RANGE_PLACEHOLDER && dateRangeFilter !== ALL_OPTION) {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -135,7 +139,7 @@ function TableSection() {
                 filtered = filtered.filter(item => {
                     if (!item.date) return false;
                     const itemDate = new Date(item.date);
-                    if (isNaN(itemDate.getTime())) return false; // Guard against Invalid Date
+                    if (isNaN(itemDate.getTime())) return false;
 
                     if (dateRangeFilter === 'Today') {
                         return itemDate.toDateString() === today.toDateString();
@@ -151,26 +155,27 @@ function TableSection() {
                     return true;
                 });
             }
+
             return filtered;
         } catch (error) {
             console.error("Filtering logic crashed:", error);
             return [];
         }
-    }, [dateRangeFilter, typeFilter, expenseData]);
+    }, [dateRangeFilter, typeFilter, expenseData, searchQuery]); // ✅ added searchQuery
 
     const getTypeColor = (type) => {
         switch (type) {
-            case "Stock Expense": return "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400";
+            case "Stock Expense":  return "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400";
             case "Electrical Bill": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400";
-            case "Water Bill": return "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400";
-            case "Miscellaneous": return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
-            default: return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+            case "Water Bill":     return "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400";
+            case "Miscellaneous":  return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+            default:               return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
         }
     };
 
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 grid grid-cols-1 xl:flex xl:items-center gap-4 w-full md:w-auto">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 gap-4 w-full md:w-auto space-y-2">
                 <div className="flex items-center justify-between w-full py-2">
                     <div>
                         <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Expenses</h3>
@@ -179,11 +184,32 @@ function TableSection() {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2 relative" ref={filterRef}> 
-                        {/* The Toggle Button */}
+                    <div className="flex items-center gap-2 relative" ref={filterRef}>
+                        {/* Desktop search */}
+                        <div className="relative hidden xl:block w-72">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Search className="h-4 w-4 text-slate-400" />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Search by type, amount, recorded by..."
+                                className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+
                         <button 
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`flex sm:hidden items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
+                            className={`flex items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
                                 showFilters 
                                 ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
                                 : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
@@ -193,9 +219,8 @@ function TableSection() {
                             <span className="text-sm font-medium">Filters</span>
                         </button>
 
-                        {/* The Dropdown Menu */}
                         {showFilters && (
-                            <div className="absolute top-full right-0 mt-2 w-72 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
+                            <div className="absolute top-full right-0 lg:right-36 mt-2 w-60 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
                                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
                                 <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
                                 <CustomerFilter options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
@@ -206,30 +231,34 @@ function TableSection() {
                             </div>
                         )}
 
-                        <button onClick={() => setIsAddModalOpen(true)} className="block xl:hidden cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                        <button onClick={() => setIsAddModalOpen(true)} className="block cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium">Add</span>
+                            <span className="text-sm font-medium">Add <span className="hidden md:inline">Expense</span></span>
                         </button>
                     </div>
                 </div>
 
-                {/* --- FILTER BAR --- */}
-                <div className="hidden sm:grid sm:grid-cols-2 lg:flex lg:items-center md:justify-end gap-2 w-full md:w-auto">
-                    <div className="col-span-1">
-                        <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
+                {/* Mobile search */}
+                <div className="relative flex xl:hidden">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-4 w-4 text-slate-400" />
                     </div>
-                    <div className="col-span-1">
-                        <CustomerFilter options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
-                    </div>
-                    <div className = "ml-0 lg:ml-3">
-                        <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} />
-                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search by type, amount, recorded by..."
+                        className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
-                
-                <button onClick={() => setIsAddModalOpen(true)} className="hidden xl:flex w-auto flex-shrink-0 cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
-                    <Plus className="w-4 h-4" />
-                    <span className="text-sm font-bold">Add Expense</span>
-                </button>
             </div>
 
             <div className="overflow-x-auto h-auto md:max-h-[580px] overflow-y-auto custom-scrollbar">
@@ -248,26 +277,38 @@ function TableSection() {
 
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {loading ? (
-                            <tr><td colSpan="6" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
+                            <tr><td colSpan="7" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
                         ) : filteredExpenses.length > 0 ? (
                             filteredExpenses.map((item) => (
                                 <tr key={item.expense_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                    <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">EXP-{item.expense_id.toString().padStart(4, '0')}</td>
+                                    <td className="p-4 md:pl-7 text-sm font-medium text-blue-600 dark:text-blue-500">
+                                        EXP-{item.expense_id.toString().padStart(4, '0')}
+                                    </td>
                                     {visibleColumns['RECORDED BY'] && (
                                         <td className="p-4 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
                                             {item.recorded_by || 'N/A'}
                                         </td>
                                     )}
-                                    {visibleColumns['EXPENSE TYPE'] && <td className="p-4 text-center">
-                                        <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getTypeColor(item.expense_type)}`}>
-                                            {item.expense_type}
-                                        </span>
-                                    </td>}
-                                    {visibleColumns['AMOUNT'] && <td className="p-4 text-center text-sm font-semibold">
-                                        {formatCurrency(item.amount)}
-                                    </td>}
-                                    {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(item.created_at)}</td>}
-                                    {visibleColumns['REMARKS'] && <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">{item.remarks || 'N/A'}</td>}
+                                    {visibleColumns['EXPENSE TYPE'] && (
+                                        <td className="p-4 text-center">
+                                            <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getTypeColor(item.expense_type)}`}>
+                                                {item.expense_type}
+                                            </span>
+                                        </td>
+                                    )}
+                                    {visibleColumns['AMOUNT'] && (
+                                        <td className="p-4 text-center text-sm font-semibold">
+                                            {formatCurrency(item.amount)}
+                                        </td>
+                                    )}
+                                    {visibleColumns['DATE'] && (
+                                        <td className="p-4 text-center text-sm">{formatDisplayDateTime(item.created_at)}</td>
+                                    )}
+                                    {visibleColumns['REMARKS'] && (
+                                        <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">
+                                            {item.remarks || 'N/A'}
+                                        </td>
+                                    )}
                                     <td className="p-4 text-center">
                                         <button 
                                             onClick={() => handleViewExpense(item)}
@@ -280,8 +321,11 @@ function TableSection() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="6" className="p-8 text-center text-slate-500 dark:text-slate-400 italic">
-                                    No expenses found
+                                <td colSpan="7" className="p-10 text-center text-slate-500 dark:text-slate-400">
+                                    <div className="flex flex-col items-center justify-center py-4">
+                                        <p className="text-lg font-medium">No records found</p>
+                                        <p className="text-sm">Try adjusting your filters or add an expense.</p>
+                                    </div>
                                 </td>
                             </tr>
                         )}
@@ -300,7 +344,7 @@ function TableSection() {
                 expenseData={selectedExpense}
             />
         </div>
-    )
+    );
 }
 
 export default TableSection;
