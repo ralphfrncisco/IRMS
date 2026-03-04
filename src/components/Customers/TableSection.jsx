@@ -206,7 +206,8 @@ function TableSection() {
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
                             <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Name</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
+                            <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
+                            <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Address</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Balance</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Credit Limit</th>  
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
@@ -221,8 +222,13 @@ function TableSection() {
                                 <td className="p-4 md:pl-7 text-sm font-semibold text-blue-500 dark:text-blue-400">
                                     {customer.full_name}
                                 </td>
-                                <td className="p-4 text-center text-sm">
+                                <td className="p-4 text-left text-sm">
                                     {customer.contact_number}
+                                </td>
+                                <td className="p-4 text-left text-sm">
+                                    <span className={!customer.address ? "text-slate-400 italic" : ""}>
+                                        {customer.address || 'No data available'}
+                                    </span>
                                 </td>
                                 <td className="p-4 text-center text-sm font-semibold text-red-600 dark:text-red-500">
                                     {formatCurrency(customer.remaining_balance)}

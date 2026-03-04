@@ -4,24 +4,42 @@ import { X, Plus, Minus } from 'lucide-react';
 function EditItemModal({ isOpen, onClose, item, onSave }) {
     const [editedQuantity, setEditedQuantity] = useState(1);
 
+    // ✅ item.quantity is the stock level from the database
+    const maxQty = item?.stock ?? item?.quantity ?? 1; // ✅ stock from DB, not selected qty
+
     useEffect(() => {
         if (isOpen && item) {
-            setEditedQuantity(item.quantity);
+            setEditedQuantity(item.quantity); // item.quantity = selected qty
         }
     }, [isOpen, item]);
+
+    // ✅ Stock level label + color
+    const getStockLabel = () => {
+        if (maxQty <= 10) return { text: `${maxQty} available — Low Stock`, color: 'text-red-500 dark:text-red-400' };
+        if (maxQty <= 20) return { text: `${maxQty} available — Limited Stock`, color: 'text-amber-500 dark:text-amber-400' };
+        return { text: `${maxQty} available`, color: 'text-slate-500 dark:text-slate-400' };
+    };
+
+    const stockLabel = getStockLabel();
+
+    const handleDecrement = () => setEditedQuantity(prev => Math.max(1, prev - 1));
+    const handleIncrement = () => setEditedQuantity(prev => Math.min(maxQty, prev + 1)); // ✅ capped at stock
+
+    const handleInputChange = (e) => {
+        const val = parseInt(e.target.value) || 1;
+        setEditedQuantity(Math.min(maxQty, Math.max(1, val))); // ✅ capped at stock
+    };
 
     const handleSave = () => {
         if (editedQuantity < 1) {
             alert("Quantity must be at least 1");
             return;
         }
-
         onSave({
             ...item,
             quantity: editedQuantity,
             total: item.price * editedQuantity
         });
-
         onClose();
     };
 
@@ -29,8 +47,8 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
 
     return (
         <div className="fixed inset-0 bg-slate-900/60 z-[80] flex items-center justify-center">
-            <div 
-                className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 dark:border-slate-800" 
+            <div
+                className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 dark:border-slate-800"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -44,39 +62,52 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
                 {/* Product Info */}
                 <div className="mb-6">
                     <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                        <h3 className="font-semibold text-slate-800 dark:text-white mb-2">{item.name}</h3>
+                        <h3 className="font-semibold text-slate-800 dark:text-white mb-1">{item.name}</h3>
                         <p className="text-sm text-slate-600 dark:text-slate-400">
                             Unit Price: ₱{item.price.toLocaleString()}
+                        </p>
+                        {/* ✅ Stock availability label */}
+                        <p className={`text-xs font-medium mt-1 ${stockLabel.color}`}>
+                            {stockLabel.text}
                         </p>
                     </div>
                 </div>
 
                 {/* Quantity Controls */}
                 <div className="mb-6">
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                        Quantity
-                    </label>
+                    <div className="flex items-center justify-between mb-3">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            Quantity
+                        </label>
+                        {/* ✅ Selected vs max counter */}
+                        <span className="text-xs text-slate-400 dark:text-slate-500">
+                            {editedQuantity} / {maxQty} units
+                        </span>
+                    </div>
                     <div className="flex items-center justify-center gap-4">
-                        <button 
+                        <button
                             type="button"
-                            onClick={() => setEditedQuantity(Math.max(1, editedQuantity - 1))}
-                            className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-colors"
+                            onClick={handleDecrement}
+                            disabled={editedQuantity <= 1}
+                            className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             <Minus className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                         </button>
-                        
-                        <input 
-                            type="number" 
+
+                        <input
+                            type="number"
                             value={editedQuantity}
-                            onChange={(e) => setEditedQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                            onChange={handleInputChange}
                             className="w-24 text-center text-2xl font-bold text-slate-800 dark:text-white bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 no-spinners"
                             min="1"
+                            max={maxQty}
                         />
-                        
-                        <button 
+
+                        <button
                             type="button"
-                            onClick={() => setEditedQuantity(editedQuantity + 1)}
-                            className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-colors"
+                            onClick={handleIncrement}
+                            disabled={editedQuantity >= maxQty}
+                            className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             <Plus className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                         </button>
@@ -95,14 +126,14 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
 
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-3">
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         onClick={onClose}
                         className="px-4 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                     >
                         Cancel
                     </button>
-                    <button 
+                    <button
                         type="button"
                         onClick={handleSave}
                         className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md"
