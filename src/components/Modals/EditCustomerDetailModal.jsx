@@ -134,15 +134,13 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                     {/* LEFT PANEL — Edit Form */}
                     <div className="w-full md:w-85 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
                         <form onSubmit={handleSubmit} className="p-6 space-y-4 h-full flex flex-col">
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Customer Info</p>
-
                             {/* Full Name */}
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                    Full Name *
+                                    Full Name 
                                 </label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input
                                         type="text"
                                         name="full_name"
@@ -160,7 +158,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                     Contact Number *
                                 </label>
                                 <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input
                                         type="tel"
                                         name="contact_number"
@@ -172,13 +170,31 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                 </div>
                             </div>
 
+                            {/* Remaining Balance */}
+                            <div>
+                                <label className="block text-sm font-semibold text-red-600 dark:text-red-500 mb-2">
+                                    Remaining Balance
+                                </label>
+                                <div className="relative">
+                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    <input
+                                        type="text"
+                                        name="remaining_balance"
+                                        value={formData.remaining_balance}
+                                        onChange={handleInputChange}
+                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                            </div>
+
                             {/* Credit Limit */}
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-semibold text-orange-600 dark:text-orange-500 mb-2">
                                     Credit Limit
                                 </label>
                                 <div className="relative">
-                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input
                                         type="text"
                                         name="credit_limit"
@@ -190,23 +206,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                 </div>
                             </div>
 
-                            {/* Remaining Balance */}
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                    Remaining Balance
-                                </label>
-                                <div className="relative">
-                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        name="remaining_balance"
-                                        value={formData.remaining_balance}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        autoComplete="off"
-                                    />
-                                </div>
-                            </div>
+                            
 
                             {/* Buttons — pushed to bottom */}
                             <div className="flex gap-3 pt-2 mt-auto">
@@ -236,7 +236,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                     {/* RIGHT PANEL — Order History */}
                     <div className="flex-1 flex flex-col overflow-hidden">
                         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
-                            <p className="text-md font-bold uppercase tracking-wider text-slate-400">Order History</p>
+                            <p className="text-md font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order History</p>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                 {ordersLoading ? 'Loading...' : `${orders.length} order${orders.length !== 1 ? 's' : ''} found`}
                             </p>
