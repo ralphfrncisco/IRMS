@@ -1,9 +1,52 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle } from 'lucide-react';
+import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle, CheckCircle } from 'lucide-react';
 import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
 
+// ─── Overpayment Confirmation Modal ───────────────────────────────────────────
+function OverpaymentModal({ isOpen, onConfirm, onDecline, extraAmount, customerName }) {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+                        <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Overpayment Detected</h3>
+                </div>
+
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                    The amount paid has an extra of{' '}
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        ₱{extraAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>{' '}
+                    beyond the total amount. Would you like to apply this to reduce{' '}
+                    <span className="font-semibold text-slate-800 dark:text-white">{customerName}</span>'s
+                    overall remaining balance?
+                </p>
+
+                <div className="flex gap-3 pt-2">
+                    <button
+                        onClick={onDecline}
+                        className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    >
+                        No, skip it
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="flex-1 px-4 py-2.5 text-sm font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+                    >
+                        Yes, apply it
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─── Main Modal ───────────────────────────────────────────────────────────────
 function AddPurchaseModal({ isOpen, onClose }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -11,7 +54,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [purchaseItems, setPurchaseItems] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    
+
+    // ✅ Overpayment modal state
+    const [showOverpaymentModal, setShowOverpaymentModal] = useState(false);
+    const [pendingSavePayload, setPendingSavePayload] = useState(null);
+
     const [receiptFile, setReceiptFile] = useState(null);
     const [receiptFileName, setReceiptFileName] = useState('No file chosen');
 
@@ -54,7 +101,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     .from('customers')
                     .select('customer_id, full_name, contact_number, credit_limit, remaining_balance')
                     .order('full_name', { ascending: true });
-
                 if (error) throw error;
                 setCustomerList(data || []);
             } catch (err) {
@@ -63,26 +109,38 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 setLoadingCustomers(false);
             }
         };
-
-        if (isOpen) {
-            fetchCustomers();
-        }
+        if (isOpen) fetchCustomers();
     }, [isOpen]);
 
     const totalAmount = useMemo(() => {
         return purchaseItems.reduce((sum, item) => sum + item.total, 0);
     }, [purchaseItems]);
 
+    // ✅ Fixed: handle overpayment (negative balance) properly
     useEffect(() => {
         const rawAmountString = formValues.amount.toString().replace(/,/g, '');
         const payment = parseFloat(rawAmountString) || 0;
         const balance = totalAmount - payment;
-        
-        setFormValues(prev => ({
-            ...prev,
-            remainingBalance: totalAmount > 0 ? formatInputCurrency(balance.toString()) : ''
-        }));
+
+        if (totalAmount <= 0) {
+            setFormValues(prev => ({ ...prev, remainingBalance: '' }));
+            return;
+        }
+
+        if (balance <= 0) {
+            // Overpaid or exact — remaining balance for THIS order is 0
+            setFormValues(prev => ({ ...prev, remainingBalance: '0' }));
+        } else {
+            setFormValues(prev => ({ ...prev, remainingBalance: formatInputCurrency(balance.toString()) }));
+        }
     }, [totalAmount, formValues.amount]);
+
+    // ✅ Derived: extra amount paid beyond total (only positive when overpaid)
+    const overpaymentAmount = useMemo(() => {
+        const payment = parseFloat(formValues.amount.toString().replace(/,/g, '')) || 0;
+        const extra = payment - totalAmount;
+        return extra > 0 ? extra : 0;
+    }, [formValues.amount, totalAmount]);
 
     const filteredCustomers = useMemo(() => {
         return customerList.filter(customer =>
@@ -120,6 +178,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     setSelectedCustomer(null);
                     setReceiptFile(null);
                     setReceiptFileName('No file chosen');
+                    setShowOverpaymentModal(false);
+                    setPendingSavePayload(null);
                 } catch (e) {
                     console.error("Initialization Error:", e);
                 }
@@ -160,11 +220,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     const handleSaveEditedItem = (editedItem) => {
-        setPurchaseItems(prev => 
-            prev.map(item => 
-                item.id === editedItem.id ? editedItem : item
-            )
-        );
+        setPurchaseItems(prev => prev.map(item => item.id === editedItem.id ? editedItem : item));
     };
 
     const handleRemoveItem = (id) => {
@@ -190,8 +246,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     const handleCustomerChange = (e) => {
         const value = e.target.value;
-        setFormValues(prev => ({ 
-            ...prev, 
+        setFormValues(prev => ({
+            ...prev,
             customer: value,
             customerId: null,
             currentCustomerBalance: 0,
@@ -203,8 +259,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     const selectCustomer = async (customer) => {
         setSelectedCustomer(customer);
-        setFormValues(prev => ({ 
-            ...prev, 
+        setFormValues(prev => ({
+            ...prev,
             customer: customer.full_name,
             customerId: customer.customer_id,
             currentCustomerBalance: customer.remaining_balance,
@@ -214,8 +270,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     const setToday = () => {
-        const today = getPHDate(); 
-        setFormValues(prev => ({ ...prev, transactionDate: today }));
+        setFormValues(prev => ({ ...prev, transactionDate: getPHDate() }));
     };
 
     const handleFileChange = (event) => {
@@ -229,21 +284,16 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }
     };
 
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
+    // ─── Core save logic (called after overpayment decision) ──────────────────
+    const executeSave = async (applyOverpaymentToBalance = false) => {
         setIsSaving(true);
-
         try {
-            if (!formValues.customerId) {
-                throw new Error('Please select a valid customer from the dropdown');
-            }
-
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
-            
-            // ✅ NEW: Separate values for new structure
-            const totalAmount_value = totalAmount; // Grand total of all items
-            const paidAmount_value = parseNum(formValues.amount); // What customer paid
-            const remainingBalance_value = parseNum(formValues.remainingBalance); // Unpaid balance for THIS sale
+
+            const totalAmount_value = totalAmount;
+            const paidAmount_value = parseNum(formValues.amount);
+            // ✅ This order's remaining balance is always 0 if fully/over paid
+            const remainingBalance_value = Math.max(0, totalAmount_value - paidAmount_value);
 
             // Credit limit check
             if (remainingBalance_value > 0 && formValues.currentCustomerBalance > 0) {
@@ -263,9 +313,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         `New Sale Balance: ₱${remainingBalance_value.toLocaleString()}\n` +
                         `Total Would Be: ₱${creditCheck.total_would_be?.toLocaleString()}\n\n` +
                         `Please collect the remaining balance first before creating a new sale.`;
-                    
                     alert(message);
-                    setIsSaving(false);
                     return;
                 }
             }
@@ -283,7 +331,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
 
             if (rpcResult && !rpcResult.success) {
-                const errorMessages = rpcResult.errors.map(err => 
+                const errorMessages = rpcResult.errors.map(err =>
                     `${err.product}: ${err.reason} (Need ${err.requested}, Have ${err.available})`
                 ).join('\n');
                 throw new Error(`\n${errorMessages}`);
@@ -301,7 +349,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 receiptFilename = fileName;
             }
 
-            // ✅ Insert sale with NEW column structure
+            // Insert sale
             const { data: saleData, error: saleError } = await supabase
                 .from('SalesTable')
                 .insert([{
@@ -311,10 +359,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     remaining_balance: remainingBalance_value,
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,
-                    status: remainingBalance_value <= 0 
-                        ? "Fully Paid" 
-                        : paidAmount_value === 0 
-                            ? "Unpaid" 
+                    status: remainingBalance_value <= 0
+                        ? "Fully Paid"
+                        : paidAmount_value === 0
+                            ? "Unpaid"
                             : "With Balance",
                     purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
                 }])
@@ -334,7 +382,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             const { error: itemsError } = await supabase.from('purchasedItems').insert(itemsToInsert);
             if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
 
-            // Insert payment history (only if payment was made)
+            // Insert payment history
             if (paidAmount_value > 0) {
                 await supabase.from('paymentHistory').insert([{
                     order_id: saleData.order_id,
@@ -343,22 +391,47 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 }]);
             }
 
-            // ✅ Update customer's total balance (add this sale's remaining balance)
+            // ✅ Update customer balance:
+            // - Always add this order's remaining balance
+            // - If user confirmed overpayment, also subtract the extra from their overall balance
+            const balanceToAdd = remainingBalance_value;
+            const balanceToSubtract = applyOverpaymentToBalance ? overpaymentAmount : 0;
+            const netBalanceChange = balanceToAdd - balanceToSubtract;
+
             const { error: balanceError } = await supabase.rpc('update_customer_balance', {
                 p_customer_id: formValues.customerId,
-                p_new_balance: remainingBalance_value
+                p_new_balance: netBalanceChange
             });
 
-            if (balanceError) {
-                throw new Error(`Failed to update customer balance: ${balanceError.message}`);
-            }
+            if (balanceError) throw new Error(`Failed to update customer balance: ${balanceError.message}`);
 
             onClose();
         } catch (err) {
             alert("Failed to save: " + err.message);
         } finally {
             setIsSaving(false);
+            setShowOverpaymentModal(false);
+            setPendingSavePayload(null);
         }
+    };
+
+    // ─── Form submit: check for overpayment first ─────────────────────────────
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!formValues.customerId) {
+            alert('Please select a valid customer from the dropdown');
+            return;
+        }
+
+        // ✅ If amount paid > total AND customer has existing balance, show overpayment modal
+        if (overpaymentAmount > 0 && formValues.currentCustomerBalance > 0) {
+            setShowOverpaymentModal(true);
+            return;
+        }
+
+        // Otherwise proceed directly
+        await executeSave(false);
     };
 
     return (
@@ -379,28 +452,26 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
 
                         <div className="relative">
-                            <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Customer Name
-                            </label>
-                            <input 
-                                type="text" 
-                                id="CustomerName" 
-                                name="customer" 
-                                value={formValues.customer || ''} 
-                                onChange={handleCustomerChange} 
-                                onFocus={() => setIsDropdownOpen(true)} 
-                                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)} 
-                                placeholder={loadingCustomers ? 'Loading customers...' : 'Select a customer'} 
-                                autoComplete="off" 
-                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
+                            <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
+                            <input
+                                type="text"
+                                id="CustomerName"
+                                name="customer"
+                                value={formValues.customer || ''}
+                                onChange={handleCustomerChange}
+                                onFocus={() => setIsDropdownOpen(true)}
+                                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                                placeholder={loadingCustomers ? 'Loading customers...' : 'Select a customer'}
+                                autoComplete="off"
+                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                             />
-                            
+
                             {isDropdownOpen && filteredCustomers.length > 0 && (
                                 <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
                                     {filteredCustomers.map((customer) => (
-                                        <li 
-                                            key={customer.customer_id} 
-                                            onClick={() => selectCustomer(customer)} 
+                                        <li
+                                            key={customer.customer_id}
+                                            onClick={() => selectCustomer(customer)}
                                             className="px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
                                         >
                                             <div className="flex justify-between items-start">
@@ -422,9 +493,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
                             {isDropdownOpen && formValues.customer && filteredCustomers.length === 0 && !loadingCustomers && (
                                 <div className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-3 px-4">
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
-                                        No customers found. Please add customer in Entities menu.
-                                    </p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 text-center">No customers found. Please add customer in Entities menu.</p>
                                 </div>
                             )}
                         </div>
@@ -447,12 +516,12 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </div>
 
                     {selectedCustomer && selectedCustomer.remaining_balance > 0 && (
-                        <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <div className="w-full max-w-[325px] md:max-w-none flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Customer has outstanding balance</p>
                                 <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
-                                    Current Balance: ₱{formValues.currentCustomerBalance.toLocaleString()} | 
+                                    Current Balance: ₱{formValues.currentCustomerBalance.toLocaleString()} |
                                     Credit Limit: ₱{formValues.creditLimit.toLocaleString()}
                                 </p>
                             </div>
@@ -520,16 +589,36 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             </div>
                         </div>
                         <div className="col-span-2 space-y-5">
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-col md:flex-row items-center gap-4">
                                 <div className="relative w-full">
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount Paid</label>
+                                    {/* Tooltip wrapper */}
                                     <div className="relative">
-                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                        <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange} placeholder="0.00" autoComplete="off" className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                        <PhilippinePeso className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${overpaymentAmount > 0 ? 'text-emerald-500' : 'text-slate-500 dark:text-slate-400'}`} />
+                                        <input
+                                            type="text"
+                                            name="amount"
+                                            value={formValues.amount}
+                                            onChange={handleInputChange}
+                                            placeholder="0.00"
+                                            autoComplete="off"
+                                            className={`w-full pl-9 pr-3 py-1.5 h-10 rounded-lg border outline-none transition-all ${
+                                                overpaymentAmount > 0
+                                                    ? 'border-emerald-400 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 focus:ring-2 focus:ring-emerald-400/30'
+                                                    : 'border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
+                                            }`}
+                                        />
+                                        {/* ✅ Persistent tooltip — stays until overpaymentAmount drops to 0 */}
+                                        {overpaymentAmount > 0 && (
+                                            <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] px-3 py-2 rounded-lg bg-emerald-600 dark:bg-emerald-700 text-white text-xs font-medium shadow-lg pointer-events-none">
+                                                ₱{overpaymentAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} over the total — you'll be asked to apply this to the customer's balance.
+                                                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-emerald-600 dark:border-t-emerald-700" />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="relative w-full">
-                                    <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">New Balance</label>
+                                    <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remaining Balance</label>
                                     <div className="relative">
                                         <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                         <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-medium" />
@@ -551,8 +640,18 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </button>
                 </div>
             </div>
+
             <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
             <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
+
+            {/* ✅ Overpayment confirmation modal */}
+            <OverpaymentModal
+                isOpen={showOverpaymentModal}
+                extraAmount={overpaymentAmount}
+                customerName={formValues.customer}
+                onConfirm={() => executeSave(true)}
+                onDecline={() => executeSave(false)}
+            />
         </div>
     );
 }
