@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle, CheckCircle } from 'lucide-react';
+import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle, CheckCircle, UserPlus, Phone } from 'lucide-react';
 import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
@@ -65,6 +65,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [customerList, setCustomerList] = useState([]);
     const [loadingCustomers, setLoadingCustomers] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    // ✅ New customer inline registration
+    const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
+    const [newCustomerForm, setNewCustomerForm] = useState({ contact_number: '', address: '' });
+    const [isRegisteringCustomer, setIsRegisteringCustomer] = useState(false);
 
     const getPHDate = () => {
         return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
@@ -180,6 +184,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     setReceiptFileName('No file chosen');
                     setShowOverpaymentModal(false);
                     setPendingSavePayload(null);
+                    setShowNewCustomerForm(false);
+                    setNewCustomerForm({ contact_number: '', address: '' });
                 } catch (e) {
                     console.error("Initialization Error:", e);
                 }
@@ -254,6 +260,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             creditLimit: 0
         }));
         setSelectedCustomer(null);
+        setShowNewCustomerForm(false);
         setIsDropdownOpen(true);
     };
 
@@ -267,6 +274,47 @@ function AddPurchaseModal({ isOpen, onClose }) {
             creditLimit: customer.credit_limit
         }));
         setIsDropdownOpen(false);
+    };
+
+    // ✅ Register a brand new customer and auto-select them
+    const registerNewCustomer = async () => {
+        if (!formValues.customer.trim()) return;
+        setIsRegisteringCustomer(true);
+        try {
+            const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
+            const remainingBalanceVal = parseNum(formValues.remainingBalance);
+
+            const { data, error } = await supabase
+                .from('customers')
+                .insert([{
+                    full_name: formValues.customer.trim(),
+                    contact_number: newCustomerForm.contact_number.trim() || null,
+                    address: newCustomerForm.address.trim() || null,
+                    credit_limit: 20000,
+                    remaining_balance: remainingBalanceVal
+                }])
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            // Auto-select the newly created customer
+            setSelectedCustomer(data);
+            setFormValues(prev => ({
+                ...prev,
+                customerId: data.customer_id,
+                currentCustomerBalance: data.remaining_balance,
+                creditLimit: data.credit_limit
+            }));
+            // Refresh customer list
+            setCustomerList(prev => [...prev, data].sort((a, b) => a.full_name.localeCompare(b.full_name)));
+            setShowNewCustomerForm(false);
+            setIsDropdownOpen(false);
+        } catch (err) {
+            alert('Failed to register customer: ' + err.message);
+        } finally {
+            setIsRegisteringCustomer(false);
+        }
     };
 
     const setToday = () => {
@@ -467,7 +515,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             />
 
                             {isDropdownOpen && filteredCustomers.length > 0 && (
-                                <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
+                                <ul onMouseDown={e => e.preventDefault()} className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
                                     {filteredCustomers.map((customer) => (
                                         <li
                                             key={customer.customer_id}
@@ -492,8 +540,46 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             )}
 
                             {isDropdownOpen && formValues.customer && filteredCustomers.length === 0 && !loadingCustomers && (
-                                <div className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-3 px-4">
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 text-center">No customers found. Please add customer in Entities menu.</p>
+                                <div onMouseDown={e => e.preventDefault()} className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50">
+                                    {!showNewCustomerForm ? (
+                                        <div className="p-3">
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3">
+                                                No customer named <span className="font-semibold text-slate-700 dark:text-slate-200">"{formValues.customer}"</span> found.
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNewCustomerForm(true)}
+                                                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors border border-blue-200 dark:border-blue-800"
+                                            >
+                                                <UserPlus className="w-4 h-4" />
+                                                Register "{formValues.customer}" as new customer
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 space-y-3">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <p className="text-sm font-bold text-slate-700 dark:text-white">New Customer</p>
+                                                <button type="button" onClick={() => setShowNewCustomerForm(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
+                                                    <X className="w-3.5 h-3.5 text-slate-500" />
+                                                </button>
+                                            </div>
+                                            <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{formValues.customer}</p>
+                                                <p className="text-[10px] text-slate-400 mt-0.5">Credit limit: ₱20,000 (default)</p>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={registerNewCustomer}
+                                                disabled={isRegisteringCustomer}
+                                                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isRegisteringCustomer ? 'Registering...' : (
+                                                    <><UserPlus className="w-4 h-4" /> Register & Select</>
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -516,7 +602,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     </div>
 
                     {selectedCustomer && selectedCustomer.remaining_balance > 0 && (
-                        <div className="w-full max-w-[325px] md:max-w-none flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Customer has outstanding balance</p>
@@ -589,7 +675,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             </div>
                         </div>
                         <div className="col-span-2 space-y-5">
-                            <div className="flex flex-col md:flex-row items-center gap-4">
+                            <div className="flex items-center gap-4">
                                 <div className="relative w-full">
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount Paid</label>
                                     {/* Tooltip wrapper */}
@@ -610,9 +696,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                         />
                                         {/* ✅ Persistent tooltip — stays until overpaymentAmount drops to 0 */}
                                         {overpaymentAmount > 0 && (
-                                            <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] px-3 py-2 rounded-lg bg-emerald-600 dark:bg-emerald-700 text-white text-xs font-medium shadow-lg pointer-events-none">
+                                            <div className="absolute bottom-full left-0 mb-2 z-50 w-max max-w-[220px] px-3 py-2 rounded-lg bg-emerald-600 dark:bg-emerald-700 text-white text-xs font-medium shadow-lg pointer-events-none">
                                                 ₱{overpaymentAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} over the total — you'll be asked to apply this to the customer's balance.
-                                                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-emerald-600 dark:border-t-emerald-700" />
+                                                <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-emerald-600 dark:border-t-emerald-700" />
                                             </div>
                                         )}
                                     </div>
