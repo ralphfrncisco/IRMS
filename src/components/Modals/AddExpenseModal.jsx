@@ -4,7 +4,6 @@ import AddExpenseItemModal from './AddExpenseItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
 
-// The specific categories you requested
 const expenseCategories = ["Stock Expense", "Electrical Bill", "Water Bill", "Miscellaneous"];
 
 function AddExpenseModal({isOpen, onClose}) {
@@ -18,60 +17,38 @@ function AddExpenseModal({isOpen, onClose}) {
     const [purchaseItems, setPurchaseItems] = useState([]);
     const fileInputRef = useRef(null);
 
-    // Helper to get PH Date in YYYY-MM-DD format
-    const getPHDate = () => {
-        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
-    };
-    
-    // REUSABLE FORMATTER: You can copy this to any modal
+    const getPHDate = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+
     const formatInputCurrency = (value) => {
         if (!value || value === '0') return '';
         const cleanValue = value.toString().replace(/[^0-9.]/g, '');
         const parts = cleanValue.split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        if (parts.length > 1) {
-            return `${parts[0]}.${parts[1].substring(0, 2)}`;
-        }
+        if (parts.length > 1) return `${parts[0]}.${parts[1].substring(0, 2)}`;
         return parts[0];
     };
 
     const [formValues, setFormValues] = useState({
-        amount: '',
-        expenseType: '',
-        remarks: '',
-        transactionDate: getPHDate(),
-        receiptImage: null,
-        supplierName: '',
+        amount: '', expenseType: '', remarks: '',
+        transactionDate: getPHDate(), receiptImage: null, supplierName: '',
     });
 
-    // Check if expense type is "Stock Expense"
     const isStockExpense = formValues.expenseType === "Stock Expense";
 
-    // Calculate total amount from items (only for Stock Expense)
-    const totalAmount = useMemo(() => {
-        return purchaseItems.reduce((sum, item) => sum + item.total, 0);
-    }, [purchaseItems]);
+    const totalAmount = useMemo(() => purchaseItems.reduce((sum, item) => sum + item.total, 0), [purchaseItems]);
 
     useEffect(() => {
         if (isOpen) {
-            setFormValues({ 
-                amount: '', 
-                expenseType: '', 
-                remarks: '', 
-                transactionDate: getPHDate(), 
-                receiptImage: null,
-                supplierName: ''
-            });
+            setFormValues({ amount: '', expenseType: '', remarks: '', transactionDate: getPHDate(), receiptImage: null, supplierName: '' });
             setImagePreview(null);
             setPurchaseItems([]);
         }
     }, [isOpen]);
 
-    const filteredCategories = useMemo(() => {
-        return expenseCategories.filter(type =>
-            type.toLowerCase().includes((formValues.expenseType || '').toLowerCase())
-        );
-    }, [formValues.expenseType]);
+    const filteredCategories = useMemo(() =>
+        expenseCategories.filter(type => type.toLowerCase().includes((formValues.expenseType || '').toLowerCase())),
+        [formValues.expenseType]
+    );
 
     const handleImageChange = (file) => {
         if (file && file.type.startsWith('image/')) {
@@ -83,86 +60,52 @@ function AddExpenseModal({isOpen, onClose}) {
     };
 
     const handleDrag = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         if (e.type === "dragenter" || e.type === "dragover") setIsDragging(true);
         else if (e.type === "dragleave") setIsDragging(false);
     };
 
     const handleDrop = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleImageChange(e.dataTransfer.files[0]);
-        }
+        e.preventDefault(); e.stopPropagation(); setIsDragging(false);
+        if (e.dataTransfer.files?.[0]) handleImageChange(e.dataTransfer.files[0]);
     };
 
     const formatDateDisplay = (dateString) => {
         if (!dateString) return "";
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            month: 'long', day: 'numeric', year: 'numeric'
-        }).format(date);
+        return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(dateString));
     };
 
-    const setToday = () => {
-        setFormValues(prev => ({ ...prev, transactionDate: getPHDate() }));
-    };
+    const setToday = () => setFormValues(prev => ({ ...prev, transactionDate: getPHDate() }));
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        
-        // INTEGRATED LOGIC: Formats the amount as you type
-        if (name === 'amount') {
-            const formattedValue = formatInputCurrency(value);
-            setFormValues(prev => ({ ...prev, [name]: formattedValue }));
-            return;
-        }
-        
+        if (name === 'amount') { setFormValues(prev => ({ ...prev, [name]: formatInputCurrency(value) })); return; }
         setFormValues(prev => ({ ...prev, [name]: value }));
     };
 
     const handleTypeChange = (e) => {
         const value = e.target.value;
-        setFormValues(prev => ({ ...prev, expenseType: value }));
+        setFormValues(prev => ({ ...prev, expenseType: value, supplierName: value !== 'Stock Expense' ? '' : prev.supplierName }));
+        if (value !== "Stock Expense") setPurchaseItems([]);
         setIsDropdownOpen(true);
-        
-        // Clear items and supplier name if switching away from Stock Expense
-        if (value !== "Stock Expense") {
-            setPurchaseItems([]);
-            setFormValues(prev => ({ ...prev, supplierName: '' }));
-        }
     };
 
     const selectType = (type) => {
-        setFormValues(prev => ({ ...prev, expenseType: type }));
+        setFormValues(prev => ({ ...prev, expenseType: type, supplierName: type !== 'Stock Expense' ? '' : prev.supplierName }));
+        if (type !== "Stock Expense") setPurchaseItems([]);
         setIsDropdownOpen(false);
-        
-        // Clear items and supplier name if selecting non-Stock Expense
-        if (type !== "Stock Expense") {
-            setPurchaseItems([]);
-            setFormValues(prev => ({ ...prev, supplierName: '' }));
-        }
     };
 
-    // Handle adding items from AddItemModal
     const handleAddItem = (newItems) => {
         setPurchaseItems(prev => {
             const updatedList = [...prev];
             newItems.forEach(newItem => {
                 const existingIndex = updatedList.findIndex(item => item.id === newItem.id);
                 if (existingIndex > -1) {
-                    const existingItem = updatedList[existingIndex];
-                    const newQty = existingItem.quantity + newItem.quantity;
-                    updatedList[existingIndex] = {
-                        ...existingItem,
-                        quantity: newQty,
-                        total: existingItem.price * newQty
-                    };
-                } else {
-                    updatedList.push(newItem);
-                }
+                    const ei = updatedList[existingIndex];
+                    const newQty = ei.quantity + newItem.quantity;
+                    updatedList[existingIndex] = { ...ei, quantity: newQty, total: ei.price * newQty };
+                } else { updatedList.push(newItem); }
             });
             return updatedList;
         });
@@ -170,66 +113,37 @@ function AddExpenseModal({isOpen, onClose}) {
 
     const handleEditItem = (id) => {
         const item = purchaseItems.find(item => item.id === id);
-        if (item) {
-            setItemToEdit(item);
-            setIsEditModalOpen(true);
-        }
+        if (item) { setItemToEdit(item); setIsEditModalOpen(true); }
     };
 
-    // Handle saving edited item
-    const handleSaveEditedItem = (editedItem) => {
-        setPurchaseItems(prev => 
-            prev.map(item => 
-                item.id === editedItem.id ? editedItem : item
-            )
-        );
-    };
-
-    const handleRemoveItem = (id) => {
-        setPurchaseItems(prev => prev.filter(item => item.id !== id));
-    };
+    const handleSaveEditedItem = (editedItem) => setPurchaseItems(prev => prev.map(item => item.id === editedItem.id ? editedItem : item));
+    const handleRemoveItem = (id) => setPurchaseItems(prev => prev.filter(item => item.id !== id));
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
-
         try {
             let receiptFilename = null;
-
-            // Upload receipt to 'receipts' bucket and store only filename
             if (formValues.receiptImage) {
                 const fileExt = formValues.receiptImage.name.split('.').pop();
                 const fileName = `expense_${Date.now()}.${fileExt}`;
-                
-                const { error: uploadError } = await supabase.storage
-                    .from('receipts')
-                    .upload(fileName, formValues.receiptImage);
-
+                const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, formValues.receiptImage);
                 if (uploadError) throw uploadError;
-
                 receiptFilename = fileName;
             }
 
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
-            
-            // Use totalAmount for Stock Expense, otherwise use manual amount input
             const finalAmount = isStockExpense ? totalAmount : parseNum(formValues.amount);
 
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user found');
 
-            // Get user's full name from account table
-            const { data: accountData, error: accountError } = await supabase
-                .from('account')
-                .select('full_name')
-                .eq('user_id', user.id)
-                .single();
-
+            const { data: accountData, error: accountError } = await supabase.from('account').select('full_name').eq('user_id', user.id).single();
             if (accountError) throw accountError;
 
-            const recordedBy = accountData?.full_name || 'Unknown User';
+            // ✅ Auto-set status: Stock Expense starts as "Just Ordered", others as "Paid"
+            const initialStatus = isStockExpense ? 'Just Ordered' : 'Paid';
 
-            // Insert expense data
             const { data: expenseData, error: expenseError } = await supabase
                 .from('ExpensesTable')
                 .insert([{
@@ -238,43 +152,25 @@ function AddExpenseModal({isOpen, onClose}) {
                     amount: finalAmount,
                     remarks: formValues.remarks,
                     receipt_image: receiptFilename,
-                    recorded_by: recordedBy,
-                    purchased_items: isStockExpense ? purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ') : null
+                    recorded_by: accountData?.full_name || 'Unknown User',
+                    purchased_items: isStockExpense ? purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ') : null,
+                    status: initialStatus
                 }])
                 .select()
                 .single();
 
             if (expenseError) throw new Error(`Expense Error: ${expenseError.message}`);
 
-            // Insert purchased items only for Stock Expense
             if (isStockExpense && purchaseItems.length > 0) {
-                const itemsToInsert = purchaseItems.map(item => ({
-                    expense_id: expenseData.expense_id,
-                    product_name: item.name,
-                    amount: item.price,
-                    quantity: item.quantity
-                }));
-
-                const { error: itemsError } = await supabase
-                    .from('ExpenseItems')
-                    .insert(itemsToInsert);
-
+                const { error: itemsError } = await supabase.from('ExpenseItems').insert(
+                    purchaseItems.map(item => ({ expense_id: expenseData.expense_id, product_name: item.name, amount: item.price, quantity: item.quantity }))
+                );
                 if (itemsError) throw new Error(`Items Error: ${itemsError.message}`);
 
-                // --- UPDATE INVENTORY ---
-                const inventoryData = purchaseItems.map(item => ({
-                    product_name: item.name,
-                    qty: item.quantity,
-                    price: item.price,
-                    category: item.category,
-                    sub_category: item.subCategory
-                }));
-
-                const { data: rpcResult, error: rpcError } = await supabase
-                    .rpc('update_inventory_from_expense', { items: inventoryData });
-
+                const { error: rpcError } = await supabase.rpc('update_inventory_from_expense', {
+                    items: purchaseItems.map(item => ({ product_name: item.name, qty: item.quantity, price: item.price, category: item.category, sub_category: item.subCategory }))
+                });
                 if (rpcError) throw new Error(`Inventory Update Error: ${rpcError.message}`);
-                // --- END UPDATE INVENTORY ---
             }
 
             onClose();
@@ -289,10 +185,7 @@ function AddExpenseModal({isOpen, onClose}) {
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto overflow-x-hidden">
-            <div 
-                className="flex flex-col h-auto max-h-[83vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
-                onClick={e => e.stopPropagation()}
-            >
+            <div className="flex flex-col h-auto max-h-[83vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Add Expense</h2>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
@@ -304,12 +197,9 @@ function AddExpenseModal({isOpen, onClose}) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="w-[85vw] md:w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Receipt Image</label>
-                            <div 
-                                onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
+                            <div onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
                                 onClick={() => fileInputRef.current?.click()}
-                                className={`relative h-52 border-2 border-dashed rounded-xl transition-all cursor-pointer overflow-hidden
-                                    ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-blue-400'}`}
-                            >
+                                className={`relative h-52 border-2 border-dashed rounded-xl transition-all cursor-pointer overflow-hidden ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-blue-400'}`}>
                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleImageChange(e.target.files[0])} />
                                 {imagePreview ? (
                                     <div className="relative w-full h-full group">
@@ -320,9 +210,7 @@ function AddExpenseModal({isOpen, onClose}) {
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-slate-400 space-y-2">
-                                        <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                            <Upload className="w-6 h-6 text-blue-500" />
-                                        </div>
+                                        <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full"><Upload className="w-6 h-6 text-blue-500" /></div>
                                         <div className="text-center px-4">
                                             <p className="text-xs font-medium">Upload Receipt</p>
                                             <p className="text-xs opacity-60">PNG, JPG (Max 5MB)</p>
@@ -335,54 +223,45 @@ function AddExpenseModal({isOpen, onClose}) {
                         <div className="space-y-4">
                             <div className="relative max-w-[83vw]">
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type of Expense</label>
-                                <input 
-                                    type="text" name="expenseType" value={formValues.expenseType} onChange={handleTypeChange}
+                                <input type="text" name="expenseType" value={formValues.expenseType} onChange={handleTypeChange}
                                     onFocus={() => setIsDropdownOpen(true)} onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
                                     placeholder='Select or type expense type' autoComplete="off"
-                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" 
-                                />
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                                 {isDropdownOpen && filteredCategories.length > 0 && (
                                     <ul className="absolute z-30 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
                                         {filteredCategories.map((type, index) => (
-                                            <li key={index} onClick={() => selectType(type)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">
-                                                {type}
-                                            </li>
+                                            <li key={index} onClick={() => selectType(type)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">{type}</li>
                                         ))}
                                     </ul>
                                 )}
                             </div>
 
-                            {/* Show Supplier Name only for Stock Expense */}
-                            {isStockExpense && (
-                                <div className = "max-w-[83vw]">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier Name</label>
-                                    <input
-                                        type="text"
-                                        name="supplierName"
-                                        value={formValues.supplierName}
-                                        onChange={handleInputChange}
-                                        placeholder="Enter supplier name"
-                                        autoComplete="off"
-                                        className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                    />
+                            {/* ✅ Initial status preview */}
+                            {formValues.expenseType && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Initial Status:</span>
+                                    <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${isStockExpense ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'}`}>
+                                        {isStockExpense ? 'Just Ordered' : 'Paid'}
+                                    </span>
                                 </div>
                             )}
 
-                            {/* Show Amount field only for non-Stock Expense */}
+                            {isStockExpense && (
+                                <div className="max-w-[83vw]">
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier Name</label>
+                                    <input type="text" name="supplierName" value={formValues.supplierName} onChange={handleInputChange}
+                                        placeholder="Enter supplier name" autoComplete="off"
+                                        className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                </div>
+                            )}
+
                             {!isStockExpense && (
                                 <div className="relative w-full max-w-[83vw]">
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
                                     <div className="relative">
                                         <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                        <input
-                                            type="text"
-                                            name="amount"
-                                            value={formValues.amount}
-                                            onChange={handleInputChange}
-                                            placeholder="0.00"
-                                            autoComplete="off"
-                                            className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                        />
+                                        <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange} placeholder="0.00" autoComplete="off"
+                                            className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                                     </div>
                                 </div>
                             )}
@@ -405,12 +284,12 @@ function AddExpenseModal({isOpen, onClose}) {
 
                             <div className="max-w-[83vw] md:w-full">
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
-                                <textarea name="remarks" value={formValues.remarks} onChange={handleInputChange} rows="3" placeholder="Add notes..." className="w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
+                                <textarea name="remarks" value={formValues.remarks} onChange={handleInputChange} rows="3" placeholder="Add notes..."
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Items List Section - Only show for Stock Expense */}
                     {isStockExpense && (
                         <div className="max-w-[88vw] md:w-full flex flex-col space-y-4 text-slate-800 dark:text-slate-200">
                             <div className="flex items-center justify-between">
@@ -440,12 +319,8 @@ function AddExpenseModal({isOpen, onClose}) {
                                                         <td className="p-4 text-sm text-slate-700 dark:text-slate-200">{item.quantity}</td>
                                                         <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.total.toLocaleString()}</td>
                                                         <td className="p-4 text-center">
-                                                            <button type="button" onClick={() => handleEditItem(item.id)} className="text-blue-500 hover:text-blue-700 p-1 cursor-pointer">
-                                                                <Pencil className="w-4 h-4" />
-                                                            </button>
-                                                            <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700 p-1 cursor-pointer">
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
+                                                            <button type="button" onClick={() => handleEditItem(item.id)} className="text-blue-500 hover:text-blue-700 p-1 cursor-pointer"><Pencil className="w-4 h-4" /></button>
+                                                            <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700 p-1 cursor-pointer"><Trash2 className="w-4 h-4" /></button>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -467,27 +342,15 @@ function AddExpenseModal({isOpen, onClose}) {
 
                 <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
-                    <button 
-                        type="submit" 
-                        form="expenseForm" 
-                        disabled={
-                            !formValues.expenseType || 
-                            (isStockExpense ? purchaseItems.length === 0 : !formValues.amount) || 
-                            isSaving
-                        }
-                        className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    >
+                    <button type="submit" form="expenseForm"
+                        disabled={!formValues.expenseType || (isStockExpense ? purchaseItems.length === 0 : !formValues.amount) || isSaving}
+                        className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                         {isSaving ? "Saving..." : "Save Expense"}
                     </button>
                 </div>
             </div>
             <AddExpenseItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
-            <EditItemModal 
-                isOpen={isEditModalOpen} 
-                onClose={() => setIsEditModalOpen(false)} 
-                item={itemToEdit}
-                onSave={handleSaveEditedItem}
-            />
+            <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
         </div>
     );
 }

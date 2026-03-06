@@ -98,7 +98,7 @@ function RecentRestock() {
             {RestockData.map((expense) => (
               <div key={expense.expense_id} className="flex items-start py-2.5 space-x-4 px-4 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer">
                 <div className = "p-2 rounded-lg shrink-0 bg-blue-500/10 transition-all duration-300">
-                  <Package2 className = "w-4 h-4 text-blue-500"/>
+                  <Package className = "w-4 h-4 text-blue-500"/>
                 </div>
 
                 <div className = "flex-1 min-w-0 space-y-1">
