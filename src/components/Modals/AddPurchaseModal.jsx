@@ -58,6 +58,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
     // ✅ Overpayment modal state
     const [showOverpaymentModal, setShowOverpaymentModal] = useState(false);
     const [pendingSavePayload, setPendingSavePayload] = useState(null);
+    // ✅ Payment terms block state
+    const [paymentTermsBlock, setPaymentTermsBlock] = useState(null); // { dueDate, customerName, balance }
 
     const [receiptFile, setReceiptFile] = useState(null);
     const [receiptFileName, setReceiptFileName] = useState('No file chosen');
@@ -94,7 +96,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
         amount: '',
         remainingBalance: '',
         currentCustomerBalance: 0,
-        creditLimit: 0
+        creditLimit: 0,
+        paymentTermsDate: ''
     });
 
     useEffect(() => {
@@ -103,7 +106,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             try {
                 const { data, error } = await supabase
                     .from('customers')
-                    .select('customer_id, full_name, contact_number, credit_limit, remaining_balance')
+                    .select('customer_id, full_name, contact_number, credit_limit, remaining_balance, payment_terms_date')
                     .order('full_name', { ascending: true });
                 if (error) throw error;
                 setCustomerList(data || []);
@@ -186,6 +189,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                     setPendingSavePayload(null);
                     setShowNewCustomerForm(false);
                     setNewCustomerForm({ contact_number: '', address: '' });
+                    setPaymentTermsBlock(null);
                 } catch (e) {
                     console.error("Initialization Error:", e);
                 }
@@ -257,10 +261,12 @@ function AddPurchaseModal({ isOpen, onClose }) {
             customer: value,
             customerId: null,
             currentCustomerBalance: 0,
-            creditLimit: 0
+            creditLimit: 0,
+            paymentTermsDate: ''
         }));
         setSelectedCustomer(null);
         setShowNewCustomerForm(false);
+        setPaymentTermsBlock(null);
         setIsDropdownOpen(true);
     };
 
@@ -271,9 +277,45 @@ function AddPurchaseModal({ isOpen, onClose }) {
             customer: customer.full_name,
             customerId: customer.customer_id,
             currentCustomerBalance: customer.remaining_balance,
-            creditLimit: customer.credit_limit
+            creditLimit: customer.credit_limit,
+            paymentTermsDate: customer.payment_terms_date || ''
         }));
         setIsDropdownOpen(false);
+
+        // ✅ Payment terms block check
+        // Block if: has balance + terms date is set + terms date is past + no payment on most recent sale
+        if (customer.remaining_balance > 0 && customer.payment_terms_date) {
+            const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+            if (customer.payment_terms_date < today) {
+                // Check if any payment has been made on their most recent sale
+                const { data: recentSale } = await supabase
+                    .from('SalesTable')
+                    .select('order_id, remaining_balance')
+                    .eq('customer_id', customer.customer_id)
+                    .gt('remaining_balance', 0)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (recentSale && recentSale.length > 0) {
+                    const { data: payments } = await supabase
+                        .from('paymentHistory')
+                        .select('payment_amount')
+                        .eq('order_id', recentSale[0].order_id)
+                        .limit(1);
+
+                    const hasNoPayment = !payments || payments.length === 0;
+                    if (hasNoPayment) {
+                        setPaymentTermsBlock({
+                            dueDate: customer.payment_terms_date,
+                            customerName: customer.full_name,
+                            balance: customer.remaining_balance
+                        });
+                        return;
+                    }
+                }
+            }
+        }
+        setPaymentTermsBlock(null);
     };
 
     // ✅ Register a brand new customer and auto-select them
@@ -412,7 +454,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         : paidAmount_value === 0
                             ? "Unpaid"
                             : "With Balance",
-                    purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
+                    purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', '),
+                    payment_terms_date: formValues.paymentTermsDate || null
                 }])
                 .select()
                 .single();
@@ -472,6 +515,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
             return;
         }
 
+        // ✅ Hard block if payment terms are overdue with no payment
+        if (paymentTermsBlock) return;
+
         // ✅ If amount paid > total AND customer has existing balance, show overpayment modal
         if (overpaymentAmount > 0 && formValues.currentCustomerBalance > 0) {
             setShowOverpaymentModal(true);
@@ -493,7 +539,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 </div>
 
                 <form id="purchaseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-9 md:pr-2 custom-scrollbar">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id = "input-form-83vw">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div>
                             <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
                             <input type="text" id="PONumber" name="PONumber" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none" />
@@ -567,7 +613,29 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{formValues.customer}</p>
                                                 <p className="text-[10px] text-slate-400 mt-0.5">Credit limit: ₱20,000 (default)</p>
                                             </div>
-
+                                            {/* Contact number */}
+                                            <div className="relative">
+                                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                                <input
+                                                    type="tel"
+                                                    placeholder="Contact number (optional)"
+                                                    value={newCustomerForm.contact_number}
+                                                    onChange={(e) => setNewCustomerForm(prev => ({ ...prev, contact_number: e.target.value }))}
+                                                    onMouseDown={e => e.stopPropagation()}
+                                                    onFocus={e => e.stopPropagation()}
+                                                    className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                />
+                                            </div>
+                                            {/* Address */}
+                                            <input
+                                                type="text"
+                                                placeholder="Address (optional)"
+                                                value={newCustomerForm.address}
+                                                onChange={(e) => setNewCustomerForm(prev => ({ ...prev, address: e.target.value }))}
+                                                onMouseDown={e => e.stopPropagation()}
+                                                onFocus={e => e.stopPropagation()}
+                                                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
+                                            />
                                             <button
                                                 type="button"
                                                 onClick={registerNewCustomer}
@@ -599,9 +667,72 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 <input type="date" name="transactionDate" value={formValues.transactionDate} onChange={handleInputChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             </div>
                         </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Payment Terms
+                                {formValues.paymentTermsDate && (() => {
+                                    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+                                    return formValues.paymentTermsDate < today
+                                        ? <span className="ml-2 text-[10px] font-bold text-red-500 uppercase">Overdue</span>
+                                        : null;
+                                })()}
+                            </label>
+                            <div className="relative h-10 w-full">
+                                <div className={`absolute inset-0 flex items-center justify-between px-3 rounded-lg border text-sm overflow-hidden pointer-events-none ${
+                                    formValues.paymentTermsDate && formValues.paymentTermsDate < new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' })
+                                        ? 'border-red-400 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
+                                        : formValues.paymentTermsDate
+                                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300'
+                                            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400'
+                                }`}>
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 flex-shrink-0 text-slate-400" />
+                                        <span className="truncate text-sm">
+                                            {formValues.paymentTermsDate
+                                                ? new Date(formValues.paymentTermsDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                                                : 'No due date'}
+                                        </span>
+                                    </div>
+                                    {formValues.paymentTermsDate && (
+                                        <button
+                                            type="button"
+                                            onMouseDown={e => e.stopPropagation()}
+                                            onClick={() => setFormValues(prev => ({ ...prev, paymentTermsDate: '' }))}
+                                            className="pointer-events-auto p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                                        >
+                                            <X className="w-3.5 h-3.5 text-slate-400" />
+                                        </button>
+                                    )}
+                                </div>
+                                <input
+                                    type="date"
+                                    name="paymentTermsDate"
+                                    value={formValues.paymentTermsDate}
+                                    onChange={handleInputChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    {selectedCustomer && selectedCustomer.remaining_balance > 0 && (
+                    {/* ✅ Payment Terms Hard Block Banner */}
+                    {paymentTermsBlock && (
+                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 rounded-lg">
+                            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <p className="text-sm font-bold text-red-800 dark:text-red-300">Sale Blocked — Payment Terms Overdue</p>
+                                <p className="text-xs text-red-700 dark:text-red-400 mt-1">
+                                    <span className="font-semibold">{paymentTermsBlock.customerName}</span> has an outstanding balance of{' '}
+                                    <span className="font-semibold">₱{paymentTermsBlock.balance.toLocaleString()}</span> and their payment terms due date{' '}
+                                    (<span className="font-semibold">{new Date(paymentTermsBlock.dueDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>){' '}
+                                    has passed with no recorded payment. Please collect a payment on their most recent order before creating a new sale.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ✅ Yellow warning — outstanding balance but terms not overdue */}
+                    {selectedCustomer && selectedCustomer.remaining_balance > 0 && !paymentTermsBlock && (
                         <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
@@ -609,6 +740,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
                                     Current Balance: ₱{formValues.currentCustomerBalance.toLocaleString()} |
                                     Credit Limit: ₱{formValues.creditLimit.toLocaleString()}
+                                    {formValues.paymentTermsDate && (
+                                        <span> | Due: {new Date(formValues.paymentTermsDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                    )}
                                 </p>
                             </div>
                         </div>

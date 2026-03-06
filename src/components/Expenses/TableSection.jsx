@@ -41,6 +41,7 @@ function TableSection() {
         'EXPENSE TYPE': true,
         'AMOUNT': true,
         'DATE': true,
+        'STATUS': true,
         'REMARKS': true
     });
 
@@ -172,6 +173,12 @@ function TableSection() {
             default:               return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
         }
     };
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "" :
+                return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+        }
+    }
 
     return (
         <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
@@ -270,6 +277,7 @@ function TableSection() {
                             {visibleColumns['EXPENSE TYPE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>}
                             {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
+                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
                             {visibleColumns['REMARKS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>}
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                         </tr>
@@ -303,6 +311,11 @@ function TableSection() {
                                     )}
                                     {visibleColumns['DATE'] && (
                                         <td className="p-4 text-center text-sm">{formatDisplayDateTime(item.created_at)}</td>
+                                    )}
+                                    {visibleColumns['STATUS'] && (
+                                        <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">
+                                            {item.status || 'N/A'}
+                                        </td>
                                     )}
                                     {visibleColumns['REMARKS'] && (
                                         <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">

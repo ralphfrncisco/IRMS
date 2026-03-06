@@ -253,6 +253,16 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 if (paymentError) {
                     console.error("❌ Payment history error:", paymentError);
                 }
+
+                // ✅ FIX: Subtract the additional payment from the customer's overall remaining balance
+                const { error: balanceError } = await supabase.rpc('update_customer_balance', {
+                    p_customer_id: formValues.customerId,
+                    p_new_balance: -additionalPayment  // negative = subtract from balance
+                });
+
+                if (balanceError) {
+                    console.error("❌ Balance update error:", balanceError);
+                }
             }
             
             await supabase.from('purchasedItems').delete().eq('order_id', orderData.order_id);
@@ -427,7 +437,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 type="text" 
                                                 name="additionalPayment" 
                                                 value={formValues.additionalPayment} 
-                                                placeholder= {formatInputCurrency(originalValues.paidAmount.toString())}
+                                                placeholder={formatInputCurrency(originalValues.paidAmount.toString())}
                                                 onChange={handleInputChange} 
                                                 autoComplete="off"
                                                 className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none" 

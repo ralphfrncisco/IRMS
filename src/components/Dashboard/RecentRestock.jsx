@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Loader2, Package2, Clock, User } from "lucide-react";
+import { Loader2, Package, Clock, User } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import {useNavigate} from "react-router-dom";
 
@@ -60,7 +60,7 @@ function RecentRestock() {
           </p>
         </div>
         <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-slate-600 mt-[-10%]">
-          <Package2 className="w-8 h-8" />
+          <Package className="w-8 h-8" />
           <p className="text-sm">No sales data available</p>
         </div>
       </div>
