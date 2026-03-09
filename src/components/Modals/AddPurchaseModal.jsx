@@ -386,7 +386,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             const remainingBalance_value = Math.max(0, totalAmount_value - paidAmount_value);
 
             // Credit limit check
-            if (remainingBalance_value > 0 && formValues.currentCustomerBalance > 0) {
+            if (remainingBalance_value > 0) {
                 const { data: creditCheck, error: creditError } = await supabase
                     .rpc('check_customer_credit_limit', {
                         p_customer_id: formValues.customerId,
@@ -397,12 +397,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
                 if (!creditCheck.allowed) {
                     const message = `❌ Credit Limit Exceeded!\n\n` +
-                        `Customer: ${formValues.customer}\n` +
-                        `Credit Limit: ₱${creditCheck.credit_limit?.toLocaleString()}\n` +
+                        `${formValues.customer} has reached their credit limit of ₱${creditCheck.credit_limit?.toLocaleString()}.\n` +
                         `Current Balance: ₱${creditCheck.current_balance?.toLocaleString()}\n` +
-                        `New Sale Balance: ₱${remainingBalance_value.toLocaleString()}\n` +
-                        `Total Would Be: ₱${creditCheck.total_would_be?.toLocaleString()}\n\n` +
-                        `Please collect the remaining balance first before creating a new sale.`;
+                        `This sale would bring the total to ₱${creditCheck.total_would_be?.toLocaleString()}.\n\n` +
+                        `Please collect a payment before creating a new sale.`;
                     alert(message);
                     return;
                 }
