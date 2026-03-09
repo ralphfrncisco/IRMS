@@ -46,7 +46,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     }
                 }
             } catch (err) {
-                console.error("Header Profile Error:", err);
+
             } finally {
                 if (isMounted) setIsLoading(false);
             }
@@ -73,7 +73,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     setUnreadCount(unread);
                 }
             } catch (err) {
-                console.error('Error fetching notifications:', err);
+
             }
         };
 

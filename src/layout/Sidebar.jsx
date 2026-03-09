@@ -45,12 +45,12 @@ function LowStockBadge({ count }) {
   );
 }
 
-function Sidebar({ collapsed, darkMode, userRole }) { 
+function Sidebar({ collapsed, userRole }) { 
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [mobileSubmenu, setMobileSubmenu] = useState(null);
   const [screenSize, setScreenSize] = useState('desktop');
-  const [lowStockCount, setLowStockCount] = useState(0);       // ✅ how many items are low
-  const [showLowStockBanner, setShowLowStockBanner] = useState(true); // ✅ persistent banner
+  const [lowStockCount, setLowStockCount] = useState(0); 
+  const [showLowStockBanner, setShowLowStockBanner] = useState(true);
   const location = useLocation();
 
   // ─── Fetch low stock count ────────────────────────────────────────────────
@@ -158,7 +158,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                           isActive ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'
                         }`}
                       >
-                        {/* ✅ Badge on icon */}
+
                         <span className="relative inline-flex">
                           <item.icon className="w-6 h-6" />
                           {isInventory && <LowStockBadge count={lowStockCount} />}
@@ -248,7 +248,6 @@ function Sidebar({ collapsed, darkMode, userRole }) {
             </div>
           </div>
 
-          {/* ✅ Persistent low stock banner — sidebar expanded only */}
           {!isCollapsed && lowStockCount > 0 && showLowStockBanner && (
             <div className="mx-3 mt-3 flex items-center justify-between px-3 py-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg">
               <div className="flex items-center gap-2">
@@ -368,7 +367,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                     >
                       <span className="relative inline-flex">
                         <item.icon className="w-5 h-5" />
-                        {/* ✅ Badge on Inventory nav item */}
+
                         {isInventory && <LowStockBadge count={lowStockCount} />}
                       </span>
                       {!isCollapsed && (

@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./lib/supabase";
 import { Loader2 } from "lucide-react";
 
@@ -16,13 +16,80 @@ import Accounts from "./pages/Accounts";
 import Suppliers from "./pages/Suppliers";
 import LoginPage from "./pages/auth/Login";
 
+const IDLE_TIMEOUT_MS  = 5 * 60 * 1000;  // 5 minutes
+const WARN_BEFORE_MS   = 1 * 60 * 1000;  // warn at 4 minutes (1 min before logout)
+const ACTIVITY_EVENTS  = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Idle timeout state
+  const [showWarning, setShowWarning] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+  const idleTimerRef   = useRef(null);
+  const warnTimerRef   = useRef(null);
+  const countdownRef   = useRef(null);
+
+  // ✅ Sign out and clean up
+  const handleLogout = useCallback(async () => {
+    clearTimeout(idleTimerRef.current);
+    clearTimeout(warnTimerRef.current);
+    clearInterval(countdownRef.current);
+    setShowWarning(false);
+    await supabase.auth.signOut();
+  }, []);
+
+  // ✅ Reset all timers on activity
+  const resetTimers = useCallback(() => {
+    if (!session) return;
+
+    clearTimeout(idleTimerRef.current);
+    clearTimeout(warnTimerRef.current);
+    clearInterval(countdownRef.current);
+    setShowWarning(false);
+    setCountdown(60);
+
+    // Show warning at 4 minutes
+    warnTimerRef.current = setTimeout(() => {
+      setShowWarning(true);
+      setCountdown(60);
+
+      // Start 60s countdown
+      countdownRef.current = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }, IDLE_TIMEOUT_MS - WARN_BEFORE_MS);
+
+    // Auto logout at 5 minutes
+    idleTimerRef.current = setTimeout(() => {
+      handleLogout();
+    }, IDLE_TIMEOUT_MS);
+
+  }, [session, handleLogout]);
+
+  // ✅ Attach/detach activity listeners when session changes
   useEffect(() => {
-    // 1. Get initial session
+    if (!session) return;
+
+    resetTimers();
+    ACTIVITY_EVENTS.forEach(e => window.addEventListener(e, resetTimers, { passive: true }));
+
+    return () => {
+      clearTimeout(idleTimerRef.current);
+      clearTimeout(warnTimerRef.current);
+      clearInterval(countdownRef.current);
+      ACTIVITY_EVENTS.forEach(e => window.removeEventListener(e, resetTimers));
+    };
+  }, [session, resetTimers]);
+
+  useEffect(() => {
     const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
@@ -31,17 +98,13 @@ function App() {
 
     getInitialSession();
 
-    // 2. Listen for auth changes (the fix)
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (loading) setLoading(false);
     });
 
     const subscription = data?.subscription;
-
-    return () => {
-      if (subscription) subscription.unsubscribe();
-    };
+    return () => { if (subscription) subscription.unsubscribe(); };
   }, []);
 
   if (loading) {
@@ -58,30 +121,63 @@ function App() {
   }
 
   return (
-    <Routes>
-      {!session ? (
-        <>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </>
-      ) : (
-        <Route path="/" element={<MainLayout darkMode={darkMode} setDarkMode={setDarkMode} />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard darkMode={darkMode} />} />
-          <Route path="transactions/Expenses" element={<Expenses darkMode={darkMode} />} />
-          <Route path="transactions/Sales" element={<Sales darkMode={darkMode} />} />
-          <Route path="transactions/Balances" element={<Balances darkMode={darkMode} />} />
-          <Route path="transactions/Ledger" element={<Ledger darkMode={darkMode} />} />
-          <Route path="customers" element={<Customers darkMode={darkMode} />} />
-          <Route path="suppliers" element={<Suppliers darkMode={darkMode} />} />
-          <Route path="inventory" element={<Inventory darkMode={darkMode} />} />
-          <Route path="activityLog" element={<ActivityLog darkMode={darkMode} />} />
-          <Route path="accounts" element={<Accounts darkMode={darkMode} />} />
-          
-          <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-        </Route>
+    <>
+
+      {showWarning && session && (
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8 max-w-sm w-full text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center mx-auto">
+              <span className="text-2xl">⏱️</span>
+            </div>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+              Still there?
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              You've been inactive for 4 minutes. You'll be automatically logged out in
+            </p>
+            <p className="text-4xl font-bold text-amber-500">{countdown}s</p>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleLogout}
+                className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Log Out
+              </button>
+              <button
+                onClick={resetTimers}
+                className="flex-1 px-4 py-2.5 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+              >
+                Stay Logged In
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-    </Routes>
+
+      <Routes>
+        {!session ? (
+          <>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </>
+        ) : (
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="transactions/Expenses" element={<Expenses />} />
+            <Route path="transactions/Sales" element={<Sales />} />
+            <Route path="transactions/Balances" element={<Balances />} />
+            <Route path="transactions/Ledger" element={<Ledger />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="suppliers" element={<Suppliers />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="activityLog" element={<ActivityLog />} />
+            <Route path="accounts" element={<Accounts />} />
+            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+          </Route>
+        )}
+      </Routes>
+    </>
   );
 }
 
