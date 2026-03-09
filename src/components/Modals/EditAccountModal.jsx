@@ -80,8 +80,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
             if (onSuccess) onSuccess();
             onClose();
         } catch (err) {
-            console.error("Update failed:", err);
-            alert(err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }

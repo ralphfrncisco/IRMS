@@ -98,7 +98,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
             if (error) throw error;
             onClose();
         } catch (err) {
-            alert('Error updating customer: ' + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsUpdating(false);
         }

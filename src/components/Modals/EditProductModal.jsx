@@ -212,8 +212,7 @@ function EditProductModal({ isOpen, onClose, product }) {
             
             onClose();
         } catch (error) {
-            console.error("Update Error:", error.message);
-            alert(`Failed to update: ${error.message}`);
+            alert("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }

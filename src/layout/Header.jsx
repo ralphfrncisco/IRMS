@@ -46,7 +46,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     }
                 }
             } catch (err) {
-
+                alert("Something went wrong. Please try again.");
             } finally {
                 if (isMounted) setIsLoading(false);
             }
@@ -73,7 +73,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     setUnreadCount(unread);
                 }
             } catch (err) {
-
+                alert("Something went wrong. Please try again.");
             }
         };
 
@@ -127,7 +127,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
             setIsUserMenuOpen(false);
             window.location.href = "/login";
         } catch (err) {
-            alert("Error logging out: " + err.message);
+            alert("Something went wrong. Please try again.");
         }
     };
 

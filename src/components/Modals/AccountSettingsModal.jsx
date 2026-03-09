@@ -89,7 +89,7 @@ function AccountSettingsModal({ isOpen, onClose, currentProfile }) {
             onClose();
             window.location.reload(); // Refresh to show new data
         } catch (err) {
-            alert('Error updating profile: ' + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsUpdating(false);
         }

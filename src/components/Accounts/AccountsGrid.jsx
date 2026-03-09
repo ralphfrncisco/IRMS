@@ -26,10 +26,9 @@ function AccountsGrid() {
             if (!error) {
                 setAccounts(data);
             } else {
-                console.error("Error fetching accounts:", error.message);
             }
         } catch (err) {
-            console.error("Unexpected error:", err);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
         }

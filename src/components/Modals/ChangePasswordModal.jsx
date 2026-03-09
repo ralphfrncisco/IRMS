@@ -56,7 +56,7 @@ function ChangePasswordModal({ isOpen, onClose }) {
             });
             onClose();
         } catch (err) {
-            alert('Error changing password: ' + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsUpdating(false);
         }

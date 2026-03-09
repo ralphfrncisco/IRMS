@@ -73,7 +73,7 @@ function AddProductModal({ isOpen, onClose }) {
                     setDbProductSrpList(formattedSrp);
                 }
             } catch (err) {
-                console.error("Fetch error:", err.message);
+                alert("Something went wrong. Please try again.");
             } finally {
                 setLoading(false);
             }
@@ -225,7 +225,7 @@ function AddProductModal({ isOpen, onClose }) {
             onClose();
 
         } catch (error) {
-            alert(error.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }

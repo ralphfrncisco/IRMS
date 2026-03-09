@@ -45,7 +45,7 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
 
                     setPurchaseItems(fetchedItems);
                 } catch (err) {
-                    console.error("Error fetching products:", err.message);
+                    alert("Something went wrong. Please try again.");
                 }
             }
         };
@@ -78,7 +78,7 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
                     .eq('id', id);
                 if (error) throw error;
             } catch (err) {
-                console.error("Delete failed:", err.message);
+                alert("Something went wrong. Please try again.");
             }
         }
     };
@@ -136,7 +136,6 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
             }, 1500);
 
         } catch (err) {
-            console.error("Update failed:", err.message);
             setStatusModal({ show: true, type: 'error', message: err.message });
         }
     };

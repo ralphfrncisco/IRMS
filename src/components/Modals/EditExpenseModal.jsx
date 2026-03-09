@@ -62,7 +62,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                 setReceiptFileName(expense.receipt_image || 'No image recorded');
                 setReceiptPreview(getImageUrl(expense.receipt_image));
             } catch (err) {
-                console.error("Error loading expense details:", err.message);
+                alert("Something went wrong. Please try again.");
             } finally {
                 setLoading(false);
             }
@@ -122,8 +122,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
 
             onClose();
         } catch (err) {
-            console.error("Error updating expense:", err.message);
-            alert("Failed to update expense: " + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }

@@ -62,7 +62,7 @@ function AddCustomerModal({ isOpen, onClose }) {
 
             onClose();
         } catch (err) {
-            alert('Error adding customer: ' + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsSaving(false);
         }

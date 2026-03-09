@@ -63,7 +63,6 @@ function AddSalaryModal({ isOpen, onClose }) {
                 .select(); // Adding select() helps confirm if the data actually landed
 
             if (error) {
-                console.error("Supabase Error Details:", error);
                 throw error;
             }
 
@@ -77,7 +76,7 @@ function AddSalaryModal({ isOpen, onClose }) {
             onClose();
             
         } catch (err) {
-            alert("Failed to save: " + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsSaving(false);
         }

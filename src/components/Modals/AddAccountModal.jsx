@@ -87,8 +87,7 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
             onClose();
 
         } catch (err) {
-            console.error("Signup Error:", err);
-            alert(err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }

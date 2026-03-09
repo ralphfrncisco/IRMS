@@ -141,7 +141,7 @@ function AddExpenseModal({isOpen, onClose}) {
             const { data: accountData, error: accountError } = await supabase.from('account').select('full_name').eq('user_id', user.id).single();
             if (accountError) throw accountError;
 
-            // ✅ Auto-set status: Stock Expense starts as "Just Ordered", others as "Paid"
+
             const initialStatus = isStockExpense ? 'Just Ordered' : 'Paid';
 
             const { data: expenseData, error: expenseError } = await supabase
@@ -175,7 +175,7 @@ function AddExpenseModal({isOpen, onClose}) {
 
             onClose();
         } catch (err) {
-            alert("Failed to save expense: " + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsSaving(false);
         }
