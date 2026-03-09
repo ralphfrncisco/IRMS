@@ -23,11 +23,14 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
         return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
     };
 
-    const getImageUrl = (path) => {
+    const getImageUrl = async (path) => {
         if (!path) return null;
-        if (path.startsWith('http')) return path;
-        const { data } = supabase.storage.from('receipts').getPublicUrl(path);
-        return data?.publicUrl || null;
+        if (path.startsWith('http') && path.includes('token=')) return path;
+        const filePath = path.startsWith('http') ? path.split('/receipts/').pop() : path;
+        const { data, error } = await supabase.storage
+            .from('receipts')
+            .createSignedUrl(filePath, 3600);
+        return error ? null : data.signedUrl;
     };
 
     useEffect(() => {
@@ -60,9 +63,9 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
 
                 setStockItems(items || []);
                 setReceiptFileName(expense.receipt_image || 'No image recorded');
-                setReceiptPreview(getImageUrl(expense.receipt_image));
+                setReceiptPreview(await getImageUrl(expense.receipt_image));
             } catch (err) {
-                alert("Something went wrong. Please try again.");
+                console.error("Error loading expense details:", err.message);
             } finally {
                 setLoading(false);
             }
@@ -122,7 +125,8 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
 
             onClose();
         } catch (err) {
-            alert("Something went wrong. Please try again.");
+            console.error("Error updating expense:", err.message);
+            alert("Failed to update expense: " + err.message);
         } finally {
             setLoading(false);
         }

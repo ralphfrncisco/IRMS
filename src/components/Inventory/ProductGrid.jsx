@@ -18,13 +18,31 @@ export default function ProductGrid() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    const resolveImageUrl = async (path) => {
+        if (!path) return NoImage;
+        if (path.startsWith('http') && path.includes('token=')) return path;
+        const filePath = path.startsWith('http') ? path.split('/product-images/').pop() : path;
+        const { data, error } = await supabase.storage
+            .from('product-images')
+            .createSignedUrl(filePath, 3600);
+        return error ? NoImage : data.signedUrl;
+    };
+
     const fetchProducts = async () => {
         const { data, error } = await supabase
           .from('products')
           .select('*')
           .order('id', { ascending: true })
-    
-        if (!error) setProducts(data)
+
+        if (!error) {
+            const productsWithSignedUrls = await Promise.all(
+                data.map(async (p) => ({
+                    ...p,
+                    image: await resolveImageUrl(p.image)
+                }))
+            );
+            setProducts(productsWithSignedUrls);
+        }
     }
 
     const handleDelete = async () => {
@@ -41,20 +59,14 @@ export default function ProductGrid() {
             setIsDeleteModalOpen(false);
             setSelectedProduct(null);
         } catch (error) {
-            console.error("Delete failed:", error.message);
-            alert(`Error: ${error.message}`);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsDeleting(false);
         }
     };
 
-    // Logic to transform the DB path into a public URL from Supabase Storage
-    const getImageUrl = (path) => {
-        if (!path) return NoImage;
-        if (path.startsWith('http')) return path;
-        const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-        return data.publicUrl;
-    };
+    // Image URLs are pre-resolved as signed URLs during fetchProducts
+    const getImageUrl = (path) => path || NoImage;
     
     useEffect(() => {
         fetchProducts()
@@ -71,7 +83,6 @@ export default function ProductGrid() {
         return () => { supabase.removeChannel(channel) }
       }, [])
 
-    // Logic to separate products by category while keeping search functional
     const pelletProducts = products.filter(p => 
         p.category === 'Hog Pellets' && 
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -87,7 +98,6 @@ export default function ProductGrid() {
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Reusable Card Component to keep the grid consistent
     const ProductCard = ({ item }) => (
         <div className="relative group p-5 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-blue-500/30 transition-all">
             <div className="flex items-start justify-between mb-4">
@@ -147,7 +157,6 @@ export default function ProductGrid() {
 
     return (
         <div className="space-y-10 px-2 pb-10 mb-15">
-            {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">Product Inventory</h2>
@@ -182,7 +191,6 @@ export default function ProductGrid() {
                 </div>
             </div>
 
-            {/* Grid Sections */}
             <section className = "space-y-4">
                 <div className="flex items-center gap-2">
                     <div className="h-6 w-1 bg-blue-500 rounded-full"></div>
@@ -231,7 +239,7 @@ export default function ProductGrid() {
                     setSelectedProduct(null);
                 }}
                 onConfirm={handleDelete}
-                itemId={selectedProduct?.id} // Passing the unique ID instead of name
+                itemId={selectedProduct?.id}
                 itemName={selectedProduct?.name}
                 loading={isDeleting}
             />

@@ -63,24 +63,30 @@ function EditProductModal({ isOpen, onClose, product }) {
     };
 
     useEffect(() => {
-        if (isOpen && product) {
-            setFormValues({
-                supplierName: product.supplier_name || '',
-                supplierId: product.supplier_id || null,
-                productType: product.category || '',
-                sub_category: product.sub_category || '',
-                productName: product.name || '',
-                srp: product.price ? formatNumberWithCommas(product.price) : '',
-                stock: product.quantity || ''
-            });
+        const load = async () => {
+            if (isOpen && product) {
+                setFormValues({
+                    supplierName: product.supplier_name || '',
+                    supplierId: product.supplier_id || null,
+                    productType: product.category || '',
+                    sub_category: product.sub_category || '',
+                    productName: product.name || '',
+                    srp: product.price ? formatNumberWithCommas(product.price) : '',
+                    stock: product.quantity || ''
+                });
 
-            if (product.image) {
-                const { data } = supabase.storage.from('product-images').getPublicUrl(product.image);
-                setPreviewUrl(data.publicUrl);
-            } else {
-                setPreviewUrl(null);
+                if (product.image) {
+                    const filePath = product.image.startsWith('http') ? product.image.split('/product-images/').pop() : product.image;
+                    const { data, error } = await supabase.storage
+                        .from('product-images')
+                        .createSignedUrl(filePath, 3600);
+                    setPreviewUrl(error ? null : data.signedUrl);
+                } else {
+                    setPreviewUrl(null);
+                }
             }
-        }
+        };
+        load();
     }, [isOpen, product]);
 
     useEffect(() => {
@@ -212,7 +218,8 @@ function EditProductModal({ isOpen, onClose, product }) {
             
             onClose();
         } catch (error) {
-            alert("Something went wrong. Please try again.");
+            console.error("Update Error:", error.message);
+            alert(`Failed to update: ${error.message}`);
         } finally {
             setLoading(false);
         }

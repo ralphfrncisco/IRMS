@@ -41,12 +41,21 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                         .maybeSingle();
 
                     if (!error && data && isMounted) {
-                        setProfile(data);
+                        // Resolve signed avatar URL from private bucket
+                        let signedAvatarUrl = null;
+                        if (data.avatar_url) {
+                            const filename = data.avatar_url.split('/avatars/').pop();
+                            const { data: signed } = await supabase.storage
+                                .from('avatars')
+                                .createSignedUrl(filename, 3600);
+                            signedAvatarUrl = signed?.signedUrl || null;
+                        }
+                        setProfile({ ...data, avatar_url: signedAvatarUrl });
                         if (onRoleLoaded) onRoleLoaded(data.role);
                     }
                 }
             } catch (err) {
-                alert("Something went wrong. Please try again.");
+                console.error("Header Profile Error:", err);
             } finally {
                 if (isMounted) setIsLoading(false);
             }
@@ -73,7 +82,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     setUnreadCount(unread);
                 }
             } catch (err) {
-                alert("Something went wrong. Please try again.");
+                console.error('Error fetching notifications:', err);
             }
         };
 
@@ -127,7 +136,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
             setIsUserMenuOpen(false);
             window.location.href = "/login";
         } catch (err) {
-            alert("Something went wrong. Please try again.");
+            alert("Error logging out: " + err.message);
         }
     };
 

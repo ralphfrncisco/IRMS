@@ -13,6 +13,17 @@ function AccountsGrid() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedAccount, setSelectedAccount] = useState(null);
 
+    // --- RESOLVE SIGNED AVATAR URL ---
+    const resolveAvatarUrl = async (avatar_url) => {
+        if (!avatar_url) return null;
+        if (avatar_url.includes('token=')) return avatar_url;
+        const filename = avatar_url.split('/avatars/').pop();
+        const { data, error } = await supabase.storage
+            .from('avatars')
+            .createSignedUrl(filename, 3600);
+        return error ? null : data.signedUrl;
+    };
+
     // --- FETCH ALL ACCOUNTS ---
     const fetchAccounts = async () => {
         try {
@@ -24,8 +35,13 @@ function AccountsGrid() {
                 .order('full_name', { ascending: true });
 
             if (!error) {
-                setAccounts(data);
-            } else {
+                const accountsWithSignedUrls = await Promise.all(
+                    data.map(async (acc) => ({
+                        ...acc,
+                        avatar_url: await resolveAvatarUrl(acc.avatar_url)
+                    }))
+                );
+                setAccounts(accountsWithSignedUrls);
             }
         } catch (err) {
             alert("Something went wrong. Please try again.");

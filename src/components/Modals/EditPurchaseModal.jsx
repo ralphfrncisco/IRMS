@@ -50,15 +50,15 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         return formatDateTime(dateTimeString);
     };
 
-    const getImageUrl = (path) => {
+    const getImageUrl = async (path) => {
         if (!path) return null;
-        if (path.startsWith('http')) return path; 
-        
-        const { data } = supabase.storage
+        if (path.startsWith('http') && path.includes('token=')) return path;
+        // Extract just the filename/path if it's a full URL
+        const filePath = path.startsWith('http') ? path.split('/receipts/').pop() : path;
+        const { data, error } = await supabase.storage
             .from('receipts')
-            .getPublicUrl(path);
-        
-        return data?.publicUrl || null;
+            .createSignedUrl(filePath, 3600);
+        return error ? null : data.signedUrl;
     };
 
     // ✅ Calculate remaining balance using useMemo
@@ -141,7 +141,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     additionalPayment: '',
                 });
 
-                const imageUrl = getImageUrl(saleData.receipt_image);
+                const imageUrl = await getImageUrl(saleData.receipt_image);
                 setReceiptPreview(imageUrl);
                 
                 setPurchaseItems(items.map(item => ({
@@ -153,7 +153,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 })));
 
             } catch (err) {
-                console.error("❌ Error fetching order details:", err);
                 alert('Error loading order: ' + err.message);
             } finally {
                 setLoading(false);
@@ -251,7 +250,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     }]);
 
                 if (paymentError) {
-                    console.error("❌ Payment history error:", paymentError);
                 }
 
                 // ✅ FIX: Subtract the additional payment from the customer's overall remaining balance
@@ -261,7 +259,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 });
 
                 if (balanceError) {
-                    console.error("❌ Balance update error:", balanceError);
                 }
             }
             
@@ -277,7 +274,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             
             onClose();
         } catch (err) {
-            console.error('❌ Update error:', err);
             alert("Error updating transaction: " + err.message);
         } finally {
             setIsUpdating(false);
@@ -399,7 +395,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 src={receiptPreview} 
                                                 alt="Receipt" 
                                                 onError={(e) => {
-                                                    console.error('Image failed to load:', receiptPreview);
                                                     e.target.style.display = 'none';
                                                 }}
                                                 className="w-full h-full object-cover transition-transform group-hover:scale-105" 
