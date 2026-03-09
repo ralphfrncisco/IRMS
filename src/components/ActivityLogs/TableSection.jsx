@@ -32,6 +32,7 @@ function TableSection() {
             const { data, error } = await supabase
                 .from('activityLogs') // Fixed to match your public schema
                 .select('*')
+                .limit(12)
                 .order('id', { ascending: false });
 
             if (error) throw error;
