@@ -25,8 +25,9 @@ function AddCustomerModal({ isOpen, onClose }) {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         
-        // ✅ Format currency fields
         if (name === 'credit_limit' || name === 'remaining_balance') {
+            const digits = value.replace(/[^0-9]/g, '');
+            if (name === 'credit_limit' && digits.length > 9) return;
             setFormData(prev => ({ ...prev, [name]: formatInputCurrency(value) }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
@@ -62,7 +63,7 @@ function AddCustomerModal({ isOpen, onClose }) {
 
             onClose();
         } catch (err) {
-            alert("Something went wrong. Please try again.");
+            alert("Error: " + err.message);
         } finally {
             setIsSaving(false);
         }
@@ -116,6 +117,7 @@ function AddCustomerModal({ isOpen, onClose }) {
                                 name="contact_number"
                                 value={formData.contact_number}
                                 onChange={handleInputChange}
+                                maxLength={11}
                                 className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 placeholder="+63 912 345 6789"
                                 required

@@ -50,14 +50,15 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         return formatDateTime(dateTimeString);
     };
 
-    const getImageUrl = async (path) => {
+    const getImageUrl = (path) => {
         if (!path) return null;
-        if (path.startsWith('http') && path.includes('token=')) return path;
-        const filePath = path.startsWith('http') ? path.split('/receipts/').pop() : path;
-        const { data, error } = await supabase.storage
+        if (path.startsWith('http')) return path; 
+        
+        const { data } = supabase.storage
             .from('receipts')
-            .createSignedUrl(filePath, 3600);
-        return error ? null : data.signedUrl;
+            .getPublicUrl(path);
+        
+        return data?.publicUrl || null;
     };
 
     // ✅ Calculate remaining balance using useMemo
@@ -140,7 +141,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     additionalPayment: '',
                 });
 
-                const imageUrl = await getImageUrl(saleData.receipt_image);
+                const imageUrl = getImageUrl(saleData.receipt_image);
                 setReceiptPreview(imageUrl);
                 
                 setPurchaseItems(items.map(item => ({
@@ -152,7 +153,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 })));
 
             } catch (err) {
-                alert('Something went wrong. Please try again.');
+                console.error("❌ Error fetching order details:", err);
+                alert('Error loading order: ' + err.message);
             } finally {
                 setLoading(false);
             }
@@ -249,16 +251,17 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     }]);
 
                 if (paymentError) {
+                    console.error("❌ Payment history error:", paymentError);
                 }
 
-                // Only update customer balance manually for partial payments.
-                // For full payments (newBalance === 0), the log_debt_settled trigger
-                // handles the customer balance update automatically to avoid double-subtraction.
-                if (newBalance > 0) {
-                    await supabase.rpc('update_customer_balance', {
-                        p_customer_id: formValues.customerId,
-                        p_new_balance: -additionalPayment
-                    });
+                // ✅ FIX: Subtract the additional payment from the customer's overall remaining balance
+                const { error: balanceError } = await supabase.rpc('update_customer_balance', {
+                    p_customer_id: formValues.customerId,
+                    p_new_balance: -additionalPayment  // negative = subtract from balance
+                });
+
+                if (balanceError) {
+                    console.error("❌ Balance update error:", balanceError);
                 }
             }
             
@@ -274,7 +277,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             
             onClose();
         } catch (err) {
-            alert("Something went wrong. Please try again.");
+            console.error('❌ Update error:', err);
+            alert("Error updating transaction: " + err.message);
         } finally {
             setIsUpdating(false);
         }
@@ -395,6 +399,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 src={receiptPreview} 
                                                 alt="Receipt" 
                                                 onError={(e) => {
+                                                    console.error('Image failed to load:', receiptPreview);
                                                     e.target.style.display = 'none';
                                                 }}
                                                 className="w-full h-full object-cover transition-transform group-hover:scale-105" 
@@ -432,10 +437,11 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 type="text" 
                                                 name="additionalPayment" 
                                                 value={formValues.additionalPayment} 
-                                                placeholder={formatInputCurrency(originalValues.paidAmount.toString())}
+                                                placeholder={originalValues.remainingBalance === 0 ? "Fully paid" : formatInputCurrency(originalValues.paidAmount.toString())}
                                                 onChange={handleInputChange} 
                                                 autoComplete="off"
-                                                className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none" 
+                                                disabled={originalValues.remainingBalance === 0}
+                                                className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-slate-800/50" 
                                             />
                                         </div>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">

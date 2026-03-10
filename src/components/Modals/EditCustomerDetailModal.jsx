@@ -89,7 +89,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                 .from('customers')
                 .update({
                     full_name: formData.full_name,
-                    contact_number: formData.contact_number,
+                    contact_number: formData.contact_number || null,
                     credit_limit: parseNum(formData.credit_limit),
                     remaining_balance: parseNum(formData.remaining_balance),
                     payment_terms_date: formData.payment_terms_date || null
@@ -161,7 +161,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input
-                                        type="tel"
+                                        type="number"
                                         name="contact_number"
                                         value={formData.contact_number}
                                         onChange={handleInputChange}
