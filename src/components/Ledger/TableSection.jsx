@@ -79,7 +79,6 @@ function TableSection() {
     }, []);
 
     const [visibleColumns, setVisibleColumns] = useState({
-        'ID': true,
         'EMPLOYEE': true,
         'AMOUNT': true,
         'DATE': true
@@ -226,7 +225,6 @@ function TableSection() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                                {visibleColumns['ID'] && <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>}
                                 {visibleColumns['EMPLOYEE'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Employee Name</th>}
                                 {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
                                 {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
@@ -252,13 +250,8 @@ function TableSection() {
                             ) : (
                                 filteredSalary.map((entry) => (
                                     <tr key={entry.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                        {visibleColumns['ID'] && (
-                                            <td className="text-center p-4 text-sm font-medium text-blue-600 dark:text-blue-500 whitespace-nowrap">
-                                                {entry.employee_id}
-                                            </td>
-                                        )}
                                         {visibleColumns['EMPLOYEE'] && (
-                                            <td className="p-4 text-sm font-medium text-slate-900 dark:text-white">
+                                            <td className="pl-7 p-4 text-sm font-medium text-slate-900 dark:text-white">
                                                 {entry.employee_name}
                                             </td>
                                         )}

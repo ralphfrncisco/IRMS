@@ -30,7 +30,7 @@ function TableSection() {
         try {
             setLoading(true);
             const { data, error } = await supabase
-                .from('activityLogs') // Fixed to match your public schema
+                .from('activityLogs') 
                 .select('*')
                 .limit(12)
                 .order('id', { ascending: false });
@@ -79,7 +79,6 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                            <th className="p-4 pl-10 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Activity</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">User</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Description</th>
@@ -99,7 +98,6 @@ function TableSection() {
                         ) : (
                             logs.map((activity) => (
                                 <tr key={activity.db_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                    <td className="p-4 pl-10 text-sm font-semibold text-slate-700 dark:text-slate-300">{activity.id}</td>
                                     <td className="p-4 text-center text-sm font-semibold text-blue-500 dark:text-blue-400">{activity.activity}</td>
                                     <td className="p-4 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">{activity.user}</td>
                                     <td className="p-4 text-center text-sm">{activity.description}</td>
