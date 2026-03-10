@@ -53,7 +53,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
     const getImageUrl = async (path) => {
         if (!path) return null;
         if (path.startsWith('http') && path.includes('token=')) return path;
-        // Extract just the filename/path if it's a full URL
         const filePath = path.startsWith('http') ? path.split('/receipts/').pop() : path;
         const { data, error } = await supabase.storage
             .from('receipts')
@@ -153,7 +152,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 })));
 
             } catch (err) {
-                alert('Error loading order: ' + err.message);
+                alert('Something went wrong. Please try again.');
             } finally {
                 setLoading(false);
             }
@@ -252,13 +251,14 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 if (paymentError) {
                 }
 
-                // ✅ FIX: Subtract the additional payment from the customer's overall remaining balance
-                const { error: balanceError } = await supabase.rpc('update_customer_balance', {
-                    p_customer_id: formValues.customerId,
-                    p_new_balance: -additionalPayment  // negative = subtract from balance
-                });
-
-                if (balanceError) {
+                // Only update customer balance manually for partial payments.
+                // For full payments (newBalance === 0), the log_debt_settled trigger
+                // handles the customer balance update automatically to avoid double-subtraction.
+                if (newBalance > 0) {
+                    await supabase.rpc('update_customer_balance', {
+                        p_customer_id: formValues.customerId,
+                        p_new_balance: -additionalPayment
+                    });
                 }
             }
             
@@ -274,7 +274,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             
             onClose();
         } catch (err) {
-            alert("Error updating transaction: " + err.message);
+            alert("Something went wrong. Please try again.");
         } finally {
             setIsUpdating(false);
         }
