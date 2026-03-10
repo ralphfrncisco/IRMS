@@ -73,7 +73,7 @@ function AddProductModal({ isOpen, onClose }) {
                     setDbProductSrpList(formattedSrp);
                 }
             } catch (err) {
-                alert("Something went wrong. Please try again.");
+                console.error("Fetch error:", err.message);
             } finally {
                 setLoading(false);
             }
@@ -161,23 +161,50 @@ function AddProductModal({ isOpen, onClose }) {
         setIsSrpDropdownOpen(false);
     };
 
-    const handleFileChange = (e) => {
+    const compressImage = (file, maxWidthPx = 800, quality = 0.75) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                const canvas = document.createElement('canvas');
+                let { width, height } = img;
+                if (width > maxWidthPx) {
+                    height = Math.round((height * maxWidthPx) / width);
+                    width = maxWidthPx;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                canvas.toBlob(
+                    (blob) => resolve(new File([blob], file.name, { type: 'image/webp' })),
+                    'image/webp',
+                    quality
+                );
+            };
+            img.src = url;
+        });
+    };
+
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            setSelectedImage(file);
-            setPreviewUrl(URL.createObjectURL(file));
+            const compressed = await compressImage(file);
+            setSelectedImage(compressed);
+            setPreviewUrl(URL.createObjectURL(compressed));
         }
     };
 
     const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
     const handleDragLeave = () => setIsDragging(false);
-    const handleDrop = (e) => {
+    const handleDrop = async (e) => {
         e.preventDefault();
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
         if (file) {
-            setSelectedImage(file);
-            setPreviewUrl(URL.createObjectURL(file));
+            const compressed = await compressImage(file);
+            setSelectedImage(compressed);
+            setPreviewUrl(URL.createObjectURL(compressed));
         }
     };
 
@@ -225,7 +252,7 @@ function AddProductModal({ isOpen, onClose }) {
             onClose();
 
         } catch (error) {
-            alert("Something went wrong. Please try again.");
+            alert(error.message);
         } finally {
             setLoading(false);
         }

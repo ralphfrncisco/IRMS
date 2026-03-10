@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Pencil, Trash, Search, Plus, AlertTriangle } from 'lucide-react'
 import { supabase } from "../../lib/supabase";
 
@@ -18,14 +18,20 @@ export default function ProductGrid() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Cache signed URLs so realtime refreshes don't re-fetch everything
+    const signedUrlCache = useRef({});
+
     const resolveImageUrl = async (path) => {
         if (!path) return NoImage;
         if (path.startsWith('http') && path.includes('token=')) return path;
+        if (signedUrlCache.current[path]) return signedUrlCache.current[path];
         const filePath = path.startsWith('http') ? path.split('/product-images/').pop() : path;
         const { data, error } = await supabase.storage
             .from('product-images')
             .createSignedUrl(filePath, 3600);
-        return error ? NoImage : data.signedUrl;
+        const resolved = error ? NoImage : data.signedUrl;
+        signedUrlCache.current[path] = resolved;
+        return resolved;
     };
 
     const fetchProducts = async () => {
