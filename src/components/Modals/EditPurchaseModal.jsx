@@ -196,9 +196,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         });
     };
 
-    const handleRemoveItem = (id) => {
-        setPurchaseItems(prev => prev.filter(item => item.id !== id));
-    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -277,7 +274,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
             
             onClose();
         } catch (err) {
-            console.error('❌ Update error:', err);
+            console.error('Update error:', err);
             alert("Error updating transaction: " + err.message);
         } finally {
             setIsUpdating(false);
@@ -349,9 +346,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Purchased Products</h3>
-                                <button type="button" onClick={() => setIsAddItemOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 cursor-pointer">
-                                    <Plus className="w-5 h-5" /> Add Item
-                                </button>
                             </div>
                             <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                                 <table className="w-full">
@@ -361,7 +355,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                             <th className="p-3 text-center">Price</th>
                                             <th className="p-3 text-center">Qty</th>
                                             <th className="p-3 text-center">Total</th>
-                                            <th className="p-3 text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -371,11 +364,6 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 <td className="p-3 text-center">₱{Number(item.price).toLocaleString()}</td>
                                                 <td className="p-3 text-center">{item.quantity}</td>
                                                 <td className="p-3 text-center font-semibold">₱{Number(item.total).toLocaleString()}</td>
-                                                <td className="p-3 text-center">
-                                                    <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors cursor-pointer">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </td>
                                             </tr>
                                         ))}
                                         <tr className="bg-blue-50/30 dark:bg-blue-900/10 font-bold">

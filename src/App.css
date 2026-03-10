@@ -39,7 +39,7 @@ input[type="number"] {
 }
 
 
-#input-form-83vw {
+/* #input-form-83vw {
     max-width: 83vw;
 }
 
@@ -53,7 +53,7 @@ input[type="number"] {
     #input-form-83vw {
         max-width: 100%;
     }
-}
+} */
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;

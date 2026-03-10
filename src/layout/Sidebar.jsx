@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, PiggyBank, 
-  Package, FileText, User, Users, UserCog, ContactRound,
-  ArrowLeftRight, ChevronDown, X, FileClock
+  Package, FileClock, User, UserCog,
+  ArrowLeftRight, ChevronDown, X
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -45,12 +45,12 @@ function LowStockBadge({ count }) {
   );
 }
 
-function Sidebar({ collapsed, userRole }) { 
+function Sidebar({ collapsed, darkMode, userRole }) { 
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [mobileSubmenu, setMobileSubmenu] = useState(null);
   const [screenSize, setScreenSize] = useState('desktop');
-  const [lowStockCount, setLowStockCount] = useState(0); 
-  const [showLowStockBanner, setShowLowStockBanner] = useState(true);
+  const [lowStockCount, setLowStockCount] = useState(0);       // ✅ how many items are low
+  const [showLowStockBanner, setShowLowStockBanner] = useState(true); // ✅ persistent banner
   const location = useLocation();
 
   // ─── Fetch low stock count ────────────────────────────────────────────────
@@ -92,8 +92,12 @@ function Sidebar({ collapsed, userRole }) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Auto-open the parent submenu whose child is currently active; keep it open on navigation
   useEffect(() => {
-    setOpenSubmenu(null);
+    const activeParent = menuItems.find(item =>
+      item.submenu?.some(sub => location.pathname === sub.path)
+    );
+    if (activeParent) setOpenSubmenu(activeParent.id);
     setMobileSubmenu(null);
   }, [location.pathname]);
 
@@ -158,7 +162,7 @@ function Sidebar({ collapsed, userRole }) {
                           isActive ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'
                         }`}
                       >
-
+                        {/* ✅ Badge on icon */}
                         <span className="relative inline-flex">
                           <item.icon className="w-6 h-6" />
                           {isInventory && <LowStockBadge count={lowStockCount} />}
@@ -248,6 +252,7 @@ function Sidebar({ collapsed, userRole }) {
             </div>
           </div>
 
+          {/* ✅ Persistent low stock banner — sidebar expanded only */}
           {!isCollapsed && lowStockCount > 0 && showLowStockBanner && (
             <div className="mx-3 mt-3 flex items-center justify-between px-3 py-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg">
               <div className="flex items-center gap-2">
@@ -279,11 +284,19 @@ function Sidebar({ collapsed, userRole }) {
                 <div key={item.id} className="space-y-1 relative">
                   {hasSubmenu ? (
                     <>
+                      {(() => {
+                        const isChildActive = item.submenu.some(sub => location.pathname === sub.path);
+                        return (
                       <button
                         onClick={() => toggleSubmenu(item.id)}
                         className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
                           ${isCollapsed ? 'justify-center' : 'justify-start'}
-                          ${isOpen ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white' : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                          ${isChildActive
+                            ? 'bg-[#164E48] text-white shadow-md shadow-[#164E48]/20'
+                            : isOpen
+                              ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white'
+                              : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          }`}
                       >
                         <span className="relative inline-flex">
                           <item.icon className="w-5 h-5" />
@@ -296,6 +309,8 @@ function Sidebar({ collapsed, userRole }) {
                           </>
                         )}
                       </button>
+                        );
+                      })()}
 
                       {/* Collapsed popup */}
                       {isCollapsed && isOpen && (
@@ -340,10 +355,10 @@ function Sidebar({ collapsed, userRole }) {
                               key={sub.id}
                               to={sub.path}
                               className={({ isActive }) =>
-                                `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-200 text-sm
+                                `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-100 text-sm
                                 ${isActive
-                                  ? "bg-[#164E48] text-white font-semibold shadow-md"
-                                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                  ? "text-slate-900 bg-black/10 hover:bg-black/10 dark:text-white dark:bg-white/10 dark:hover:bg-slate-200/10"
+                                  : "text-slate-900 hover:bg-black/10 dark:text-white dark:hover:bg-slate-800"
                                 }`
                               }
                             >
@@ -367,7 +382,7 @@ function Sidebar({ collapsed, userRole }) {
                     >
                       <span className="relative inline-flex">
                         <item.icon className="w-5 h-5" />
-
+                        {/* ✅ Badge on Inventory nav item */}
                         {isInventory && <LowStockBadge count={lowStockCount} />}
                       </span>
                       {!isCollapsed && (
