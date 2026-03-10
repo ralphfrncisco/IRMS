@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, PiggyBank, 
   Package, FileText, User, Users, UserCog, ContactRound,
-  ArrowLeftRight, ChevronDown, X
+  ArrowLeftRight, ChevronDown, X, FileClock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -30,7 +30,7 @@ const menuItems = [
       { id: "suppliers", label: "Suppliers", path: "/suppliers" },
     ]
   },
-  { id: "activityLog", icon: FileText, label: "Activity Logs", path: "/activityLog" },
+  { id: "activityLog", icon: FileClock, label: "Activity Logs", path: "/activityLog" },
   { id: "accounts", icon: UserCog, label: "Accounts", path: "/accounts" },
 ];
 
