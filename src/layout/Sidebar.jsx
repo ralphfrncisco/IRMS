@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, PiggyBank, 
-  Package, FileClock, User, UserCog,
+  Package, FileText, User, Users, UserCog, ContactRound,
   ArrowLeftRight, ChevronDown, X
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -30,7 +30,7 @@ const menuItems = [
       { id: "suppliers", label: "Suppliers", path: "/suppliers" },
     ]
   },
-  { id: "activityLog", icon: FileClock, label: "Activity Logs", path: "/activityLog" },
+  { id: "activityLog", icon: FileText, label: "Activity Logs", path: "/activityLog" },
   { id: "accounts", icon: UserCog, label: "Accounts", path: "/accounts" },
 ];
 
@@ -52,6 +52,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
   const [lowStockCount, setLowStockCount] = useState(0);       // ✅ how many items are low
   const [showLowStockBanner, setShowLowStockBanner] = useState(true); // ✅ persistent banner
   const location = useLocation();
+  const navigate = useNavigate();
 
   // ─── Fetch low stock count ────────────────────────────────────────────────
   const fetchLowStock = async () => {
@@ -92,12 +93,8 @@ function Sidebar({ collapsed, darkMode, userRole }) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // Auto-open the parent submenu whose child is currently active; keep it open on navigation
   useEffect(() => {
-    const activeParent = menuItems.find(item =>
-      item.submenu?.some(sub => location.pathname === sub.path)
-    );
-    if (activeParent) setOpenSubmenu(activeParent.id);
+    setOpenSubmenu(null);
     setMobileSubmenu(null);
   }, [location.pathname]);
 
@@ -234,7 +231,10 @@ function Sidebar({ collapsed, darkMode, userRole }) {
         `}>
           
           {/* Branding */}
-          <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+          <div
+            onClick={() => navigate('/dashboard')}
+            className="p-6 border-b border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+          >
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "space-x-3"}`}>
               <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ${
                 isCollapsed
@@ -284,19 +284,11 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                 <div key={item.id} className="space-y-1 relative">
                   {hasSubmenu ? (
                     <>
-                      {(() => {
-                        const isChildActive = item.submenu.some(sub => location.pathname === sub.path);
-                        return (
                       <button
                         onClick={() => toggleSubmenu(item.id)}
                         className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
                           ${isCollapsed ? 'justify-center' : 'justify-start'}
-                          ${isChildActive
-                            ? 'bg-[#164E48] text-white shadow-md shadow-[#164E48]/20'
-                            : isOpen
-                              ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white'
-                              : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                          }`}
+                          ${isOpen ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white' : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                       >
                         <span className="relative inline-flex">
                           <item.icon className="w-5 h-5" />
@@ -309,8 +301,6 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                           </>
                         )}
                       </button>
-                        );
-                      })()}
 
                       {/* Collapsed popup */}
                       {isCollapsed && isOpen && (
@@ -355,10 +345,10 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                               key={sub.id}
                               to={sub.path}
                               className={({ isActive }) =>
-                                `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-100 text-sm
+                                `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-200 text-sm
                                 ${isActive
-                                  ? "text-slate-900 bg-black/10 hover:bg-black/10 dark:text-white dark:bg-white/10 dark:hover:bg-slate-200/10"
-                                  : "text-slate-900 hover:bg-black/10 dark:text-white dark:hover:bg-slate-800"
+                                  ? "bg-[#164E48] text-white font-semibold shadow-md"
+                                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                                 }`
                               }
                             >

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useLocation } from 'react-router-dom';
 import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User } from 'lucide-react';
 import { supabase } from "../lib/supabase";
 import noProfile from "../assets/no-profile.png";
@@ -27,6 +28,24 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
+    // --- PAGE TITLE ---
+    const location = useLocation();
+    const getPageTitle = (pathname) => {
+        const routes = {
+            '/dashboard': 'Dashboard',
+            '/transactions/Sales': 'Sales',
+            '/transactions/Expenses': 'Expenses',
+            '/transactions/Balances': 'Balances',
+            '/transactions/Ledger': 'Ledger',
+            '/inventory': 'Product Inventory',
+            '/customers': 'Customers',
+            '/suppliers': 'Suppliers',
+            '/activityLog': 'Activity Logs',
+            '/accounts': 'Accounts',
+        };
+        return routes[pathname] || 'Dashboard';
+    };
+
     // --- FETCH PROFILE DATA ---
     useEffect(() => {
         let isMounted = true;
@@ -41,16 +60,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                         .maybeSingle();
 
                     if (!error && data && isMounted) {
-                        // Resolve signed avatar URL from private bucket
-                        let signedAvatarUrl = null;
-                        if (data.avatar_url) {
-                            const filename = data.avatar_url.split('/avatars/').pop();
-                            const { data: signed } = await supabase.storage
-                                .from('avatars')
-                                .createSignedUrl(filename, 3600);
-                            signedAvatarUrl = signed?.signedUrl || null;
-                        }
-                        setProfile({ ...data, avatar_url: signedAvatarUrl });
+                        setProfile(data);
                         if (onRoleLoaded) onRoleLoaded(data.role);
                     }
                 }
@@ -178,7 +188,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     </button>
 
                     <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-                        Dashboard
+                        {getPageTitle(location.pathname)}
                     </h1>
                 </div>
 
@@ -209,7 +219,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                         </button>
 
                         {isNotifMenuOpen && (
-                            <div className="pb-2 absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
+                            <div className="absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
                                 <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                                     <h3 className="font-bold text-slate-800 dark:text-white"><Bell className="w-5 h-6 mt-[-2px] mr-2 inline" />Notifications</h3>
                                     {unreadCount > 0 && (
@@ -244,6 +254,14 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                         </div>
                                     )}
                                 </div>
+                                
+                                {notifications.length > 0 && (
+                                    <div className="p-3 border-t border-slate-100 dark:border-slate-700 text-center">
+                                        <button className="text-xs font-medium text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                                            View All Notifications
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
