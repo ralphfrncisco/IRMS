@@ -55,13 +55,12 @@ function TableSection() {
     };
 
     const [visibleColumns, setVisibleColumns] = useState({
-        'ORDER ID': true,
         'CUSTOMER': true,
         'PURCHASED ITEMS': true,
         'PAID AMOUNT': true,
+        'TOTAL': true,
         'DATE': true,
-        'STATUS': true,
-        'ACTIONS': true
+        'STATUS': true
     });
 
     const fetchOrders = async () => {
@@ -285,6 +284,7 @@ function TableSection() {
                             {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
                             {visibleColumns['PURCHASED ITEMS'] && <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
                             {visibleColumns['PAID AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Paid Amount</th>}
+                            {visibleColumns['TOTAL'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total</th>}
                             {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
                             {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
@@ -310,7 +310,8 @@ function TableSection() {
                                 </td>
                                 {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
                                 {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className="w-[200px] lg:w-full md:max-w-[400px] truncate">{order.purchased_items}</p></td>}
-                                {visibleColumns['PAID AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-slate-700 dark:text-white">{formatCurrency(order.paid_amount)}</td>}
+                                {visibleColumns['PAID AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-emerald-700 dark:text-emerald-500">{formatCurrency(order.paid_amount)}</td>}
+                                {visibleColumns['TOTAL'] && <td className="p-4 text-center text-sm font-semibold text-blue-700 dark:text-blue-500">{formatCurrency(order.total_amount)}</td>}
                                 {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(order.created_at)}</td>}
                                 {visibleColumns['STATUS'] && (
                                     <td className="p-4 text-center">

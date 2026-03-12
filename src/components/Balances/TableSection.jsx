@@ -242,7 +242,8 @@ export default function TableSection() {
                                 <CustomerFilter className = "w-full" options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
                                 <PaymentStatusFilter options={paymentOptions} initialValue={paymentStatusFilter} onSelect={setPaymentStatusFilter} iconProps={iconProps}/>
                                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                                    <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} />
+                                    <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} 
+                                    dropdownClassName="mt-[-330px] w-full"/>
                                 </div>
                             </div>
                         )}
