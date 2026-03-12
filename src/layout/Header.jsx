@@ -209,7 +209,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                         </button>
 
                         {isNotifMenuOpen && (
-                            <div className="absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
+                            <div className="pb-2 absolute right-[-70px] md:right-0 mt-4 w-72 md:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-100">
                                 <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                                     <h3 className="font-bold text-slate-800 dark:text-white"><Bell className="w-5 h-6 mt-[-2px] mr-2 inline" />Notifications</h3>
                                     {unreadCount > 0 && (
@@ -244,14 +244,6 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                         </div>
                                     )}
                                 </div>
-                                
-                                {notifications.length > 0 && (
-                                    <div className="p-3 border-t border-slate-100 dark:border-slate-700 text-center">
-                                        <button className="text-xs font-medium text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                                            View All Notifications
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         )}
                     </div>
