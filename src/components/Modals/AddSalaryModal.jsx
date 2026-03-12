@@ -76,7 +76,7 @@ function AddSalaryModal({ isOpen, onClose }) {
             onClose();
             
         } catch (err) {
-            alert("Something went wrong. Please try again.");
+            alert("Error: " + err.message);
         } finally {
             setIsSaving(false);
         }
