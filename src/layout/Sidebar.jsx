@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, PiggyBank, 
   Package, FileText, User, Users, UserCog, ContactRound,
@@ -52,7 +52,6 @@ function Sidebar({ collapsed, darkMode, userRole }) {
   const [lowStockCount, setLowStockCount] = useState(0);       // ✅ how many items are low
   const [showLowStockBanner, setShowLowStockBanner] = useState(true); // ✅ persistent banner
   const location = useLocation();
-  const navigate = useNavigate();
 
   // ─── Fetch low stock count ────────────────────────────────────────────────
   const fetchLowStock = async () => {
@@ -93,8 +92,12 @@ function Sidebar({ collapsed, darkMode, userRole }) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Auto-open the parent submenu whose child is currently active; keep it open on navigation
   useEffect(() => {
-    setOpenSubmenu(null);
+    const activeParent = menuItems.find(item =>
+      item.submenu?.some(sub => location.pathname === sub.path)
+    );
+    if (activeParent) setOpenSubmenu(activeParent.id);
     setMobileSubmenu(null);
   }, [location.pathname]);
 
@@ -231,10 +234,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
         `}>
           
           {/* Branding */}
-          <div
-            onClick={() => navigate('/dashboard')}
-            className="p-6 border-b border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-          >
+          <div className="p-6 border-b border-slate-200 dark:border-slate-800">
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "space-x-3"}`}>
               <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ${
                 isCollapsed
@@ -284,11 +284,18 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                 <div key={item.id} className="space-y-1 relative">
                   {hasSubmenu ? (
                     <>
+                      {/* ── PARENT MENU BUTTON (e.g. Transactions, Entities) ── */}
+                      {(() => {
+                        const isChildActive = item.submenu.some(sub => location.pathname === sub.path);
+                        return (
                       <button
                         onClick={() => toggleSubmenu(item.id)}
                         className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
                           ${isCollapsed ? 'justify-center' : 'justify-start'}
-                          ${isOpen ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white' : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                          ${isOpen || isChildActive
+                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white'
+                            : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          }`}
                       >
                         <span className="relative inline-flex">
                           <item.icon className="w-5 h-5" />
@@ -301,8 +308,10 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                           </>
                         )}
                       </button>
+                        );
+                      })()}
 
-                      {/* Collapsed popup */}
+                      {/* ── PARENT MENU: COLLAPSED POPUP (icon-only sidebar → hover panel) ── */}
                       {isCollapsed && isOpen && (
                         <>
                           <div className="fixed inset-0 z-[90]" onClick={() => setOpenSubmenu(null)} />
@@ -337,7 +346,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                         </>
                       )}
 
-                      {/* Expanded accordion */}
+                      {/* ── CHILD MENU LINKS (shown when parent is expanded) ── */}
                       {!isCollapsed && isOpen && (
                         <div className="ml-6 pl-4 space-y-1 border-l border-slate-100 dark:border-slate-800">
                           {item.submenu.map((sub) => (
