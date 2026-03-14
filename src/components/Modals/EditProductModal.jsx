@@ -63,24 +63,40 @@ function EditProductModal({ isOpen, onClose, product }) {
     };
 
     useEffect(() => {
-        if (isOpen && product) {
-            setFormValues({
-                supplierName: product.supplier_name || '',
-                supplierId: product.supplier_id || null,
-                productType: product.category || '',
-                sub_category: product.sub_category || '',
-                productName: product.name || '',
-                srp: product.price ? formatNumberWithCommas(product.price) : '',
-                stock: product.quantity || ''
-            });
+        // Clear stale image immediately to prevent showing previous product's image
+        setPreviewUrl(null);
 
-            if (product.image) {
-                const { data } = supabase.storage.from('product-images').getPublicUrl(product.image);
-                setPreviewUrl(data.publicUrl);
-            } else {
-                setPreviewUrl(null);
+        const load = async () => {
+            if (isOpen && product) {
+                setFormValues({
+                    supplierName: product.supplier_name || '',
+                    supplierId: product.supplier_id || null,
+                    productType: product.category || '',
+                    sub_category: product.sub_category || '',
+                    productName: product.name || '',
+                    srp: product.price ? formatNumberWithCommas(product.price) : '',
+                    stock: product.quantity || ''
+                });
+
+                if (product.image) {
+                    // If already a signed URL (pre-resolved in ProductGrid cache), use it directly
+                    if (product.image.startsWith('http') && product.image.includes('token=')) {
+                        setPreviewUrl(product.image);
+                    } else {
+                        const filePath = product.image.startsWith('http')
+                            ? product.image.split('/product-images/').pop()
+                            : product.image;
+                        const { data, error } = await supabase.storage
+                            .from('product-images')
+                            .createSignedUrl(filePath, 3600);
+                        setPreviewUrl(error ? null : data.signedUrl);
+                    }
+                } else {
+                    setPreviewUrl(null);
+                }
             }
-        }
+        };
+        load();
     }, [isOpen, product]);
 
     useEffect(() => {
@@ -151,50 +167,23 @@ function EditProductModal({ isOpen, onClose, product }) {
         setIsSrpDropdownOpen(false);
     };
 
-    const compressImage = (file, maxWidthPx = 800, quality = 0.75) => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            const url = URL.createObjectURL(file);
-            img.onload = () => {
-                URL.revokeObjectURL(url);
-                const canvas = document.createElement('canvas');
-                let { width, height } = img;
-                if (width > maxWidthPx) {
-                    height = Math.round((height * maxWidthPx) / width);
-                    width = maxWidthPx;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                canvas.toBlob(
-                    (blob) => resolve(new File([blob], file.name, { type: 'image/webp' })),
-                    'image/webp',
-                    quality
-                );
-            };
-            img.src = url;
-        });
-    };
-
-    const handleFileChange = async (e) => {
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const compressed = await compressImage(file);
-            setSelectedImage(compressed);
-            setPreviewUrl(URL.createObjectURL(compressed));
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
     const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
     const handleDragLeave = () => setIsDragging(false);
-    const handleDrop = async (e) => {
+    const handleDrop = (e) => {
         e.preventDefault();
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
         if (file) {
-            const compressed = await compressImage(file);
-            setSelectedImage(compressed);
-            setPreviewUrl(URL.createObjectURL(compressed));
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
@@ -239,7 +228,8 @@ function EditProductModal({ isOpen, onClose, product }) {
             
             onClose();
         } catch (error) {
-            alert("Something went wrong. Please try again.");
+            console.error("Update Error:", error.message);
+            alert(`Failed to update: ${error.message}`);
         } finally {
             setLoading(false);
         }
