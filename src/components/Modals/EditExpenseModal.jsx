@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Image as ImageIcon, PhilippinePeso, Package, Loader2 } from 'lucide-react';
+import { X, Image as ImageIcon, PhilippinePeso, Package, Loader2, Calendar, Hash } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
@@ -154,13 +154,25 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                     </div>
                 ) : (
                     <form id="expense-edit-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 mt-[-0.70rem]">
-                        <p className="text-slate-700 dark:text-slate-200 mt-3 md:mt-2">
-                            <span className="text-sm font-semibold">Date of Transaction:</span> {formatDateTimeShort(expenseData.created_at)}
-                        </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Left Column */}
                             <div className="space-y-5">
+                                <div className="flex flex-wrap items-center gap-3 mt-1">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <Hash className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200 tracking-wide">
+                                            {formValues.id}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-lg">
+                                        <Calendar className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                            {formatDateTimeShort(expenseData.created_at)}
+                                        </span>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Expense Type</label>
                                     <input type="text" name="expenseType" value={formValues.expenseType} onChange={handleInputChange}
@@ -193,30 +205,8 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                 </div>
                             </div>
 
-                            {/* Right Column: Receipt Image */}
-                            <div className="space-y-3">
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Transaction Receipt</label>
-                                    <div className="relative aspect-[16/10] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
-                                        {receiptPreview ? (
-                                            <>
-                                                <img src={receiptPreview} alt="Receipt" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <button type="button" onClick={handleViewFullImage}
-                                                        className="bg-white text-slate-900 px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:bg-slate-100 transition-all active:scale-95 cursor-pointer">
-                                                        View Full Size
-                                                    </button>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="text-center p-4">
-                                                <ImageIcon className="w-10 h-10 mx-auto text-slate-400 mb-2 opacity-50" />
-                                                <p className="text-xs text-slate-500">No image uploaded</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 truncate italic">Filename: {receiptFileName}</p>
-                                </div>
+                            {/* Right Column: Receipt Image & Status */}
+                            <div className="space-y-5">
                                 {/* ✅ Status toggle — Stock Expense only */}
                                 {isStockExpense ? (
                                     <div>
@@ -251,6 +241,28 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                         </span>
                                     </div>
                                 )}
+                                <div className = "space-y-3">
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Transaction Receipt</label>
+                                    <div className="relative aspect-[16/10] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
+                                        {receiptPreview ? (
+                                            <>
+                                                <img src={receiptPreview} alt="Receipt" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <button type="button" onClick={handleViewFullImage}
+                                                        className="bg-white text-slate-900 px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:bg-slate-100 transition-all active:scale-95 cursor-pointer">
+                                                        View Full Size
+                                                    </button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="text-center p-4">
+                                                <ImageIcon className="w-10 h-10 mx-auto text-slate-400 mb-2 opacity-50" />
+                                                <p className="text-xs text-slate-500">No image uploaded</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 truncate italic">Filename: {receiptFileName}</p>
+                                </div>
                             </div>
 
                             
@@ -282,6 +294,13 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                                     <td className="px-4 py-3 text-center font-bold text-slate-900 dark:text-white">₱ {formatCurrency(item.amount * item.quantity)}</td>
                                                 </tr>
                                             ))}
+                                            {/* Grand Total Row */}
+                                            <tr className="bg-blue-50/50 dark:bg-blue-900/10 font-bold border-t-1 border-slate-200 dark:border-slate-700">
+                                                <td colSpan="3" className="px-4 py-3 text-right text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Grand Total</td>
+                                                <td className="px-4 py-3 text-center text-base text-blue-600 dark:text-blue-400">
+                                                    ₱ {formatCurrency(stockItems.reduce((sum, item) => sum + (item.amount * item.quantity), 0))}
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>

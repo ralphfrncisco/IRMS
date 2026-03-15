@@ -53,6 +53,14 @@ Deno.serve(async (req) => {
         `🎉 <b>Customer Debt Cleared</b>\n\n` +
         `<b>${record.customer_name}</b> has fully cleared all outstanding debts!\n` +
         `All orders have been paid in full.`;
+
+    } else if (type === 'stock_received') {
+      message =
+        `📦 <b>Stock Received</b>\n\n` +
+        `Expense ID: <b>EXP-${String(record.expense_id).padStart(4, '0')}</b>\n` +
+        `Supplier: <b>${record.supplier_name ?? 'Unknown'}</b>\n` +
+        `Amount: <b>₱${Number(record.amount).toFixed(2)}</b>\n\n` +
+        `✅ Stock has been marked as <b>Received</b>.`;
     }
 
     if (message) await sendTelegram(message);
