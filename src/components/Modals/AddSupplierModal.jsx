@@ -106,7 +106,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                         </div>
                         <div className="relative max-w-81 md:w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Contact Number</label>
-                            <input type="text" name="contactNumber" value={formValues.contactNumber} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                            <input type="text" name="contactNumber" value={formValues.contactNumber} maxLength={11} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
                         <div className="md:max-w-full max-w-81 md:col-span-2">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Address</label>

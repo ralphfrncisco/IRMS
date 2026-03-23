@@ -193,7 +193,7 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Contact Number</label>
                             <div className="relative">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input type="text" name="contactNumber" value={formValues.contactNumber} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 pl-10 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                                <input type="text" name="contactNumber" value={formValues.contactNumber} maxLength={11} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 pl-10 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                             </div>
                         </div>
                     </div>
