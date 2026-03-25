@@ -55,10 +55,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    // ✅ Overpayment modal state
+    //  Overpayment modal state
     const [showOverpaymentModal, setShowOverpaymentModal] = useState(false);
     const [pendingSavePayload, setPendingSavePayload] = useState(null);
-    // ✅ Payment terms block state
+    //  Payment terms block state
     const [paymentTermsBlock, setPaymentTermsBlock] = useState(null); // { dueDate, customerName, balance }
 
     const [receiptFile, setReceiptFile] = useState(null);
@@ -67,7 +67,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [customerList, setCustomerList] = useState([]);
     const [loadingCustomers, setLoadingCustomers] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
-    // ✅ New customer inline registration
+    //  New customer inline registration
     const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
     const [newCustomerForm, setNewCustomerForm] = useState({ contact_number: '', address: '' });
     const [isRegisteringCustomer, setIsRegisteringCustomer] = useState(false);
@@ -123,7 +123,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
         return purchaseItems.reduce((sum, item) => sum + item.total, 0);
     }, [purchaseItems]);
 
-    // ✅ Fixed: handle overpayment (negative balance) properly
+    //  Fixed: handle overpayment (negative balance) properly
     useEffect(() => {
         const rawAmountString = formValues.amount.toString().replace(/,/g, '');
         const payment = parseFloat(rawAmountString) || 0;
@@ -142,7 +142,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }
     }, [totalAmount, formValues.amount]);
 
-    // ✅ Derived: extra amount paid beyond total (only positive when overpaid)
+    //  Derived: extra amount paid beyond total (only positive when overpaid)
     const overpaymentAmount = useMemo(() => {
         const payment = parseFloat(formValues.amount.toString().replace(/,/g, '')) || 0;
         const extra = payment - totalAmount;
@@ -282,7 +282,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }));
         setIsDropdownOpen(false);
 
-        // ✅ Payment terms block check
+        //  Payment terms block check
         // Block if: has balance + terms date is set + terms date is past + no payment on most recent sale
         if (customer.remaining_balance > 0 && customer.payment_terms_date) {
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
@@ -318,7 +318,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
         setPaymentTermsBlock(null);
     };
 
-    // ✅ Register a brand new customer and auto-select them
+    //  Register a brand new customer and auto-select them
     const registerNewCustomer = async () => {
         if (!formValues.customer.trim()) return;
         setIsRegisteringCustomer(true);
@@ -382,7 +382,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
             const totalAmount_value = totalAmount;
             const paidAmount_value = parseNum(formValues.amount);
-            // ✅ This order's remaining balance is always 0 if fully/over paid
+            //  This order's remaining balance is always 0 if fully/over paid
             const remainingBalance_value = Math.max(0, totalAmount_value - paidAmount_value);
 
             // Credit limit check
@@ -482,7 +482,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 }]);
             }
 
-            // ✅ Update customer balance:
+            //  Update customer balance:
             // - Always add this order's remaining balance
             // - If user confirmed overpayment, also subtract the extra from their overall balance
             const balanceToAdd = remainingBalance_value;
@@ -515,10 +515,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
             return;
         }
 
-        // ✅ Hard block if payment terms are overdue with no payment
+        //  Hard block if payment terms are overdue with no payment
         if (paymentTermsBlock) return;
 
-        // ✅ If amount paid > total AND customer has existing balance, show overpayment modal
+        //  If amount paid > total AND customer has existing balance, show overpayment modal
         if (overpaymentAmount > 0 && formValues.currentCustomerBalance > 0) {
             setShowOverpaymentModal(true);
             return;
@@ -715,7 +715,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
                     </div>
 
-                    {/* ✅ Payment Terms Hard Block Banner */}
+                    {/*  Payment Terms Hard Block Banner */}
                     {paymentTermsBlock && (
                         <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 rounded-lg">
                             <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
@@ -731,7 +731,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
                     )}
 
-                    {/* ✅ Yellow warning — outstanding balance but terms not overdue */}
+                    {/*  Yellow warning — outstanding balance but terms not overdue */}
                     {selectedCustomer && selectedCustomer.remaining_balance > 0 && !paymentTermsBlock && (
                         <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
@@ -828,7 +828,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                     : 'border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
                                             }`}
                                         />
-                                        {/* ✅ Persistent tooltip — stays until overpaymentAmount drops to 0 */}
+                                        {/*  Persistent tooltip — stays until overpaymentAmount drops to 0 */}
                                         {overpaymentAmount > 0 && (
                                             <div className="absolute bottom-full left-0 mb-2 z-50 w-max max-w-[220px] px-3 py-2 rounded-lg bg-emerald-600 dark:bg-emerald-700 text-white text-xs font-medium shadow-lg pointer-events-none">
                                                 ₱{overpaymentAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} over the total — you'll be asked to apply this to the customer's balance.
@@ -864,7 +864,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
             <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
 
-            {/* ✅ Overpayment confirmation modal */}
+            {/*  Overpayment confirmation modal */}
             <OverpaymentModal
                 isOpen={showOverpaymentModal}
                 extraAmount={overpaymentAmount}
