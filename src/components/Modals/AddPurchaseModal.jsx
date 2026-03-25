@@ -529,7 +529,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-4 items-center justify-center">
             <div className="flex flex-col h-full lg:max-h-[100vh] 2xl:max-h-[110vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div className="w-full flex items-center justify-between px-4 md:px-6 pt-4 md:pt-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 mb-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Purchase</h2>
