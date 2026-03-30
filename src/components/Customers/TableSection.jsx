@@ -19,7 +19,7 @@ function TableSection() {
     
     const iconProps = { 
       size: 16, 
-      className: darkMode ? "text-slate-400" : "text-slate-500" 
+      className: darkMode ? "text-slate-400" : "text-white/50" 
     };
 
     const [showFilters, setShowFilters] = useState(false);
@@ -133,8 +133,8 @@ function TableSection() {
     };
 
     return (
-        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 transition-all duration-300 mb-25">
+            <div className="p-4 border-b border-slate-100 dark:border-white/10 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
                 
                 {/* Header Title Section */}
                 <div className="flex items-center justify-between w-full">
@@ -204,7 +204,7 @@ function TableSection() {
             <div className="overflow-x-auto p-2">
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="bg-slate-50/50 dark:bg-slate-800/50">
+                        <tr className="bg-slate-50/50 dark:bg-[#191919]">
                             <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Name</th>
                             <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
                             <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Address</th>
@@ -214,11 +214,11 @@ function TableSection() {
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                         {loading ? (
                             <tr><td colSpan="5" className="p-10 text-center text-slate-400">Loading customers...</td></tr>
                         ) : filteredCustomers.map((customer) => (
-                            <tr key={customer.customer_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
+                            <tr key={customer.customer_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                                 <td className="p-4 md:pl-7 text-sm font-semibold text-blue-500 dark:text-blue-400">
                                     {customer.full_name}
                                 </td>

@@ -78,14 +78,14 @@ function AccountsGrid() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-5">
                     {accounts.map((acc, index) => (
                         <div key={acc.id || index} 
-                            className="p-6 py-8 w-full rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-center hover:shadow-md"
+                            className="p-6 py-8 w-full rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/5 shadow-sm flex flex-col justify-center hover:shadow-md"
                         >
                             <div className="flex flex-row items-center gap-5">
                                 <div className="shrink-0">
                                     <img 
                                         src={acc.avatar_url || noProfile} 
                                         alt={acc.full_name} 
-                                        className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800" 
+                                        className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover" 
                                     />
                                 </div>
                                 

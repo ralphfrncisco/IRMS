@@ -120,14 +120,16 @@ function TableSection() {
     };
 
     return (
-        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 mb-25">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+        <div className="rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 transition-all duration-300 mb-25">
+            <div className="p-4 border-b border-slate-100 dark:border-white/10 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
                 
                 {/* Header Title Section */}
                 <div className="flex items-center justify-between w-full py-2">
                     <div className="space-y-1">
                         <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Suppliers List</h3>
-                        <p className="text-[7pt] md:text-sm text-slate-500 dark:text-slate-400">Manage your business contacts and supply sources</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {loading ? 'Loading...' : `Total: ${filteredSuppliers.length} entries`}
+                        </p>
                     </div>
                     <div>
                         <button 
@@ -167,7 +169,7 @@ function TableSection() {
             <div className="overflow-x-auto p-2">
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="bg-slate-50/50 dark:bg-slate-800/50">
+                        <tr className="bg-slate-50/50 dark:bg-[#191919]">
                             <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Supplier</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
                             <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Address</th>
@@ -176,7 +178,7 @@ function TableSection() {
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                         {loading ? (
                             <tr><td colSpan="5" className="p-10 text-center text-slate-400">Loading suppliers...</td></tr>
                         ) : filteredSuppliers.map((supplier) => (
