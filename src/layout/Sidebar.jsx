@@ -236,12 +236,11 @@ function Sidebar({ collapsed, darkMode, userRole }) {
           {/* Branding */}
           <div className="p-6 border-b border-slate-200 dark:border-white/10">
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "space-x-3"}`}>
-              <img src="/logo-dark.png" alt="Logo" className="hidden dark:block w-8 h-9" />
-              <img src="/logo-light.png" alt="Logo" className="block dark:hidden w-8 h-9" />
+              <img src="/logo.png" alt="Logo" className="w-8 h-9" />
               {!isCollapsed && (
                 <div className="transition-opacity duration-300">
                   <h1 className="text-xl font-bold leading-none text-slate-800 dark:text-white">Talaan</h1>
-                  <p className="text-xs mt-1 text-slate-500 dark:text-slate-400">Admin Panel</p>
+                  <p className="text-xs mt-1 text-slate-500 dark:text-white/50">Admin Panel</p>
                 </div>
               )}
             </div>

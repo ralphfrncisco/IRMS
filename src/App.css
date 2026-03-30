@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,6 +8,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 
+#brand-name {
+  font-family: 'Questrial';
+  font-weight: 700;  
+}
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;

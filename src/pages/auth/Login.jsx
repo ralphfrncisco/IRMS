@@ -161,8 +161,8 @@ function Login() {
         <div className="flex flex-col items-center justify-center space-y-2 mb-10">
           {/* <PiggyBank className="w-9 h-9 transition-colors duration-500 text-black dark:text-white"/> */}
 
-          <img src={darkMode ? "/logo-dark.png" : "/logo-light.png"} alt="Talaan" className="w-12 h-13 transition-colors duration-500 text-black dark:text-white" />
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white transition-colors duration-500">Talaan</h2>
+          <img src = "/logo.png" alt="Talaan" className="w-12 h-13 transition-colors duration-500 text-black dark:text-white" />
+          <h2 className="text-3xl text-center text-gray-900 dark:text-white transition-colors duration-500" id = "brand-name">Talaan</h2>
           <small className={`text-xs text-center transition-colors duration-500 ${isError ? 'text-red-500 font-medium' : 'text-slate-500 dark:text-white/60'}`}>
             {lockedOut ? `Locked out. Try again in ${lockCountdown}s` : errorMessage}
           </small>
