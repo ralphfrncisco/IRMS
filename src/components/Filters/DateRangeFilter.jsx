@@ -8,7 +8,7 @@ function DateRangeFilter({ options, initialValue, onSelect, iconProps }) {
     const dropdownRef = useRef(null);
 
     const selectedTextColor = selectedValue === initialValue 
-        ? 'text-slate-700 dark:text-slate-300' // Placeholder color
+        ? 'text-slate-700 dark:text-white' // Placeholder color
         : 'text-slate-700 dark:text-white';   // Selected value color
 
     useEffect(() => {
@@ -62,7 +62,7 @@ function DateRangeFilter({ options, initialValue, onSelect, iconProps }) {
                         <li
                             key={option}
                             onClick={() => handleOptionClick(option)}
-                            className={`p-2 text-sm cursor-pointer text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors ${selectedValue === option ? 'bg-slate-200 dark:bg-slate-600 font-medium' : ''}`}
+                            className={`p-2 text-sm cursor-pointer text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors ${selectedValue === option ? 'bg-slate-200 dark:bg-slate-600 font-medium' : ''}`}
                             role="option"
                             aria-selected={selectedValue === option}
                         >

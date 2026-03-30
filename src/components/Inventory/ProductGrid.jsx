@@ -105,9 +105,9 @@ export default function ProductGrid() {
     );
 
     const ProductCard = ({ item }) => (
-        <div className="relative group p-5 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-blue-500/30 transition-all">
+        <div className="relative group p-5 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/5 hover:border-white/10 transition-all">
             <div className="flex items-start justify-between mb-4">
-                <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-xl w-16 h-16 flex items-center justify-center overflow-hidden">
+                <div className="bg-slate-100 dark:bg-white/5 p-2 rounded-xl w-16 h-16 flex items-center justify-center overflow-hidden">
                     <img 
                         src={getImageUrl(item.image)} 
                         alt={item.name} 
@@ -177,12 +177,12 @@ export default function ProductGrid() {
                     <div className="flex items-center gap-3 w-full max-w-lg ml-auto">
                         <div className="relative flex-1">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-slate-400" />
+                                <Search className="h-4 w-4 text-slate-400 dark:text-white/50" />
                             </div>
                             <input
                                 type="text"
                                 placeholder="Search products..."
-                                className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                                className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-[#111] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -202,7 +202,7 @@ export default function ProductGrid() {
                     <div className="h-6 w-1 bg-blue-500 rounded-full"></div>
                     <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Hog Pellets</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                     {pelletProducts.map(item => <ProductCard key={item.id} item={item} />)}
                 </div>
             </section>
@@ -212,7 +212,7 @@ export default function ProductGrid() {
                     <div className="h-6 w-1 bg-emerald-500 rounded-full"></div>
                     <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Medications</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                     {medicationProducts.map(item => <ProductCard key={item.id} item={item} />)}
                 </div>
             </section>
@@ -222,7 +222,7 @@ export default function ProductGrid() {
                     <div className="h-6 w-1 bg-rose-500 rounded-full"></div>
                     <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Equipments</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                     {equipmentProducts.map(item => <ProductCard key={item.id} item={item} />)}
                 </div>
             </section>

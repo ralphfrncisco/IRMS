@@ -288,8 +288,8 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                         className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
                           ${isCollapsed ? 'justify-center' : 'justify-start'}
                           ${isOpen || isChildActive
-                            ? 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white'
-                            : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10'
+                            ? 'bg-slate-100 dark:bg-white/10 text-white/90 dark:text-white'
+                            : 'text-slate-600/90 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/10'
                           }`}
                       >
                         <span className="relative inline-flex">
@@ -352,7 +352,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                                 `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-200 text-sm
                                 ${isActive
                                   ? "bg-[#164E48] text-white font-semibold shadow-md"
-                                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5"
+                                  : "text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:bg-white/5"
                                 }`
                               }
                             >
@@ -370,7 +370,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                         ${isCollapsed ? 'justify-center' : 'justify-start'}
                         ${isActive
                           ? "bg-[#164E48] text-white shadow-md shadow-[#164E48]/20"
-                          : "text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10"
+                          : "text-slate-600/90 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/10"
                         }`
                       }
                     >
