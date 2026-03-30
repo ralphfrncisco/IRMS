@@ -50,7 +50,7 @@ function App() {
     setShowWarning(false);
     setCountdown(60);
 
-    // Show warning at 4 minutes
+    // 4 minutes warning
     warnTimerRef.current = setTimeout(() => {
       setShowWarning(true);
       setCountdown(60);
