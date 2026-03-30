@@ -112,7 +112,7 @@ function RecentRestock() {
 
                   <div className = "flex items-center space-x-2 mt-2">
                     <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-slate-500 truncate">
                       {formatDateTimeShort(expense.created_at)}
                     </span>
                   </div>
