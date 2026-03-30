@@ -9,7 +9,7 @@ function StatsGrid() {
     const fetchSalesData = async () => {
         const { data, error } = await supabase
             .from('SalesTable')
-            .select('paid_amount'); // ✅ Changed from 'amount' to 'paid_amount'
+            .select('paid_amount');
 
         if (!error) setSalesData(data || []);
     };
@@ -19,14 +19,14 @@ function StatsGrid() {
             .from('customers')
             .select('remaining_balance');
 
-        if (!error) setReceivablesData(data || []); // ✅ Fixed: was overwriting salesData
+        if (!error) setReceivablesData(data || []);
     };
 
     useEffect(() => {
         fetchSalesData();
 
         const salesChannel = supabase
-            .channel('sales-stats-channel') // ✅ Unique channel name
+            .channel('sales-stats-channel')
             .on('postgres_changes', { 
                 event: '*', 
                 schema: 'public', 
@@ -43,7 +43,7 @@ function StatsGrid() {
         fetchReceivablesData();
 
         const receivablesChannel = supabase
-            .channel('customers-stats-channel') // ✅ Unique channel name
+            .channel('customers-stats-channel')
             .on('postgres_changes', { 
                 event: '*', 
                 schema: 'public', 
@@ -89,7 +89,7 @@ function StatsGrid() {
             {statsCards.map((card, index) => (
                 <div 
                     key={index} 
-                    className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+                    className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 group"
                 >
                     <div className="flex items-start justify-between">
                         <div className="flex-1">

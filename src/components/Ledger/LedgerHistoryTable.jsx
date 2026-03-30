@@ -154,7 +154,7 @@ function LedgerHistoryTable() {
 
   if (loading) {
     return (
-      <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <div className="p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
         </div>
@@ -163,7 +163,7 @@ function LedgerHistoryTable() {
   }
 
   return (
-    <div className="py-5 px-3 md:p-4 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+    <div className="py-5 px-3 md:p-4 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
       <div className="px-0 flex flex-col md:flex-row items-center md:justify-between mb-5">
         <div>       
           <h3 className="text-xl font-bold text-slate-800 dark:text-white">
@@ -188,7 +188,7 @@ function LedgerHistoryTable() {
           </caption> */}
           
           <thead>
-            <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+            <tr className="bg-slate-50/50 dark:bg-[#191919] border-b border-slate-200 dark:border-white/10">
               <th className="py-4 px-6 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Time Frame
               </th>
@@ -210,7 +210,7 @@ function LedgerHistoryTable() {
             ) : (
               <>
                 {ledgerData.map((week) => (
-                  <tr key={week.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                  <tr key={week.id} className="hover:bg-slate-50 dark:hover:bg-white/5 border-b border-slate-200 dark:border-white/10 transition-colors">
                     <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300">
                       {formatDateRange(week.week_start, week.week_end)}
                     </td>
@@ -224,7 +224,7 @@ function LedgerHistoryTable() {
                 ))}
                 
                 {/* Monthly Total */}
-                <tr className="bg-slate-50/50 dark:bg-slate-800/50 font-bold">
+                <tr className="bg-slate-50/50 dark:bg-[#191919] border-t border-slate-200 dark:border-white/10 font-bold">
                   <td className="py-4 px-6 text-sm text-blue-600 dark:text-blue-400">
                     Total for the month ({getCurrentMonthName()})
                   </td>
@@ -237,8 +237,8 @@ function LedgerHistoryTable() {
                 </tr>
 
                 {/* Yearly Total (with top margin) */}
-                <tr className="bg-slate-100 dark:bg-slate-800/70 font-bold">
-                  <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300">
+                <tr className="bg-slate-50/50 dark:bg-[#191919] border-t border-slate-200 dark:border-white/10 font-bold">
+                  <td className="py-4 px-6 text-sm text-orange-500 dark:text-orange-500">
                     Total for the year ({new Date().getFullYear()})
                   </td>
                   <td className="py-4 px-6 text-sm text-center text-green-700 dark:text-green-500">

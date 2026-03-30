@@ -8,8 +8,8 @@ function CustomerFilter({ options, initialValue, onSelect, iconProps, className 
     const dropdownRef = useRef(null);
 
     const selectedTextColor = selectedValue === initialValue 
-        ? 'text-slate-700 dark:text-slate-300'
-        : 'text-slate-700 dark:text-white';   
+        ? 'text-slate-100 dark:text-white'
+        : 'text-slate-100 dark:text-white';
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -34,11 +34,11 @@ function CustomerFilter({ options, initialValue, onSelect, iconProps, className 
     return (
         <div 
             ref={dropdownRef} 
-            className="relative py-1 px-3 bg-slate-300/30 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg transition-all"
+            className="relative py-1 px-3 bg-slate-300/30 dark:bg-[#1e1e1e] border border-slate-200 dark:border-white/10 rounded-lg transition-all"
         >
             <button
                 type="button"
-                // Adjusted width to 'w-22' for supplier name, matching original code structure
+
                 className={`${className} bg-transparent focus:outline-none hover:cursor-pointer flex items-center justify-between ${selectedTextColor}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
@@ -52,7 +52,7 @@ function CustomerFilter({ options, initialValue, onSelect, iconProps, className 
             </button>
             {isOpen && (
                 <ul
-                    className="absolute z-60 top-full mt-2 w-full left-0 bg-white dark:bg-slate-700 shadow-xl rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden"
+                    className="absolute z-60 top-full mt-2 w-full left-0 bg-white dark:bg-[#1e1e1e] shadow-xl rounded-lg border border-slate-300 dark:border-white/10 overflow-hidden"
                     role="listbox"
                 >
                     {selectableOptions.map((option) => (

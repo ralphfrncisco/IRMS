@@ -43,7 +43,7 @@ function StatsGrid() {
             {statsCards.map((item, index) => (
                 <div 
                     key={index} 
-                    className="p-4 lg:p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+                    className="p-4 lg:p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10"
                 >
                     <div className="flex items-start justify-between">
                         <div className="flex-1">
