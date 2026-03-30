@@ -161,8 +161,9 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input
-                                        type="number"
+                                        type="tel"
                                         name="contact_number"
+                                        maxLength={11}
                                         value={formData.contact_number}
                                         onChange={handleInputChange}
                                         className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

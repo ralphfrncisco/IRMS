@@ -28,7 +28,6 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    // --- PAGE TITLE ---
     const location = useLocation();
     const getPageTitle = (pathname) => {
         const routes = {
@@ -37,7 +36,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
             '/transactions/Expenses': 'Expenses',
             '/transactions/Balances': 'Balances',
             '/transactions/Ledger': 'Ledger',
-            '/inventory': 'Product Inventory',
+            '/inventory': 'Inventory',
             '/customers': 'Customers',
             '/suppliers': 'Suppliers',
             '/activityLog': 'Activity Logs',
@@ -60,7 +59,18 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                         .maybeSingle();
 
                     if (!error && data && isMounted) {
-                        setProfile(data);
+                        // Resolve signed URL from private avatars bucket
+                        let signedAvatarUrl = null;
+                        if (data.avatar_url) {
+                            const filename = data.avatar_url.startsWith('http')
+                                ? data.avatar_url.split('/avatars/').pop()
+                                : data.avatar_url;
+                            const { data: signed } = await supabase.storage
+                                .from('avatars')
+                                .createSignedUrl(filename, 3600);
+                            signedAvatarUrl = signed?.signedUrl || null;
+                        }
+                        setProfile({ ...data, avatar_url: signedAvatarUrl });
                         if (onRoleLoaded) onRoleLoaded(data.role);
                     }
                 }
@@ -120,7 +130,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
         };
     }, []);
 
-    // ✅ FORMAT TIME (relative or absolute)
+    // FORMAT TIME (relative or absolute)
     const formatNotificationTime = (datetime) => {
         const now = new Date();
         const notifTime = new Date(datetime);
@@ -243,7 +253,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                                     {notif.description}
                                                 </p>
                                                 <p className="text-[10px] text-blue-500 dark:text-blue-400 mt-2 font-medium">
-                                                    {notif.user} • {formatNotificationTime(notif.datetime)}
+                                                    {notif.user} • {formatNotificationTime(notif.datetime)} 
                                                 </p>
                                             </div>
                                         ))

@@ -245,7 +245,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
               </div>
               {!isCollapsed && (
                 <div className="transition-opacity duration-300">
-                  <h1 className="text-xl font-bold leading-none text-slate-800 dark:text-white">IRMS</h1>
+                  <h1 className="text-xl font-bold leading-none text-slate-800 dark:text-white">Talaan</h1>
                   <p className="text-xs mt-1 text-slate-500 dark:text-slate-400">Admin Panel</p>
                 </div>
               )}

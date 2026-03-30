@@ -24,14 +24,14 @@ function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Idle timeout state
+  // Idle timeout state
   const [showWarning, setShowWarning] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const idleTimerRef   = useRef(null);
   const warnTimerRef   = useRef(null);
   const countdownRef   = useRef(null);
 
-  // ✅ Sign out and clean up
+  // Sign out and clean up
   const handleLogout = useCallback(async () => {
     clearTimeout(idleTimerRef.current);
     clearTimeout(warnTimerRef.current);
@@ -40,7 +40,7 @@ function App() {
     await supabase.auth.signOut();
   }, []);
 
-  // ✅ Reset all timers on activity
+  // Reset all timers on activity
   const resetTimers = useCallback(() => {
     if (!session) return;
 
@@ -74,7 +74,7 @@ function App() {
 
   }, [session, handleLogout]);
 
-  // ✅ Attach/detach activity listeners when session changes
+  // Attach/detach activity listeners when session changes
   useEffect(() => {
     if (!session) return;
 
