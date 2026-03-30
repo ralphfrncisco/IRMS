@@ -10,7 +10,7 @@ const MainLayout = () => {
   const [userRole, setUserRole] = useState(null);
 
   return (
-    <div className="fixed inset-0 flex flex-col sm:flex-row h-screen overflow-hidden transition-colors duration-300 bg-slate-50 dark:bg-slate-900">
+    <div className="fixed inset-0 flex flex-col sm:flex-row h-screen overflow-hidden transition-colors duration-300 bg-slate-50 dark:bg-[#090909]">
       
       <div className="order-last sm:order-first">
         <Sidebar collapsed={collapsed} userRole={userRole}/>

@@ -67,7 +67,7 @@ function TopProductsSold() {
 
     if (loading) {
         return (
-            <div className="h-auto lg:h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+            <div className="h-auto lg:h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
                 <div className="flex items-center justify-center h-119.5">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                 </div>
@@ -77,7 +77,7 @@ function TopProductsSold() {
 
     if (chartData.length === 0) {
         return (
-            <div className="h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+            <div className="h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
                 <div className="mb-6">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400">Most Purchased Items</p>
@@ -91,7 +91,7 @@ function TopProductsSold() {
     }
 
     return (
-        <div className="h-auto lg:h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300">
+        <div className="h-auto lg:h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 transition-all duration-300">
             {/* Header */}
             <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>

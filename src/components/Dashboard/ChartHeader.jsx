@@ -43,7 +43,7 @@ function ChartHeader({ title, selectedFilter, onFilterChange }) {
     };
 
     return (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+        <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
             <div className="flex w-full">
                 <div className="flex-1">
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white">
@@ -54,7 +54,7 @@ function ChartHeader({ title, selectedFilter, onFilterChange }) {
                     </p>
                 </div>
 
-                <div className="h-9 px-2 pr-1.5 py-[1.2rem] hidden md:flex justify-center items-center gap-1 border border-slate-300 dark:bg-slate-800/20 dark:border-slate-700/80 text-sm text-slate-700 dark:text-slate-100 rounded-lg shadow-xs dark:shadow-none">
+                <div className="h-9 px-2 pr-1.5 py-[1.2rem] hidden md:flex justify-center items-center gap-1 border border-slate-300 dark:bg-black/20 dark:border-white/20 text-sm text-slate-700 dark:text-slate-100 rounded-lg shadow-xs dark:shadow-none">
                     {filterOptions.map((option) => (
                         <button
                             key={option.value}
@@ -76,14 +76,14 @@ function ChartHeader({ title, selectedFilter, onFilterChange }) {
                         className={`flex items-center cursor-pointer space-x-2 py-2.5 px-4 rounded-md transition-all ${
                             showFilters
                                 ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                                : "bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200"
                         }`}
                     >
                         <Funnel className="w-4 h-4" />
                     </button>
 
                     {showFilters && (
-                        <div className="absolute top-full right-0 mt-2 w-32 p-2 text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 animate-in fade-in zoom-in duration-200">
+                        <div className="absolute top-full right-0 mt-2 w-32 p-2 text-slate-700 dark:text-slate-200 bg-white dark:bg-[#191919] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl z-50 animate-in fade-in zoom-in duration-200">
                             {filterOptions.map((option) => (
                                 <button
                                     key={option.value}

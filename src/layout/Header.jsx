@@ -187,11 +187,11 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
 
     return (
         <>
-            <div className="sticky top-0 z-50 w-full flex items-center justify-between p-4 py-5 gap-2 border-b transition-colors duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+            <div className="sticky top-0 z-50 w-full flex items-center justify-between p-4 py-5 gap-2 border-b transition-colors duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
 
                 <div className="flex items-center gap-3">
                     <button
-                        className="hidden md:block p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
+                        className="hidden md:block p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-white/5"
                         onClick={onToggleSidebar}
                     >
                         <Menu className="w-5 h-5" />
@@ -205,7 +205,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                 <div className="flex items-center space-x-3">
                     <button
                         onClick={() => setDarkMode(!darkMode)}
-                        className="p-2.5 rounded-xl transition-colors hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800"
+                        className="p-2.5 rounded-xl transition-colors hover:bg-gray-200/50 dark:text-white dark:hover:bg-white/5"
                     >
                         {darkMode ? (
                             <Moon className="w-5 h-5 text-blue-500" />
@@ -218,7 +218,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     <div className="relative" ref={notifRef}>
                         <button
                             onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
-                            className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'hover:bg-gray-200/50 dark:hover:bg-slate-800'}`}
+                            className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'hover:bg-gray-200/50 dark:hover:bg-white/5'}`}
                         >
                             <Bell className="w-5 h-5" />
                             {unreadCount > 0 && (

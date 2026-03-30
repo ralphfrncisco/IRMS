@@ -89,8 +89,8 @@ function RecentOrdersTable() {
 
     return (
         <div className="space-y-6">
-            <div className="max-h-[120vh] rounded-2xl border transition-all duration-300 overflow-hidden bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+            <div className="max-h-[120vh] rounded-2xl border transition-all duration-300 overflow-hidden bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
+                <div className="p-6 border-b border-slate-100 dark:border-white/10">
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Sales</h3>
@@ -103,7 +103,7 @@ function RecentOrdersTable() {
                 <div className="h-auto overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-separate border-spacing-y-1">
                         <thead>
-                            <tr className="bg-slate-50/50 dark:bg-slate-800/50">
+                            <tr className="bg-slate-50/50 dark:bg-[#191919]">
                                 <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>
                                 <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>
                                 <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Item/s</th>

@@ -208,7 +208,7 @@ function RevenueChart() {
 
   if (loading) {
     return (
-      <div className="h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <div className="h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
         <div className="flex items-center justify-center h-80">
           <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
         </div>
@@ -217,7 +217,7 @@ function RevenueChart() {
   }
 
   return (
-    <div className="p-4 sm:p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+    <div className="p-4 sm:p-6 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
       <ChartHeader
         title="Revenue Chart"
         selectedFilter={selectedFilter}

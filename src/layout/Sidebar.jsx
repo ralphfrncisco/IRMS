@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, PiggyBank, 
-  Package, FileText, User, Users, UserCog, ContactRound,
+  House,
+  Package, FileText, User, UserCog,
   ArrowLeftRight, ChevronDown, X
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const menuItems = [
-  { id: "dashboard", icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { id: "dashboard", icon: House, label: "Dashboard", path: "/dashboard" },
   { 
     id: "transactions", 
     icon: ArrowLeftRight, 
@@ -38,7 +38,7 @@ const menuItems = [
 function LowStockBadge({ count }) {
   if (!count || count === 0) return null;
   return (
-    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+    <span className="absolute -top-1 -left-1 flex h-2 w-2">
       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
     </span>
@@ -49,8 +49,8 @@ function Sidebar({ collapsed, darkMode, userRole }) {
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [mobileSubmenu, setMobileSubmenu] = useState(null);
   const [screenSize, setScreenSize] = useState('desktop');
-  const [lowStockCount, setLowStockCount] = useState(0);       // ✅ how many items are low
-  const [showLowStockBanner, setShowLowStockBanner] = useState(true); // ✅ persistent banner
+  const [lowStockCount, setLowStockCount] = useState(0);
+  const [showLowStockBanner, setShowLowStockBanner] = useState(true);
   const location = useLocation();
 
   // ─── Fetch low stock count ────────────────────────────────────────────────
@@ -121,7 +121,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
           MOBILE BOTTOM NAVIGATION (< 640px)
       ======================================== */}
       {isMobile && (
-        <div className="fixed bottom-0 left-0 w-full border-t flex flex-col z-50 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+        <div className="fixed bottom-0 left-0 w-full border-t flex flex-col z-50 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
 
           {/*  Persistent low stock banner — mobile */}
           {lowStockCount > 0 && showLowStockBanner && (
@@ -172,10 +172,10 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                       {mobileSubmenu === item.id && (
                         <>
                           <div className="fixed inset-0 bg-black/20 z-[60]" onClick={() => setMobileSubmenu(null)} />
-                          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 p-3 z-[70] min-w-[230px] max-w-[70vw]">
-                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-white dark:bg-[#111] rounded-xl shadow-2xl border border-slate-300 dark:border-white/10 p-3 z-[70] min-w-[230px] max-w-[70vw]">
+                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-white/10">
                               <p className="text-sm font-bold text-slate-800 dark:text-white">{item.label}</p>
-                              <button onClick={() => setMobileSubmenu(null)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                              <button onClick={() => setMobileSubmenu(null)} className="p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg">
                                 <X className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                               </button>
                             </div>
@@ -189,7 +189,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                                     `block px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                                       isActive
                                         ? "bg-emerald-500 text-white"
-                                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10"
                                     }`
                                   }
                                 >
@@ -230,11 +230,11 @@ function Sidebar({ collapsed, darkMode, userRole }) {
         <div className={`
           flex flex-col h-screen border-r
           ${isCollapsed ? "w-20" : "w-72"} 
-          transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800
+          transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10
         `}>
           
           {/* Branding */}
-          <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+          <div className="p-6 border-b border-slate-200 dark:border-white/10">
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "space-x-3"}`}>
               <img src="/logo-dark.png" alt="Logo" className="hidden dark:block w-8 h-9" />
               <img src="/logo-light.png" alt="Logo" className="block dark:hidden w-8 h-9" />
@@ -288,8 +288,8 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                         className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
                           ${isCollapsed ? 'justify-center' : 'justify-start'}
                           ${isOpen || isChildActive
-                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white'
-                            : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            ? 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white'
+                            : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10'
                           }`}
                       >
                         <span className="relative inline-flex">
@@ -343,7 +343,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
 
                       {/* ── CHILD MENU LINKS (shown when parent is expanded) ── */}
                       {!isCollapsed && isOpen && (
-                        <div className="ml-6 pl-4 space-y-1 border-l border-slate-100 dark:border-slate-800">
+                        <div className="ml-6 pl-4 space-y-1 border-l border-slate-100 dark:border-white/10">
                           {item.submenu.map((sub) => (
                             <NavLink
                               key={sub.id}
@@ -352,7 +352,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                                 `w-full flex items-center pl-4 p-2 rounded-xl transition-all duration-200 text-sm
                                 ${isActive
                                   ? "bg-[#164E48] text-white font-semibold shadow-md"
-                                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5"
                                 }`
                               }
                             >
@@ -370,7 +370,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                         ${isCollapsed ? 'justify-center' : 'justify-start'}
                         ${isActive
                           ? "bg-[#164E48] text-white shadow-md shadow-[#164E48]/20"
-                          : "text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          : "text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10"
                         }`
                       }
                     >

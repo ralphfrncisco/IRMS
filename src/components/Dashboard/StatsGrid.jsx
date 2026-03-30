@@ -146,7 +146,7 @@ function StatsGrid() {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                 {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="p-6 py-8 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+                    <div key={i} className="p-6 py-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
                         <div className="flex items-center justify-center h-20">
                             <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
                         </div>
@@ -161,7 +161,7 @@ function StatsGrid() {
             {statsData.map((item, index) => (
                 <div 
                     key={index} 
-                    className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 group"
+                    className="p-6 py-8 rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 group"
                 >
                     <div className="flex md:flex-col lg:flex-row items-start justify-between">
                         <div className="flex-1 order-1 md:order-2 lg:order-1 mt-0 md:mt-2 lg:mt-0">

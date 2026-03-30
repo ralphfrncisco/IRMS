@@ -50,7 +50,7 @@ function RecentRestock() {
 
   if (RestockData.length === 0) {
     return (
-      <div className="h-80 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <div className="h-80 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
         <div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
             Recent Restock
@@ -72,8 +72,8 @@ function RecentRestock() {
   }
 
   return (
-    <div className="h-full pb-6 space-y-5 rounded-2xl border transition-all duration-300 bg-white border-slate-200 border-red-500 dark:bg-slate-900 dark:border-slate-800">
-      <div className="p-6 border-b flex items-center justify-between border-slate-100 dark:border-slate-800">
+    <div className="h-full pb-6 space-y-5 rounded-2xl border transition-all duration-300 bg-white border-slate-200 border-red-500 dark:bg-[#111] dark:border-white/10">
+      <div className="p-6 border-b flex items-center justify-between border-slate-100 dark:border-white/10">
         <div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
             Recent Restock
@@ -96,7 +96,7 @@ function RecentRestock() {
         <div className="p-3">
           <div className="space-y-2">
             {RestockData.map((expense) => (
-              <div key={expense.expense_id} className="flex items-start py-2.5 space-x-4 px-4 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer">
+              <div key={expense.expense_id} className="flex items-start py-2.5 space-x-4 px-4 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-white/2 cursor-pointer">
                 <div className = "p-2 rounded-lg shrink-0 bg-blue-500/10 transition-all duration-300">
                   <Package className = "w-4 h-4 text-blue-500"/>
                 </div>
