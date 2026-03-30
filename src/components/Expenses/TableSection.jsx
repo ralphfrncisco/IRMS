@@ -33,7 +33,7 @@ function TableSection() {
     
     const iconProps = { 
         size: 16, 
-        className: darkMode ? "text-slate-400" : "text-slate-500" 
+        className: darkMode ? "text-slate-400" : "text-white/50" 
     };
 
     const [visibleColumns, setVisibleColumns] = useState({
@@ -195,10 +195,10 @@ function TableSection() {
 
                         {showFilters && (
                             <div className="absolute top-full right-0 lg:right-36 mt-2 w-60 p-4 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
-                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
+                                <h4 className="text-xs font-bold text-slate-400 dark:text-white uppercase tracking-wider mb-2">Filter By</h4>
                                 <DateRangeFilter options={dateRangeOptions} initialValue={dateRangeFilter} onSelect={setDateRangeFilter} iconProps={iconProps}/>
                                 <CustomerFilter className="w-full" options={typeOptions} initialValue={typeFilter} onSelect={setTypeFilter} iconProps={iconProps}/>
-                                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <div className="pt-2 border-t border-slate-100 dark:border-white/10">
                                     <ColumnFilter options={visibleColumns} onSelect={setVisibleColumns} iconProps={iconProps} dropdownClassName="mt-[-270px] w-full"/>
                                 </div>
                             </div>
@@ -217,7 +217,7 @@ function TableSection() {
                         <Search className="h-4 w-4 text-slate-400" />
                     </div>
                     <input type="text" placeholder="Search by type, status, amount..."
-                        className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
+                        className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-[#090909] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
                         value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     {searchQuery && (
                         <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">

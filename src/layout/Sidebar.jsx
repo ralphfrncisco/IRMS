@@ -288,8 +288,8 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                         className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
                           ${isCollapsed ? 'justify-center' : 'justify-start'}
                           ${isOpen || isChildActive
-                            ? 'bg-slate-100 dark:bg-white/10 text-white/90 dark:text-white'
-                            : 'text-slate-600/90 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/10'
+                            ? 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white'
+                            : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10'
                           }`}
                       >
                         <span className="relative inline-flex">
@@ -311,11 +311,11 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                         <>
                           <div className="fixed inset-0 z-[90]" onClick={() => setOpenSubmenu(null)} />
                           <div className="absolute left-[calc(100%+8px)] top-0 z-[100] animate-in fade-in slide-in-from-left-2 duration-200">
-                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-3 min-w-[200px]">
-                              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl p-3 min-w-[200px]">
+                              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-white/10">
                                 <p className="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">{item.label}</p>
-                                <button onClick={() => setOpenSubmenu(null)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                                  <X className="w-3.5 h-3.5 text-slate-500" />
+                                <button onClick={() => setOpenSubmenu(null)} className="p-1 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+                                  <X className="w-3.5 h-3.5 text-slate-500 dark:text-white/50" />
                                 </button>
                               </div>
                               <div className="space-y-1">
@@ -328,7 +328,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                                       `block px-3 py-2.5 text-sm rounded-lg transition-all font-medium ${
                                         isActive
                                           ? "bg-[#164E48] text-white shadow-md"
-                                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
                                       }`
                                     }
                                   >

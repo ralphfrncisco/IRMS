@@ -72,13 +72,13 @@ function AccountsGrid() {
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                     <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
-                    <p className="mt-4 text-slate-500">Loading accounts...</p>
+                    <p className="mt-4 text-slate-500 dark:text-white/50">Loading accounts...</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-5">
                     {accounts.map((acc, index) => (
                         <div key={acc.id || index} 
-                            className="p-6 py-8 w-full rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/5 shadow-sm flex flex-col justify-center hover:shadow-md"
+                            className="p-6 py-8 w-full rounded-2xl border transition-all duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 shadow-sm flex flex-col justify-center hover:shadow-md"
                         >
                             <div className="flex flex-row items-center gap-5">
                                 <div className="shrink-0">

@@ -77,11 +77,11 @@ input[type="number"] {
 
 /* Dark Mode support */
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155; /* slate-700 */
+  background: #47494b; /* slate-700 */
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #475569; /* slate-600 */
+  background: #47494b; /* slate-600 */
 }
 
 @keyframes slideInFromRight {
