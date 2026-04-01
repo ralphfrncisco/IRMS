@@ -8,8 +8,8 @@ function CustomerFilter({ options, initialValue, onSelect, iconProps, className 
     const dropdownRef = useRef(null);
 
     const selectedTextColor = selectedValue === initialValue 
-        ? 'text-slate-100 dark:text-white'
-        : 'text-slate-100 dark:text-white';
+        ? 'text-slate-700 dark:text-white' // Placeholder color
+        : 'text-slate-700 dark:text-white';   // Selected value color
 
     useEffect(() => {
         const handleClickOutside = (event) => {

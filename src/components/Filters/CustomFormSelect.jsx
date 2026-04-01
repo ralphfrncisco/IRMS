@@ -59,10 +59,10 @@ function CustomFormSelect({ label, name, options, initialValue, onSelect, placeh
                         ? 'focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all' // Focus/Open style
                         : 'border-slate-300 dark:border-slate-600' // Default border
                     }
-                    bg-white dark:bg-slate-700 shadow-xs
+                    bg-white dark:border-white/5 dark:bg-[#1E1E1E] shadow-xs
                     text-sm flex justify-between items-center transition-colors
                     ${isPlaceholder 
-                        ? 'text-slate-400 dark:text-slate-500' // Placeholder color
+                        ? 'text-slate-400 dark:text-white/50' // Placeholder color
                         : 'text-slate-900 dark:text-white' // Selected value color
                     }
                 `}
@@ -77,17 +77,17 @@ function CustomFormSelect({ label, name, options, initialValue, onSelect, placeh
             {/* Dropdown List */}
             {isOpen && (
                 <ul
-                    className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-300 dark:border-slate-600 max-h-60 overflow-auto"
+                    className="absolute z-10 w-full mt-1 bg-white dark:bg-[#1E1E1E] rounded-xl shadow-xl border border-slate-300 dark:border-white/15 max-h-60 overflow-auto"
                     role="listbox"
                 >
                     {options.map((option) => (
                         <li
                             key={option.value}
                             className={`
-                                px-3 py-2 text-sm cursor-pointer transition-colors
+                                px-3 py-2.5 text-sm cursor-pointer transition-colors
                                 ${option.value === selectedValue
                                     ? 'bg-blue-500 text-white font-medium' // Selected style
-                                    : 'text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700' // Hover style
+                                    : 'text-slate-900 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-white/5' // Hover style
                                 }
                             `}
                             onClick={() => handleSelect(option)}

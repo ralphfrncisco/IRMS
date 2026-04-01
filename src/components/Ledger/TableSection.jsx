@@ -49,7 +49,7 @@ function TableSection() {
     
     const iconProps = { 
         size: 16, 
-        className: darkMode ? "text-slate-400" : "text-white/50" 
+        className: "text-slate-600 dark:text-white/60" 
     };
 
     const fetchSalary = async () => {
@@ -173,7 +173,7 @@ function TableSection() {
                                 className={`flex items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
                                     showFilters 
                                     ? "bg-blue-100 text-blue-700 dark:bg-white/10 dark:text-white" 
-                                    : "bg-slate-100 dark:bg-white/5 text-slate-800 dark:text-slate-200"
+                                    : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-200"
                                 }`}
                             >
                                 <Funnel className="w-4 h-4" />
@@ -191,7 +191,7 @@ function TableSection() {
                                 </div>
                             )}
 
-                            <button onClick={() => setIsModalOpen(true)} className="block cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                            <button onClick={() => setIsModalOpen(true)} className="block cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-600 transition-all">
                                 <Plus className="w-4 h-4" />
                                 <span className="text-xs sm:text-sm font-medium">Add <span className="hidden md:inline">Entry</span></span>
                             </button>
@@ -251,7 +251,7 @@ function TableSection() {
                                 filteredSalary.map((entry) => (
                                     <tr key={entry.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                         {visibleColumns['EMPLOYEE'] && (
-                                            <td className="pl-7 p-4 text-sm font-medium text-slate-900 dark:text-white">
+                                            <td className="pl-7 p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
                                                 {entry.employee_name}
                                             </td>
                                         )}

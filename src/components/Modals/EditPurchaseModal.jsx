@@ -327,8 +327,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                     className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed" 
                                 />
                                 <p className="text-xs text-slate-500 dark:text-white/50 mt-1">
-                                    Total Balance: ₱{customerInfo.total_balance.toLocaleString()} | 
-                                    Credit Limit: ₱{customerInfo.credit_limit.toLocaleString()}
+                                    Total Balance: <span className = "text-red-500 dark:text-red-500">₱{customerInfo.total_balance.toLocaleString()}</span> | 
+                                     Credit Limit: <span className="text-amber-500 dark:text-amber-500">₱{customerInfo.credit_limit.toLocaleString()}</span>
                                 </p>
                             </div>
                             <div>
@@ -361,14 +361,14 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                         {purchaseItems.map((item) => (
                                             <tr key={item.id || item.name} className="text-sm dark:text-white/70">
                                                 <td className="p-3 pl-6">{item.name}</td>
-                                                <td className="p-3 text-center">₱{Number(item.price).toLocaleString()}</td>
+                                                <td className="p-3 text-center text-emerald-600 dark:text-emerald-500">₱{Number(item.price).toLocaleString()}</td>
                                                 <td className="p-3 text-center">{item.quantity}</td>
-                                                <td className="p-3 text-center font-semibold">₱{Number(item.total).toLocaleString()}</td>
+                                                <td className="p-3 text-center font-semibold text-blue-600 dark:text-blue-500">₱{Number(item.total).toLocaleString()}</td>
                                             </tr>
                                         ))}
                                         <tr className="bg-blue-50/30 dark:bg-[#1E1E1E] font-bold">
                                             <td colSpan="3" className="p-3 text-right text-xs uppercase text-slate-500 dark:text-white/70 pr-4">Grand Total</td>
-                                            <td className="p-3 text-center text-blue-600 dark:text-blue-400 text-base">₱{totalAmount.toLocaleString()}</td>
+                                            <td className="p-3 text-center text-blue-600 dark:text-blue-500">₱{totalAmount.toLocaleString()}</td>
                                             <td></td>
                                         </tr>
                                     </tbody>
@@ -420,7 +420,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                             </a>
                                         </div>
                                         <div className="relative">
-                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/90" />
+                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
                                             <input 
                                                 type="text" 
                                                 name="additionalPayment" 
@@ -429,7 +429,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 onChange={handleInputChange} 
                                                 autoComplete="off"
                                                 disabled={originalValues.remainingBalance === 0}
-                                                className="w-full text-slate-700 dark:text-white/70 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] outline-none disabled:opacity-80 disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-[#1E1E1E]/80" 
+                                                className="w-full text-slate-700 dark:text-white/70 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] outline-none disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-[#1E1E1E]/80" 
                                             />
                                         </div>
                                         <p className="text-xs text-slate-500 dark:text-white/50 mt-2">
@@ -441,7 +441,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                             Remaining Balance (This Sale)
                                         </label>
                                         <div className="relative">
-                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/40" />
+                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
                                             <input 
                                                 type="text" 
                                                 value={formatInputCurrency(calculatedRemainingBalance.toString())} 

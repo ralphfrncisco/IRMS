@@ -51,7 +51,7 @@ function TableSection() {
     
     const iconProps = { 
         size: 16, 
-        className: darkMode ? "text-slate-400" : "text-white/50" 
+        className: "text-slate-600 dark:text-white/60" 
     };
 
     const [visibleColumns, setVisibleColumns] = useState({
@@ -225,7 +225,7 @@ function TableSection() {
                                 className={`flex items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
                                     showFilters 
                                     ? "bg-blue-100 text-blue-700 dark:bg-white/10 dark:text-white" 
-                                    : "bg-slate-100 dark:bg-white/5 text-slate-800 dark:text-slate-200"
+                                    : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-200"
                                 }`}
                             >
                                 <Funnel className="w-4 h-4" />

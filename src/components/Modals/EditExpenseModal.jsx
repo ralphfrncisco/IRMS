@@ -229,7 +229,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                                 </button>
                                             ))}
                                         </div>
-                                        <p className="text-[10px] text-slate-400 mt-2">
+                                        <p className="text-[11px] text-slate-400 dark:text-white/60 mt-2">
                                             Update to <span className="font-semibold">Received</span> once the stock arrives.
                                         </p>
                                     </div>
@@ -277,7 +277,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                 </div>
                                 <div className="border border-slate-200 dark:border-white/5 rounded-xl overflow-x-auto shadow-sm">
                                     <table className="w-full text-left text-sm">
-                                        <thead className="bg-slate-50 dark:bg-[#1E1E1E] text-slate-500 dark:text-white/50 font-bold uppercase text-[10px] tracking-wider">
+                                        <thead className="bg-slate-50 dark:bg-[#1E1E1E] text-slate-500 dark:text-white/50 font-bold uppercase text-[12px] tracking-wider">
                                             <tr>
                                                 <th className="px-4 py-3">Product Description</th>
                                                 <th className="px-4 py-3 text-center">Unit Price</th>

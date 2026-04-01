@@ -263,11 +263,11 @@ function AddProductModal({ isOpen, onClose }) {
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col max-h-[90vh] bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-white/10" 
+                className="flex flex-col max-h-[90vh] bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-white/20" 
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
+                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/20 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Product</h2>
                     <button onClick={onClose} disabled={loading} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group disabled:opacity-50">
                         <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-slate-200 cursor-pointer"/>
@@ -405,7 +405,7 @@ function AddProductModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="pt-5 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3 flex-shrink-0">
+                    <div className="pt-5 border-t border-slate-200 dark:border-white/20 flex justify-end gap-3 flex-shrink-0">
                         <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] rounded-lg hover:bg-slate-200 dark:hover:bg-white/20 transition-colors disabled:opacity-50">
                             Cancel
                         </button>

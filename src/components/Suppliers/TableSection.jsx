@@ -18,8 +18,8 @@ function TableSection() {
     const [loading, setLoading] = useState(true);
     
     const iconProps = { 
-      size: 16, 
-      className: darkMode ? "text-slate-400" : "text-white/50" 
+        size: 16, 
+        className: "text-slate-600 dark:text-white/60" 
     };
 
     // --- UNIFIED STATE MANAGEMENT ---

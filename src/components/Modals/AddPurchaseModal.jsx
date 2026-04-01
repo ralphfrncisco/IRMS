@@ -566,12 +566,12 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                         <li
                                             key={customer.customer_id}
                                             onClick={() => selectCustomer(customer)}
-                                            className="px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
+                                            className="px-4 py-3 hover:bg-blue-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{customer.full_name}</p>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{customer.contact_number}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-white/60">{customer.contact_number}</p>
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">Balance</p>
@@ -792,7 +792,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                             </tr>
                                         </>
                                     ) : (
-                                        <tr><td colSpan="5" className="p-8 text-center text-sm text-slate-400 dark:text-white/60 italic">No products added yet.</td></tr>
+                                        <tr><td colSpan="5" className="p-8 text-center text-sm text-slate-400 dark:text-white/40 italic">No products added yet.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -825,7 +825,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                             className={`w-full pl-9 pr-3 py-1.5 h-10 rounded-lg border outline-none transition-all ${
                                                 overpaymentAmount > 0
                                                     ? 'border-emerald-400 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 focus:ring-2 focus:ring-emerald-400/30'
-                                                    : 'border-slate-300 dark:border-white/5 dark:bg-white/10 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
+                                                    : 'border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
                                             }`}
                                         />
                                         {/*  Persistent tooltip — stays until overpaymentAmount drops to 0 */}
@@ -841,13 +841,13 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                     <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Remaining Balance</label>
                                     <div className="relative">
                                         <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
-                                        <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-white/10 cursor-not-allowed outline-none font-medium" />
+                                        <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] cursor-not-allowed outline-none font-medium" />
                                     </div>
                                 </div>
                             </div>
                             <div>
                                 <label htmlFor="remarks" className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Remarks</label>
-                                <textarea id="remarks" name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add transaction notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-white/10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
+                                <textarea id="remarks" name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add transaction notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
                             </div>
                         </div>
                     </div>
