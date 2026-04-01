@@ -80,7 +80,7 @@ function TopProductsSold() {
             <div className="h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
                 <div className="mb-6">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Most Purchased Items</p>
+                    <p className="text-sm text-slate-500 dark:text-white/50">Most Purchased Items</p>
                 </div>
                 <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-slate-600 mt-[-10%]">
                     <Package className="w-8 h-8" />
@@ -95,7 +95,7 @@ function TopProductsSold() {
             {/* Header */}
             <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Most Purchased Items (All Time)</p>
+                <p className="text-sm text-slate-500 dark:text-white/50">Most Purchased Items (All Time)</p>
             </div>
 
             {/* Bar Chart Rows */}
@@ -120,7 +120,7 @@ function TopProductsSold() {
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden">
                             <div
                                 className="h-full rounded-full transition-all duration-700 ease-out"
                                 style={{
@@ -131,7 +131,7 @@ function TopProductsSold() {
                         </div>
 
                         {/* Bottom label: quantity sold */}
-                        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                        <p className="mt-1 text-xs text-slate-400 dark:text-white/50">
                             {item.quantity.toLocaleString()} {item.quantity === 1 ? 'item' : 'items'} sold
                         </p>
                     </div>

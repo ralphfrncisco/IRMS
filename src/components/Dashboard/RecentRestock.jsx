@@ -72,13 +72,13 @@ function RecentRestock() {
   }
 
   return (
-    <div className="h-full pb-6 space-y-5 rounded-2xl border transition-all duration-300 bg-white border-slate-200 border-red-500 dark:bg-[#111] dark:border-white/10">
+    <div className="h-full pb-2 rounded-2xl border transition-all duration-300 bg-white border-slate-200 border-red-500 dark:bg-[#111] dark:border-white/10">
       <div className="p-6 border-b flex items-center justify-between border-slate-100 dark:border-white/10">
         <div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
             Recent Restock
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-white/50">
             View your recent restock
           </p>
         </div>
@@ -93,12 +93,12 @@ function RecentRestock() {
         </div>
       ) : 
       (
-        <div className="p-3">
+        <div className="p-2">
           <div className="space-y-2">
             {RestockData.map((expense) => (
-              <div key={expense.expense_id} className="flex items-start py-2.5 space-x-4 px-4 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-white/2 cursor-pointer">
+              <div key={expense.expense_id} className="flex items-start py-3 space-x-4 px-4 rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-white/2 cursor-pointer">
                 <div className = "p-2 rounded-lg shrink-0 bg-blue-500/10 transition-all duration-300">
-                  <Package className = "w-4 h-4 text-blue-500"/>
+                  <Package className = "w-5 h-5 text-blue-500"/>
                 </div>
 
                 <div className = "flex-1 min-w-0 space-y-1">
@@ -106,29 +106,29 @@ function RecentRestock() {
                     {expense.purchased_items || expense.expense_type}
                   </p>
 
-                  <p className = "text-xs text-slate-500 dark:text-slate-300 truncate">
+                  <p className = "text-xs text-slate-500 dark:text-white/80 truncate">
                     Bought from {expense.supplier_name}
                   </p>
 
                   <div className = "flex items-center space-x-2 mt-2">
-                    <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                    <span className="text-xs text-slate-500 truncate">
+                    <Clock className="w-3 h-3 text-slate-400 dark:text-white/50" />
+                    <span className="text-xs text-slate-500 dark:text-white/50 truncate">
                       {formatDateTimeShort(expense.created_at)}
-                    </span>
-                  </div>
-
-                  <div className = "flex items-center space-x-2 mt-2">
-                    <User className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                    <span className="text-xs text-slate-500">
-                      {expense.recorded_by}
                     </span>
                   </div>
                 </div>
 
-                <div>
-                  <p className="text-sm font-medium text-orange-500 dark:text-orange-400">
+                <div className = "flex flex-col items-end space-y-1">
+                  <p className="text-sm font-medium text-green-500 dark:text-green-400">
                     {formatCurrency(expense.amount)}
                   </p>
+
+                  <div className = "flex items-center space-x-2 mt-2">
+                    <User className="w-3 h-3 text-slate-400 dark:text-white/50" />
+                    <span className="text-xs text-slate-500 dark:text-white/50">
+                      {expense.recorded_by}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}

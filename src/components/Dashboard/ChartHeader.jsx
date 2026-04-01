@@ -49,7 +49,7 @@ function ChartHeader({ title, selectedFilter, onFilterChange }) {
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white">
                         {title}
                     </h3>
-                    <p className="block text-sm text-slate-500 dark:text-slate-400">
+                    <p className="block text-sm text-slate-500 dark:text-white/50">
                         {getSubtitle()}
                     </p>
                 </div>

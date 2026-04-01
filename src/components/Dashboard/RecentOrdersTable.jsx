@@ -79,7 +79,7 @@ function RecentOrdersTable() {
         case "Unpaid": 
             return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400";
         default:
-            return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+            return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white/70";
         }
     };
 
@@ -94,22 +94,22 @@ function RecentOrdersTable() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Sales</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders</p>
+                            <p className="text-sm text-slate-500 dark:text-white/50">Latest customer orders</p>
                         </div>
                         <button onClick = {handleViewAll} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">View All</button>
                     </div>
                 </div>
 
-                <div className="h-auto overflow-x-auto custom-scrollbar">
+                <div className="pt-3 h-auto overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-separate border-spacing-y-1">
                         <thead>
                             <tr className="bg-slate-50/50 dark:bg-[#191919]">
-                                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>
-                                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>
-                                <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Item/s</th>
-                                <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>
-                                <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
-                                <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>
+                                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Order ID</th>
+                                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Customer</th>
+                                <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Purchased Item/s</th>
+                                <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Paid Amount</th>
+                                <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Status</th>
+                                <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Date</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -126,21 +126,21 @@ function RecentOrdersTable() {
                                 </td>
                             </tr>
                         ) : (orders.map((order) => (
-                                <tr key={order.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                <tr key={order.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/2 transition-colors">
                                     <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
                                         {`ORD-${order.order_id.toString().padStart(4, '0')}`}
                                     </td>
-                                    <td className="p-4 text-sm text-slate-800 dark:text-slate-300">{order.customer_full_name}</td>
+                                    <td className="p-4 text-sm text-slate-800 dark:text-white/90">{order.customer_full_name}</td>
                                     <td className="p-4 text-sm">
-                                        <p className = "max-w-[200px] lg:w-full truncate dark:text-slate-300">{order.purchased_items}</p>
+                                        <p className = "max-w-[200px] lg:w-full truncate dark:text-white/90">{order.purchased_items}</p>
                                     </td>
-                                    <td className="p-4 text-sm text-center font-semibold text-slate-700 dark:text-white">{formatCurrency(order.paid_amount)}</td>
+                                    <td className="p-4 text-sm text-center font-semibold text-emerald-700 dark:text-emerald-500">{formatCurrency(order.paid_amount)}</td>
                                     <td className="p-4 text-center">
                                         <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-sm text-center text-slate-500 dark:text-slate-400">{formatDateTimeShort(order.created_at)}</td>
+                                    <td className="p-4 text-sm text-center text-slate-500 dark:text-white/70">{formatDateTimeShort(order.created_at)}</td>
                                 </tr>
                             )))}
                         </tbody>
