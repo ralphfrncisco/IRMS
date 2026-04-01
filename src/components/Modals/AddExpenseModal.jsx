@@ -141,7 +141,6 @@ function AddExpenseModal({isOpen, onClose}) {
             const { data: accountData, error: accountError } = await supabase.from('account').select('full_name').eq('user_id', user.id).single();
             if (accountError) throw accountError;
 
-
             const initialStatus = isStockExpense ? 'Just Ordered' : 'Paid';
 
             const { data: expenseData, error: expenseError } = await supabase
@@ -184,33 +183,47 @@ function AddExpenseModal({isOpen, onClose}) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto overflow-x-hidden">
-            <div className="flex flex-col h-auto max-h-[83vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
-                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+        <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
+            {/* ── Modal shell: matches AddPurchaseModal exactly ── */}
+            <div className="flex flex-col h-auto max-h-[83vh] bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
+
+                {/* ── Header ── */}
+                <div className="w-full flex items-center justify-between px-4 md:px-6 pt-4 md:pt-6 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Add Expense</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
-                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group">
+                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-white/70 cursor-pointer"/>
                     </button>
                 </div>
 
-                <form id="expenseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-6 md:pr-2">
+                {/* ── Scrollable form body ── */}
+                <form id="expenseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-6 custom-scrollbar px-4 md:px-6 py-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        {/* Receipt image upload */}
                         <div className="w-[85vw] md:w-full">
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Receipt Image</label>
-                            <div onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">Receipt Image</label>
+                            <div
+                                onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
                                 onClick={() => fileInputRef.current?.click()}
-                                className={`relative h-52 border-2 border-dashed rounded-xl transition-all cursor-pointer overflow-hidden ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-blue-400'}`}>
+                                className={`relative h-52 border-2 border-dashed rounded-xl transition-all cursor-pointer overflow-hidden ${
+                                    isDragging
+                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                        : 'border-slate-300 dark:border-white/10 hover:border-blue-400'
+                                }`}
+                            >
                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleImageChange(e.target.files[0])} />
                                 {imagePreview ? (
                                     <div className="relative w-full h-full group">
-                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-contain bg-slate-50 dark:bg-slate-800" />
+                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-contain bg-slate-50 dark:bg-[#1E1E1E]" />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                             <p className="text-white text-sm font-medium">Click to change</p>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-slate-400 space-y-2">
-                                        <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full"><Upload className="w-6 h-6 text-blue-500" /></div>
+                                    <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-white/50 space-y-2">
+                                        <div className="p-3 bg-slate-100 dark:bg-[#1E1E1E] rounded-full">
+                                            <Upload className="w-6 h-6 text-blue-500" />
+                                        </div>
                                         <div className="text-center px-4">
                                             <p className="text-xs font-medium">Upload Receipt</p>
                                             <p className="text-xs opacity-60">PNG, JPG (Max 5MB)</p>
@@ -220,118 +233,160 @@ function AddExpenseModal({isOpen, onClose}) {
                             </div>
                         </div>
 
+                        {/* Right-side fields */}
                         <div className="space-y-4">
+
+                            {/* Type of Expense */}
                             <div className="relative max-w-[83vw]">
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type of Expense</label>
-                                <input type="text" name="expenseType" value={formValues.expenseType} onChange={handleTypeChange}
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Type of Expense</label>
+                                <input
+                                    type="text" name="expenseType" value={formValues.expenseType} onChange={handleTypeChange}
                                     onFocus={() => setIsDropdownOpen(true)} onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
                                     placeholder='Select or type expense type' autoComplete="off"
-                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                />
                                 {isDropdownOpen && filteredCategories.length > 0 && (
-                                    <ul className="absolute z-30 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
+                                    <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-[#1E1E1E] border border-slate-200 dark:border-white/5 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
                                         {filteredCategories.map((type, index) => (
-                                            <li key={index} onClick={() => selectType(type)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">{type}</li>
+                                            <li
+                                                key={index} onClick={() => selectType(type)}
+                                                className="px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
+                                            >
+                                                {type}
+                                            </li>
                                         ))}
                                     </ul>
                                 )}
                             </div>
 
-                            {/* ✅ Initial status preview */}
+                            {/* Initial status preview */}
                             {formValues.expenseType && (
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Initial Status:</span>
-                                    <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${isStockExpense ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'}`}>
+                                    <span className="text-xs font-semibold text-slate-500 dark:text-white/50">Initial Status:</span>
+                                    <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${
+                                        isStockExpense
+                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
+                                            : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'
+                                    }`}>
                                         {isStockExpense ? 'Just Ordered' : 'Paid'}
                                     </span>
                                 </div>
                             )}
 
+                            {/* Supplier name (Stock Expense only) */}
                             {isStockExpense && (
                                 <div className="max-w-[83vw]">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier Name</label>
-                                    <input type="text" name="supplierName" value={formValues.supplierName} onChange={handleInputChange}
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Supplier Name</label>
+                                    <input
+                                        type="text" name="supplierName" value={formValues.supplierName} onChange={handleInputChange}
                                         placeholder="Enter supplier name" autoComplete="off"
-                                        className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                        className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                    />
                                 </div>
                             )}
 
+                            {/* Amount (non-Stock only) */}
                             {!isStockExpense && (
                                 <div className="relative w-full max-w-[83vw]">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Amount</label>
                                     <div className="relative">
-                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                        <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange} placeholder="0.00" autoComplete="off"
-                                            className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
+                                        <input
+                                            type="text" name="amount" value={formValues.amount} onChange={handleInputChange}
+                                            placeholder="0.00" autoComplete="off"
+                                            className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                        />
                                     </div>
                                 </div>
                             )}
 
+                            {/* Transaction Date */}
                             <div className="relative max-w-[83vw]">
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Transaction Date</label>
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Transaction Date</label>
                                 <div className="relative h-10 w-full group">
-                                    <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
+                                    <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
                                         <span className={`truncate mr-2 ${formValues.transactionDate ? "text-slate-700 dark:text-slate-200" : "text-slate-400"}`}>
                                             {formValues.transactionDate ? formatDateDisplay(formValues.transactionDate) : "Select Date"}
                                         </span>
                                         <div className="flex items-center gap-2 flex-shrink-0">
-                                            <button type="button" onClick={(e) => { e.stopPropagation(); setToday(); }} className="relative z-20 px-2 py-1 text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-700 text-slate-600 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm whitespace-nowrap">Today</button>
-                                            <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); setToday(); }}
+                                                className="relative z-20 px-2 py-1 text-[10px] font-black uppercase bg-slate-100 dark:bg-[#000]/50 dark:text-white/30 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm whitespace-nowrap"
+                                            >
+                                                Today
+                                            </button>
+                                            <Calendar className="w-4 h-4 text-slate-400 dark:text-white/50 flex-shrink-0" />
                                         </div>
                                     </div>
                                     <input type="date" name="transactionDate" value={formValues.transactionDate} onChange={handleInputChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                 </div>
                             </div>
 
+                            {/* Remarks */}
                             <div className="max-w-[83vw] md:w-full">
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
-                                <textarea name="remarks" value={formValues.remarks} onChange={handleInputChange} rows="3" placeholder="Add notes..."
-                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Remarks</label>
+                                <textarea
+                                    name="remarks" value={formValues.remarks} onChange={handleInputChange}
+                                    rows="3" placeholder="Add notes..."
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-white/10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
+                                />
                             </div>
                         </div>
                     </div>
 
+                    {/* Item list (Stock Expense only) */}
                     {isStockExpense && (
                         <div className="max-w-[88vw] md:w-full flex flex-col space-y-4 text-slate-800 dark:text-slate-200">
                             <div className="flex items-center justify-between">
                                 <h1 className="text-xl font-bold">Items Bought</h1>
-                                <button type="button" onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md active:scale-95 cursor-pointer">
+                                <button
+                                    type="button" onClick={() => setIsModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md active:scale-95 cursor-pointer"
+                                >
                                     <Plus className="w-5 h-5" /> <span>Add Item</span>
                                 </button>
                             </div>
-                            <div className="block overflow-x-auto mb-1 rounded-lg border border-slate-200 dark:border-slate-800">
+                            <div className="block overflow-x-auto mb-1 border-t border-b border-slate-200 dark:border-white/5">
                                 <table className="w-full">
-                                    <thead className="bg-slate-100 dark:bg-slate-800">
+                                    <thead className="bg-black/3 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 backdrop-blur-xs">
                                         <tr>
-                                            <th className="p-4 md:pl-10 text-left text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
-                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Unit Price</th>
-                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Quantity</th>
-                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Total</th>
-                                            <th className="p-4 text-center text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-200">Action</th>
+                                            <th className="p-4 md:pl-10 text-left text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
+                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Unit Price</th>
+                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Quantity</th>
+                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Total</th>
+                                            <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {purchaseItems.length > 0 ? (
                                             <>
                                                 {purchaseItems.map((item) => (
-                                                    <tr key={item.id} className="border-b border-slate-200 dark:border-slate-800 text-center transition-colors">
+                                                    <tr key={item.id} className="border-b border-slate-200 dark:border-white/5 text-center transition-colors">
                                                         <td className="p-4 md:pl-10 text-left text-sm text-slate-700 dark:text-slate-200">{item.name}</td>
                                                         <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.price.toLocaleString()}</td>
                                                         <td className="p-4 text-sm text-slate-700 dark:text-slate-200">{item.quantity}</td>
                                                         <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.total.toLocaleString()}</td>
                                                         <td className="p-4 text-center">
-                                                            <button type="button" onClick={() => handleEditItem(item.id)} className="text-blue-500 hover:text-blue-700 p-1 cursor-pointer"><Pencil className="w-4 h-4" /></button>
-                                                            <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700 p-1 cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+                                                            <button type="button" onClick={() => handleEditItem(item.id)} className="text-blue-500 hover:text-blue-700 p-1 cursor-pointer">
+                                                                <Pencil className="w-4 h-4" />
+                                                            </button>
+                                                            <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700 p-1 cursor-pointer">
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 ))}
-                                                <tr className="bg-blue-50/50 dark:bg-blue-900/10 font-bold">
-                                                    <td colSpan="3" className="p-4 text-right text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Grand Total:</td>
+                                                <tr className="bg-blue-50/50 dark:bg-transparent font-bold">
+                                                    <td colSpan="3" className="p-4 text-right text-slate-600 dark:text-white uppercase text-xs tracking-wider">Grand Total:</td>
                                                     <td className="p-4 text-center text-blue-600 dark:text-blue-400 text-lg">₱{totalAmount.toLocaleString()}</td>
                                                     <td></td>
                                                 </tr>
                                             </>
                                         ) : (
-                                            <tr><td colSpan="5" className="p-8 text-center text-sm text-slate-400 italic">No products added yet.</td></tr>
+                                            <tr>
+                                                <td colSpan="5" className="p-8 text-center text-sm text-slate-400 dark:text-white/60 italic">No products added yet.</td>
+                                            </tr>
                                         )}
                                     </tbody>
                                 </table>
@@ -340,15 +395,24 @@ function AddExpenseModal({isOpen, onClose}) {
                     )}
                 </form>
 
-                <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
-                    <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" form="expenseForm"
+                {/* ── Footer ── */}
+                <div className="px-4 md:px-6 py-4 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
+                    <button
+                        type="button" onClick={onClose}
+                        className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit" form="expenseForm"
                         disabled={!formValues.expenseType || (isStockExpense ? purchaseItems.length === 0 : !formValues.amount) || isSaving}
-                        className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                        className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
                         {isSaving ? "Saving..." : "Save Expense"}
                     </button>
                 </div>
             </div>
+
             <AddExpenseItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
             <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
         </div>
