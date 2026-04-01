@@ -91,7 +91,7 @@ function TopProductsSold() {
     }
 
     return (
-        <div className="h-auto lg:h-119.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 transition-all duration-300">
+        <div className="h-auto lg:h-121.5 p-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10 transition-all duration-300">
             {/* Header */}
             <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
@@ -114,13 +114,13 @@ function TopProductsSold() {
                                 </span>
                             </div>
                             {/* Revenue on the right */}
-                            <span className="text-sm font-semibold text-slate-800 dark:text-white tabular-nums flex-shrink-0 ml-2">
+                            <span className="text-sm font-semibold text-slate-700 dark:text-white tabular-nums flex-shrink-0 ml-2">
                                 ₱{item.revenue.toLocaleString()}
                             </span>
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden">
+                        <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden">
                             <div
                                 className="h-full rounded-full transition-all duration-700 ease-out"
                                 style={{

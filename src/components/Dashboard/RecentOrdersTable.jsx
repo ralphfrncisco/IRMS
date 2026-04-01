@@ -73,7 +73,7 @@ function RecentOrdersTable() {
     const getStatusColor = (status) => {
         switch (status) {
         case "Fully Paid":
-            return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400";
+            return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500 dark:text-emerald-400";
         case "With Balance":
             return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400";
         case "Unpaid": 
@@ -140,7 +140,7 @@ function RecentOrdersTable() {
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-sm text-center text-slate-500 dark:text-white/70">{formatDateTimeShort(order.created_at)}</td>
+                                    <td className="p-4 text-sm text-center text-slate-600 dark:text-white/70">{formatDateTimeShort(order.created_at)}</td>
                                 </tr>
                             )))}
                         </tbody>

@@ -234,14 +234,14 @@ function RevenueChart() {
             />
             <XAxis
               dataKey="label"  // ✅ display short label
-              stroke={darkMode ? "#94a3b8" : "#ffffffb9"}
+              stroke={darkMode ? "#ffffffb9" : "#7c8592"}
               fontSize={12}
               tickLine={false}
               axisLine={false}
               tick={{ dy: 10 }}
             />
             <YAxis
-              stroke={darkMode ? "#94a3b8" : "#ffffff96"}
+              stroke={darkMode ? "#ffffffb9" : "#7c8592"}
               fontSize={12}
               tickLine={false}
               axisLine={false}

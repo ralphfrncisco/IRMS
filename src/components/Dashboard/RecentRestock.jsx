@@ -110,9 +110,9 @@ function RecentRestock() {
                     Bought from {expense.supplier_name}
                   </p>
 
-                  <div className = "flex items-center space-x-2 mt-2">
-                    <Clock className="w-3 h-3 text-slate-400 dark:text-white/50" />
-                    <span className="text-xs text-slate-500 dark:text-white/50 truncate">
+                  <div className = "flex items-center space-x-2 mt-2 text-slate-500 dark:text-white/50">
+                    <Clock className="w-3 h-3" />
+                    <span className="text-xs truncate">
                       {formatDateTimeShort(expense.created_at)}
                     </span>
                   </div>
@@ -123,9 +123,9 @@ function RecentRestock() {
                     {formatCurrency(expense.amount)}
                   </p>
 
-                  <div className = "flex items-center space-x-2 mt-2">
-                    <User className="w-3 h-3 text-slate-400 dark:text-white/50" />
-                    <span className="text-xs text-slate-500 dark:text-white/50">
+                  <div className = "flex items-center space-x-2 mt-2 text-slate-500 dark:text-white/50">
+                    <User className="w-3 h-3 " />
+                    <span className="text-xs">
                       {expense.recorded_by}
                     </span>
                   </div>
