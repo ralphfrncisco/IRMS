@@ -284,12 +284,12 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/60 z-50 flex py-4 items-center justify-center">
-            <div className="flex flex-col h-full md:max-h-[100vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
-                <div className="w-full flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+        <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
+            <div className="flex flex-col h-full md:max-h-[100vh] bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="w-full flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Invoice Details</h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-500 dark:text-white/50">
                             Reviewing {formValues.PONumber} • Customer: {customerInfo.full_name}
                         </p>
                     </div>
@@ -299,9 +299,9 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             e.preventDefault();
                             onClose();
                         }}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all cursor-pointer"
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all cursor-pointer"
                     >
-                        <X className="w-6 h-6 text-slate-500 dark:text-slate-400"/>
+                        <X className="w-6 h-6 text-slate-500 dark:text-white/50"/>
                     </button>
                 </div>
 
@@ -315,29 +315,29 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                         {/* Top Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Order ID</label>
-                                <input type="text" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed" />
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Order ID</label>
+                                <input type="text" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/30 cursor-not-allowed" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer</label>
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Customer</label>
                                 <input 
                                     type="text" 
                                     value={formValues.customer} 
                                     readOnly 
-                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed" 
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed" 
                                 />
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                <p className="text-xs text-slate-500 dark:text-white/50 mt-1">
                                     Total Balance: ₱{customerInfo.total_balance.toLocaleString()} | 
                                     Credit Limit: ₱{customerInfo.credit_limit.toLocaleString()}
                                 </p>
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Date</label>
                                 <input 
                                     type="text" 
                                     value={formatDisplayDateTime(formValues.transactionDate)}
                                     readOnly
-                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed" 
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed" 
                                 />
                             </div>
                         </div>
@@ -347,27 +347,27 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             <div className="flex items-center justify-between">
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Purchased Products</h3>
                             </div>
-                            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10">
                                 <table className="w-full">
-                                    <thead className="bg-slate-50 dark:bg-slate-800/50">
-                                        <tr className="text-xs font-bold text-slate-500 uppercase">
+                                    <thead className="bg-slate-50 dark:bg-[#1E1E1E]">
+                                        <tr className="text-xs font-bold text-slate-500 dark:text-white/70 uppercase">
                                             <th className="p-3 text-left pl-6">Product</th>
                                             <th className="p-3 text-center">Price</th>
                                             <th className="p-3 text-center">Qty</th>
                                             <th className="p-3 text-center">Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                                         {purchaseItems.map((item) => (
-                                            <tr key={item.id || item.name} className="text-sm dark:text-slate-300">
+                                            <tr key={item.id || item.name} className="text-sm dark:text-white/70">
                                                 <td className="p-3 pl-6">{item.name}</td>
                                                 <td className="p-3 text-center">₱{Number(item.price).toLocaleString()}</td>
                                                 <td className="p-3 text-center">{item.quantity}</td>
                                                 <td className="p-3 text-center font-semibold">₱{Number(item.total).toLocaleString()}</td>
                                             </tr>
                                         ))}
-                                        <tr className="bg-blue-50/30 dark:bg-blue-900/10 font-bold">
-                                            <td colSpan="3" className="p-3 text-right text-xs uppercase text-slate-500 pr-4">Grand Total</td>
+                                        <tr className="bg-blue-50/30 dark:bg-[#1E1E1E] font-bold">
+                                            <td colSpan="3" className="p-3 text-right text-xs uppercase text-slate-500 dark:text-white/70 pr-4">Grand Total</td>
                                             <td className="p-3 text-center text-blue-600 dark:text-blue-400 text-base">₱{totalAmount.toLocaleString()}</td>
                                             <td></td>
                                         </tr>
@@ -379,8 +379,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                         {/* Bottom Section */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="space-y-3">
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Receipt Image</label>
-                                <div className="relative w-85 h-80 md:w-75 md:h-55 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70">Receipt Image</label>
+                                <div className="relative w-85 h-80 md:w-75 md:h-55 rounded-xl border-2 border-dashed border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E] flex items-center justify-center overflow-hidden group">
                                     {receiptPreview ? (
                                         <>
                                             <img 
@@ -400,8 +400,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                         </>
                                     ) : (
                                         <div className="text-center p-4">
-                                            <ImageIcon className="w-10 h-10 mx-auto text-slate-400 mb-2 opacity-50" />
-                                            <p className="text-xs text-slate-500">No receipt found</p>
+                                            <ImageIcon className="w-10 h-10 mx-auto text-slate-400 dark:text-white/30 mb-2 opacity-50" />
+                                            <p className="text-xs text-slate-500 dark:text-white/30">No receipt found</p>
                                         </div>
                                     )}
                                 </div>
@@ -411,7 +411,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <div className="flex items-center justify-between">
-                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Additional Payment</label>
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Additional Payment</label>
                                             <a 
                                                 className="text-blue-500 hover:underline cursor-pointer text-xs mt-[-5px]" 
                                                 onClick={() => setIsPaymentHistoryOpen(true)}
@@ -420,7 +420,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                             </a>
                                         </div>
                                         <div className="relative">
-                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/90" />
                                             <input 
                                                 type="text" 
                                                 name="additionalPayment" 
@@ -429,36 +429,36 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 onChange={handleInputChange} 
                                                 autoComplete="off"
                                                 disabled={originalValues.remainingBalance === 0}
-                                                className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-slate-800/50" 
+                                                className="w-full text-slate-700 dark:text-white/70 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] outline-none disabled:opacity-80 disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-[#1E1E1E]/80" 
                                             />
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                                        <p className="text-xs text-slate-500 dark:text-white/50 mt-2">
                                             Total Paid: ₱{calculatedTotalPaid.toLocaleString()}
                                         </p>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">
                                             Remaining Balance (This Sale)
                                         </label>
                                         <div className="relative">
-                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/40" />
                                             <input 
                                                 type="text" 
                                                 value={formatInputCurrency(calculatedRemainingBalance.toString())} 
                                                 readOnly 
-                                                className="w-full text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-medium cursor-not-allowed" 
+                                                className="w-full text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 font-medium cursor-not-allowed" 
                                             />
                                         </div>
                                     </div>
                                 </div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Admin Remarks</label>
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Admin Remarks</label>
                                 <textarea 
                                     name="remarks" 
                                     rows="4" 
                                     value={formValues.remarks} 
                                     onChange={handleInputChange} 
                                     placeholder="The user didn't leave any remarks."
-                                    className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 outline-none resize-none"
+                                    className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] outline-none resize-none"
                                 />
                             </div>
                         </div>
@@ -466,8 +466,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 )}
 
                 {/* Footer Buttons */}
-                <div className="p-4 md:p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
-                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-colors cursor-pointer">Close</button>
+                <div className="p-4 md:p-6 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
+                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-white/20 transition-colors cursor-pointer">Close</button>
                     <button 
                         type="submit" 
                         form="purchase-form" 

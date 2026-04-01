@@ -65,19 +65,19 @@ function ChangePasswordModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center overflow-y-auto p-4">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center overflow-y-auto p-4">
             <div 
-                className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-800"
+                className="bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-white/10"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
                     <h2 className="text-xl font-bold text-slate-800 dark:text-white">Change Password</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all"
                     >
-                        <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                        <X className="w-5 h-5 text-slate-500 dark:text-white/50" />
                     </button>
                 </div>
 
@@ -85,17 +85,17 @@ function ChangePasswordModal({ isOpen, onClose }) {
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
                     {/* Current Password */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                             Current Password
                         </label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-6 text-slate-400" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-6 text-slate-400 dark:text-white/70" />
                             <input
                                 type={showPasswords.current ? 'text' : 'password'}
                                 name="currentPassword"
                                 value={formData.currentPassword}
                                 onChange={handleInputChange}
-                                className="w-full pl-10 pr-12 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 pr-12 py-2.5 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             />
                             <button
@@ -110,17 +110,17 @@ function ChangePasswordModal({ isOpen, onClose }) {
 
                     {/* New Password */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                             New Password
                         </label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-6 text-slate-400" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-6 text-slate-400 dark:text-white/70" />
                             <input
                                 type={showPasswords.new ? 'text' : 'password'}
                                 name="newPassword"
                                 value={formData.newPassword}
                                 onChange={handleInputChange}
-                                className="w-full pl-10 pr-12 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 pr-12 py-2.5 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             />
                             <button
@@ -131,22 +131,22 @@ function ChangePasswordModal({ isOpen, onClose }) {
                                 {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                             </button>
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Minimum 6 characters</p>
+                        <p className="text-xs text-slate-500 dark:text-white/50 mt-1">Minimum 6 characters</p>
                     </div>
 
                     {/* Confirm Password */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                             Confirm New Password
                         </label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-6 text-slate-400" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-6 text-slate-400 dark:text-white/70" />
                             <input
                                 type={showPasswords.confirm ? 'text' : 'password'}
                                 name="confirmPassword"
                                 value={formData.confirmPassword}
                                 onChange={handleInputChange}
-                                className="w-full pl-10 pr-12 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 pr-12 py-2.5 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             />
                             <button
@@ -164,7 +164,7 @@ function ChangePasswordModal({ isOpen, onClose }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-500 dark:text-slate-500 md:bg-slate-100 md:dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-500 dark:text-slate-500 md:bg-slate-100 md:dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                         >
                             Cancel
                         </button>

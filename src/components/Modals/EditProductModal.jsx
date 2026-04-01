@@ -238,22 +238,22 @@ function EditProductModal({ isOpen, onClose, product }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col max-h-[75vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col max-h-[75vh] bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-white/10" 
                 onClick={e => e.stopPropagation()}
             >
-                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Edit Product Details</h2>
-                    <button onClick={onClose} disabled={loading} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group disabled:opacity-50">
-                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+                    <button onClick={onClose} disabled={loading} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group disabled:opacity-50">
+                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-slate-200 cursor-pointer"/>
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
                     <div className="flex flex-col md:flex-row gap-8 overflow-y-auto pb-6">
                         <div className="w-full md:w-1/2 space-y-2">
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Product Image</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70">Product Image</label>
                             <div
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
@@ -262,7 +262,7 @@ function EditProductModal({ isOpen, onClose, product }) {
                                 className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 md:h-96 border-2 border-dashed rounded-2xl transition-all
                                     ${isDragging 
                                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                                        : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-800/50'
+                                        : 'border-slate-300 dark:border-white/30 hover:border-slate-400 dark:hover:border-blue-500 bg-slate-50 dark:bg-[#1E1E1E]'
                                     } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" disabled={loading} />
@@ -285,7 +285,7 @@ function EditProductModal({ isOpen, onClose, product }) {
 
                         <div className="w-full md:w-1/2 space-y-4">
                             <div className="relative">
-                                <label htmlFor="SupplierName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier</label>
+                                <label htmlFor="SupplierName" className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Supplier</label>
                                 <input 
                                     type="text" 
                                     id="SupplierName" 
@@ -297,12 +297,12 @@ function EditProductModal({ isOpen, onClose, product }) {
                                     placeholder='Select or type supplier' 
                                     autoComplete="off" 
                                     disabled={loading}
-                                    className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all disabled:opacity-50" 
+                                    className="w-full text-sm text-slate-800 dark:text-slate-200 px-3 py-1.5 h-[2.4rem] rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all disabled:opacity-50" 
                                 />
                                 {isSupplierDropdownOpen && filteredSuppliers.length > 0 && (
-                                    <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
+                                    <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-[#1E1E1E] border border-slate-200 dark:border-white/5 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2">
                                         {filteredSuppliers.map((s) => (
-                                            <li key={s.id} onClick={() => selectSupplier(s)} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">{s.name}</li>
+                                            <li key={s.id} onClick={() => selectSupplier(s)} className="px-4 py-2 text-sm text-slate-700 dark:text-white/70 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">{s.name}</li>
                                         ))}
                                     </ul>
                                 )}
@@ -331,15 +331,15 @@ function EditProductModal({ isOpen, onClose, product }) {
                             )}
 
                             <div>
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Product Name</label>
-                                <input type="text" name="productName" value={formValues.productName} onChange={handleInputChange} disabled={loading} className="mt-2 text-sm h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="eg. Pre-Starter Pellets" />
+                                <label className="text-sm font-semibold text-slate-700 dark:text-white/70">Product Name</label>
+                                <input type="text" name="productName" value={formValues.productName} onChange={handleInputChange} disabled={loading} className="mt-2 text-sm h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-[#1E1E1E] dark:border-white/5 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="eg. Pre-Starter Pellets" />
                             </div>
 
                             <div className="relative">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Retail Price (SRP)</label>
+                                <label className="text-sm font-semibold text-slate-700 dark:text-white/70">Retail Price (SRP)</label>
                                 <div className="relative mt-2">
                                     <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                                        <PhilippinePeso className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                        <PhilippinePeso className="w-4 h-4 text-slate-500 dark:text-white/50" />
                                     </div>
                                     <input 
                                         type="text" 
@@ -349,14 +349,14 @@ function EditProductModal({ isOpen, onClose, product }) {
                                         onFocus={() => !loading && setIsSrpDropdownOpen(true)}
                                         onBlur={() => setTimeout(() => setIsSrpDropdownOpen(false), 200)}
                                         disabled={loading}
-                                        className="pl-9 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" 
+                                        className="pl-9 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-[#1E1E1E] dark:border-white/5 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" 
                                         placeholder="0.00" 
                                         autoComplete="off"
                                     />
                                     {isSrpDropdownOpen && srpSuggestions.length > 0 && (
-                                        <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-40 overflow-y-auto py-2">
+                                        <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-[#1E1E1E] border border-slate-200 dark:border-white/5 rounded-xl shadow-xl max-h-40 overflow-y-auto py-2">
                                             {srpSuggestions.map((item, index) => (
-                                                <li key={index} onClick={() => selectSrp(item.srp)} className="px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">
+                                                <li key={index} onClick={() => selectSrp(item.srp)} className="px-4 py-2 text-xs text-slate-700 dark:text-white/70 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors">
                                                     <span className="font-bold">{item.supplier}</span> - ₱{formatCurrency(item.srp)}
                                                 </li>
                                             ))}
@@ -366,14 +366,14 @@ function EditProductModal({ isOpen, onClose, product }) {
                             </div>
 
                             <div>
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Stock Quantity</label>
-                                <input type="number" name="stock" value={formValues.stock} onChange={handleInputChange} disabled={loading} className="mt-2 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="0" />
+                                <label className="text-sm font-semibold text-slate-700 dark:text-white/70">Stock Quantity</label>
+                                <input type="number" name="stock" value={formValues.stock} onChange={handleInputChange} disabled={loading} className="mt-2 h-[2.4rem] w-full px-4 py-2 rounded-lg border border-slate-300/80 dark:bg-[#1E1E1E] dark:border-white/5 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50" placeholder="0" />
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-5 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 flex-shrink-0">
-                        <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50">
+                    <div className="pt-5 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3 flex-shrink-0">
+                        <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50">
                             Cancel
                         </button>
                         <button type="submit" disabled={loading} className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[140px]">

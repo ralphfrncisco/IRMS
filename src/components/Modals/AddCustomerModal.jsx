@@ -73,15 +73,15 @@ function AddCustomerModal({ isOpen, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-800">
+            <div className="bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-white/10">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
                     <h2 className="text-xl font-bold text-slate-800 dark:text-white">Add New Customer</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all"
                     >
-                        <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                        <X className="w-5 h-5 text-slate-500 dark:text-white/50" />
                     </button>
                 </div>
 
@@ -89,17 +89,17 @@ function AddCustomerModal({ isOpen, onClose }) {
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     {/* Full Name */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                             Full Name
                         </label>
                         <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-white/50" />
                             <input
                                 type="text"
                                 name="full_name"
                                 value={formData.full_name}
                                 onChange={handleInputChange}
-                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 required
                             />
                         </div>
@@ -107,18 +107,18 @@ function AddCustomerModal({ isOpen, onClose }) {
 
                     {/* Contact Number */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                             Contact Number
                         </label>
                         <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-white/50" />
                             <input
                                 type="tel"
                                 name="contact_number"
                                 value={formData.contact_number}
                                 onChange={handleInputChange}
                                 maxLength={11}
-                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 placeholder="+63 912 345 6789"
                                 required
                             />
@@ -127,17 +127,17 @@ function AddCustomerModal({ isOpen, onClose }) {
 
                     {/* Credit Limit */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                             Credit Limit
                         </label>
                         <div className="relative">
-                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-white/50" />
                             <input
                                 type="text"
                                 name="credit_limit"
                                 value={formData.credit_limit}
                                 onChange={handleInputChange}
-                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 placeholder="0.00"
                                 autoComplete="off"
                             />
@@ -146,17 +146,17 @@ function AddCustomerModal({ isOpen, onClose }) {
 
                     {/* Remaining Balance */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                             Initial Balance
                         </label>
                         <div className="relative">
-                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-white/50" />
                             <input
                                 type="text"
                                 name="remaining_balance"
                                 value={formData.remaining_balance}
                                 onChange={handleInputChange}
-                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                className="w-full pl-10 text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                 placeholder="0.00"
                                 autoComplete="off"
                             />
@@ -168,7 +168,7 @@ function AddCustomerModal({ isOpen, onClose }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                         >
                             Cancel
                         </button>

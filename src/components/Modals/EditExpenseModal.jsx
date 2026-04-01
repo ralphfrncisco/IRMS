@@ -133,17 +133,17 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
-            <div className="flex flex-col h-full max-h-[80vh] md:h-auto md:max-h-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center overflow-y-auto p-2 overflow-x-hidden">
+            <div className="flex flex-col h-full max-h-[80vh] md:h-auto md:max-h-full bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
 
                 {/* Header */}
-                <div className="w-full flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <div className="w-full flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Expense Details</h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Record for Transaction {formValues.id}</p>
+                        <p className="text-xs text-slate-500 dark:text-white/50">Record for Transaction {formValues.id}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
-                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group">
+                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-slate-200 cursor-pointer"/>
                     </button>
                 </div>
 
@@ -159,49 +159,49 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                             {/* Left Column */}
                             <div className="space-y-5">
                                 <div className="flex flex-wrap items-center gap-3 mt-1">
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                                        <Hash className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] rounded-lg border border-slate-200 dark:border-white/5">
+                                        <Hash className="w-3.5 h-3.5 text-slate-400 dark:text-white/50 flex-shrink-0" />
                                         <span className="text-sm font-bold text-slate-700 dark:text-slate-200 tracking-wide">
                                             {formValues.id}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-lg">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 dark:bg-black/50 rounded-lg">
                                         <Calendar className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                        <span className="text-sm font-semibold text-slate-700 dark:text-white/90">
                                             {formatDateTimeShort(expenseData.created_at)}
                                         </span>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Expense Type</label>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Expense Type</label>
                                     <input type="text" name="expenseType" value={formValues.expenseType} onChange={handleInputChange}
-                                        className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                                        className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                                 </div>
 
                                 {isStockExpense && (
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier</label>
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Supplier</label>
                                         <input type="text" name="supplier" value={formValues.supplier} onChange={handleInputChange}
                                             placeholder="Enter supplier name"
-                                            className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                                            className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                                     </div>
                                 )}
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount</label>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Amount</label>
                                     <div className="relative">
-                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-white/50" />
                                         <input type="text" name="amount" value={formValues.amount} onChange={handleInputChange}
-                                            className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                                            className="w-full text-slate-700 dark:text-slate-200 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                                     </div>
                                 </div>
 
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Remarks</label>
                                     <textarea name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange}
-                                        className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none" />
+                                        className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none" />
                                 </div>
                             </div>
 
@@ -210,7 +210,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                 {/* ✅ Status toggle — Stock Expense only */}
                                 {isStockExpense ? (
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Delivery Status</label>
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-3">Delivery Status</label>
                                         <div className="flex gap-3">
                                             {['Just Ordered', 'Received'].map((option) => (
                                                 <button
@@ -222,7 +222,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                                             ? option === 'Received'
                                                                 ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-500'
                                                                 : 'border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-500'
-                                                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300'
+                                                            : 'border-slate-200 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-500 dark:text-white/50 hover:border-slate-300'
                                                     }`}
                                                 >
                                                     {option === 'Received' ? '✓ ' : '⏳ '}{option}
@@ -235,15 +235,15 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                     </div>
                                 ) : (
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Status</label>
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">Status</label>
                                         <span className="inline-flex items-center text-[10px] font-bold uppercase px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
                                             ✓ Paid
                                         </span>
                                     </div>
                                 )}
                                 <div className = "space-y-3">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Transaction Receipt</label>
-                                    <div className="relative aspect-[16/10] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center overflow-hidden group">
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70">Transaction Receipt</label>
+                                    <div className="relative aspect-[16/10] w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E] flex items-center justify-center overflow-hidden group">
                                         {receiptPreview ? (
                                             <>
                                                 <img src={receiptPreview} alt="Receipt" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
@@ -256,12 +256,12 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                             </>
                                         ) : (
                                             <div className="text-center p-4">
-                                                <ImageIcon className="w-10 h-10 mx-auto text-slate-400 mb-2 opacity-50" />
-                                                <p className="text-xs text-slate-500">No image uploaded</p>
+                                                <ImageIcon className="w-10 h-10 mx-auto text-slate-400 dark:text-white/50 mb-2 opacity-50" />
+                                                <p className="text-xs text-slate-500 dark:text-white/50">No image uploaded</p>
                                             </div>
                                         )}
                                     </div>
-                                    <p className="text-[10px] text-slate-400 truncate italic">Filename: {receiptFileName}</p>
+                                    <p className="text-[10px] text-slate-400 dark:text-white/50 truncate italic">Filename: {receiptFileName}</p>
                                 </div>
                             </div>
 
@@ -275,9 +275,9 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                     <Package className="w-5 h-5" />
                                     <h3 className="text-sm font-bold uppercase tracking-widest">Expense Allocation Breakdown</h3>
                                 </div>
-                                <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-x-auto shadow-sm">
+                                <div className="border border-slate-200 dark:border-white/5 rounded-xl overflow-x-auto shadow-sm">
                                     <table className="w-full text-left text-sm">
-                                        <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                                        <thead className="bg-slate-50 dark:bg-[#1E1E1E] text-slate-500 dark:text-white/50 font-bold uppercase text-[10px] tracking-wider">
                                             <tr>
                                                 <th className="px-4 py-3">Product Description</th>
                                                 <th className="px-4 py-3 text-center">Unit Price</th>
@@ -285,9 +285,9 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                                 <th className="px-4 py-3 text-center">Sub-total</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                                        <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-white/70">
                                             {stockItems.map((item) => (
-                                                <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                                <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-white/2 transition-colors">
                                                     <td className="px-4 py-3 font-medium">{item.product_name}</td>
                                                     <td className="px-4 py-3 text-center">₱ {formatCurrency(item.amount)}</td>
                                                     <td className="px-4 py-3 text-center">{item.quantity}</td>
@@ -295,8 +295,8 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                                                 </tr>
                                             ))}
                                             {/* Grand Total Row */}
-                                            <tr className="bg-blue-50/50 dark:bg-blue-900/10 font-bold border-t-1 border-slate-200 dark:border-slate-700">
-                                                <td colSpan="3" className="px-4 py-3 text-right text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Grand Total</td>
+                                            <tr className="bg-blue-50/50 dark:bg-white/2 font-bold border-t-1 border-slate-200 dark:border-white/5">
+                                                <td colSpan="3" className="px-4 py-3 text-right text-xs uppercase tracking-wider text-slate-500 dark:text-white/70">Grand Total</td>
                                                 <td className="px-4 py-3 text-center text-base text-blue-600 dark:text-blue-400">
                                                     ₱ {formatCurrency(stockItems.reduce((sum, item) => sum + (item.amount * item.quantity), 0))}
                                                 </td>
@@ -310,8 +310,8 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                 )}
 
                 {/* Footer */}
-                <div className="p-4 md:p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
-                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-colors cursor-pointer">Close</button>
+                <div className="p-4 md:p-6 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
+                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 transition-colors cursor-pointer">Close</button>
                     <button type="submit" form="expense-edit-form" className="px-6 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer">Save Changes</button>
                 </div>
             </div>

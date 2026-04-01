@@ -114,37 +114,39 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/60 z-[999] flex items-center justify-center p-4" onClick={onClose}>
-            <div className="flex flex-col h-auto md:max-h-[90vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
-                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 bg-black/60 z-[999] flex items-center justify-center p-4" onClick={onClose}>
+            <div className="flex flex-col h-auto md:max-h-[90vh] bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-white/10 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/10">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Create an Account</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
-                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group">
+                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-slate-200 cursor-pointer"/>
                     </button>
                 </div>
 
                 <form id="addAccountForm" onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto mb-6">
                     <div className="w-full space-y-2">
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Profile Image</label>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white/70">Profile Image</label>
                         <div
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
                             onClick={() => !loading && fileInputRef.current.click()}
                             className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 md:h-72 border-2 border-dashed rounded-2xl transition-all
-                                ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50'}
-                                ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                ${isDragging 
+                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                                    : 'border-slate-300 dark:border-white/20 hover:border-slate-400 dark:hover:border-blue-500/50 bg-slate-50 dark:bg-[#1E1E1E]'
+                                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" disabled={loading} />
                             {previewUrl ? (
                                 <img src={previewUrl} alt="Preview" className="w-full h-full object-contain rounded-xl p-2" />
                             ) : (
                                 <div className="flex flex-col items-center p-4">
-                                    <div className="p-4 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-3">
+                                    <div className="p-4 bg-white dark:bg-[#121212] rounded-full shadow-sm mb-3">
                                         <Upload className="w-6 h-6 text-blue-500" />
                                     </div>
                                     <p className="text-sm font-medium text-slate-700 dark:text-slate-200 text-center">Click to upload or drag and drop</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">PNG, JPG or WebP (Max 5MB)</p>
+                                    <p className="text-xs text-slate-500 dark:text-white/50 mt-1">PNG, JPG or WebP (Max 5MB)</p>
                                 </div>
                             )}
                         </div>
@@ -153,31 +155,31 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Full Name</label>
-                            <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Juan dela Cruz" className="w-full text-slate-700 text-sm dark:text-slate-200 px-3 py-2 rounded-lg border dark:bg-slate-800 border-slate-300 dark:border-slate-100/20 outline-none focus:border-blue-500" />
+                            <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Juan dela Cruz" className="w-full text-slate-700 text-sm dark:text-slate-200 px-3 py-2 rounded-lg border dark:bg-[#1E1E1E] border-slate-300 dark:border-slate-100/20 outline-none focus:border-blue-500" />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Email</label>
-                            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="juan@example.com" className="w-full text-slate-700 text-sm dark:text-slate-200 px-3 py-2 rounded-lg border dark:bg-slate-800 border-slate-300 dark:border-slate-100/20 outline-none focus:border-blue-500" />
+                            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="juan@example.com" className="w-full text-slate-700 text-sm dark:text-slate-200 px-3 py-2 rounded-lg border dark:bg-[#1E1E1E] border-slate-300 dark:border-slate-100/20 outline-none focus:border-blue-500" />
                         </div>
                         <div className="relative">
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Password</label>
-                            <div className="flex items-center px-3 py-1.5 rounded-lg border dark:bg-slate-800 border-slate-300 dark:border-slate-100/20">
-                                <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none" />
-                                <button type="button" onClick={togglePasswordVisibility} className="text-slate-500">{showPassword ? <Eye className="w-4 h-4" /> : <EyeClosed className="w-4 h-4" />}</button>
+                            <div className="flex items-center px-3 py-1.5 rounded-lg border dark:bg-[#1E1E1E] border-slate-300 dark:border-slate-100/20">
+                                <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="flex-1 bg-transparent text-slate-700 dark:text-white outline-none" />
+                                <button type="button" onClick={togglePasswordVisibility} className="text-slate-500 dark:text-white/50">{showPassword ? <Eye className="w-4 h-4" /> : <EyeClosed className="w-4 h-4" />}</button>
                             </div>
                         </div>
                         <div className="relative">
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Confirm Password</label>
-                            <div className="flex items-center px-3 py-1.5 rounded-lg border dark:bg-slate-800 border-slate-300 dark:border-slate-100/20">
-                                <input type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none" />
-                                <button type="button" onClick={toggleConfirmPasswordVisibility} className="text-slate-500">{showConfirmPassword ? <Eye className="w-4 h-4" /> : <EyeClosed className="w-4 h-4" />}</button>
+                            <div className="flex items-center px-3 py-1.5 rounded-lg border dark:bg-[#1E1E1E] border-slate-300 dark:border-slate-100/20">
+                                <input type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="flex-1 bg-transparent text-slate-700 dark:text-white outline-none" />
+                                <button type="button" onClick={toggleConfirmPasswordVisibility} className="text-slate-500 dark:text-white/50">{showConfirmPassword ? <Eye className="w-4 h-4" /> : <EyeClosed className="w-4 h-4" />}</button>
                             </div>
                         </div>
                     </div>
                 </form>
 
-                <div className="pt-5 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
-                    <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">Cancel</button>
+                <div className="pt-5 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3">
+                    <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-slate-600 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg">Cancel</button>
                     <button form="addAccountForm" type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold flex items-center">
                         {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</> : 'Create'}
                     </button>

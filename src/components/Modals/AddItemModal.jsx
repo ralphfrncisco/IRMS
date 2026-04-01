@@ -47,9 +47,9 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
         };
         return {
             name: 'text-slate-700 dark:text-slate-200',
-            meta: 'text-slate-500 dark:text-slate-400',
-            border: 'border-slate-100 dark:border-slate-800',
-            bg: 'bg-slate-50/50 dark:bg-slate-800/40'
+            meta: 'text-slate-500 dark:text-white/50',
+            border: 'border-slate-100 dark:border-white/10',
+            bg: 'bg-slate-50/50 dark:bg-[#1E1E1E]'
         };
     };
 
@@ -132,16 +132,16 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-[70] flex items-center justify-center overflow-y-auto">
             <div
-                className="max-h-screen flex flex-col bg-white dark:bg-slate-900 p-3 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg mx-4 border border-slate-200 dark:border-slate-800"
+                className="max-h-screen flex flex-col bg-white dark:bg-[#111] p-3 md:p-6 rounded-2xl shadow-2xl w-full max-w-lg mx-4 border border-slate-200 dark:border-white/10"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <h2 className="text-xl font-bold text-slate-800 dark:text-white">Add a Product Item</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
-                        <X className="w-5 h-5 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group">
+                        <X className="w-5 h-5 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-slate-200 cursor-pointer"/>
                     </button>
                 </div>
 
@@ -151,7 +151,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                     <input
                         type="text"
                         placeholder="Search items..."
-                        className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-white/10 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -196,7 +196,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                                             <button
                                                 type="button"
                                                 onClick={() => adjustQuantity(product.id, -1)}
-                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
+                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-white/10 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
                                             >
                                                 <Minus className="w-3 h-3" />
                                             </button>
@@ -205,12 +205,12 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                                                 value={selectedItems[product.id]?.quantity ?? 0}
                                                 onChange={(e) => handleQuantityInput(product.id, e.target.value)}
                                                 onBlur={() => handleQuantityBlur(product.id)}
-                                                className="w-10 text-center bg-white dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none border border-slate-200 dark:border-slate-600 rounded py-1 focus:ring-2 focus:ring-blue-500/50"
+                                                className="w-10 text-center bg-white dark:bg-[#1E1E1E] text-sm font-bold text-slate-700 dark:text-slate-200 outline-none border border-slate-200 dark:border-slate-600 rounded py-1 focus:ring-2 focus:ring-blue-500/50"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => adjustQuantity(product.id, 1)}
-                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
+                                                className="p-1 rounded-md bg-white dark:text-white dark:bg-white/10 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors shadow-sm"
                                             >
                                                 <Plus className="w-3 h-3" />
                                             </button>
@@ -220,7 +220,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                             })
                         ) : (
                             <div className="text-center py-10">
-                                <p className="text-slate-500 dark:text-slate-400 text-sm italic">
+                                <p className="text-slate-500 dark:text-white/50 text-sm italic">
                                     No products match "{searchTerm}"
                                 </p>
                             </div>
@@ -228,11 +228,11 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="pt-4 flex justify-end space-x-3 border-t border-slate-100 dark:border-slate-800">
+                    <div className="pt-4 flex justify-end space-x-3 border-t border-slate-100 dark:border-white/10">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                         >
                             Cancel
                         </button>

@@ -17,7 +17,7 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
     const getStockLabel = () => {
         if (maxQty <= 10) return { text: `${maxQty} available — Low Stock`, color: 'text-red-500 dark:text-red-400' };
         if (maxQty <= 20) return { text: `${maxQty} available — Limited Stock`, color: 'text-amber-500 dark:text-amber-400' };
-        return { text: `${maxQty} available`, color: 'text-slate-500 dark:text-slate-400' };
+        return { text: `${maxQty} available`, color: 'text-slate-500 dark:text-blue-500' };
     };
 
     const stockLabel = getStockLabel();
@@ -46,24 +46,24 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
     if (!isOpen || !item) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/60 z-[80] flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/60 z-[80] flex items-center justify-center">
             <div
-                className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 dark:border-slate-800"
+                className="bg-white dark:bg-[#111] p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 dark:border-white/10"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200 dark:border-white/10">
                     <h2 className="text-xl font-bold text-slate-800 dark:text-white">Edit Item Quantity</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all">
-                        <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all">
+                        <X className="w-5 h-5 text-slate-500 dark:text-white/50" />
                     </button>
                 </div>
 
                 {/* Product Info */}
                 <div className="mb-6">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                    <div className="p-4 bg-slate-50 dark:bg-[#1E1E1E] rounded-lg">
                         <h3 className="font-semibold text-slate-800 dark:text-white mb-1">{item.name}</h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                        <p className="text-sm text-slate-600 dark:text-white/50">
                             Unit Price: ₱{item.price.toLocaleString()}
                         </p>
                         {/* ✅ Stock availability label */}
@@ -76,11 +76,11 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
                 {/* Quantity Controls */}
                 <div className="mb-6">
                     <div className="flex items-center justify-between mb-3">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-white/70">
                             Quantity
                         </label>
                         {/* ✅ Selected vs max counter */}
-                        <span className="text-xs text-slate-400 dark:text-slate-500">
+                        <span className="text-xs text-slate-400 dark:text-white/60">
                             {editedQuantity} / {maxQty} units
                         </span>
                     </div>
@@ -89,16 +89,16 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
                             type="button"
                             onClick={handleDecrement}
                             disabled={editedQuantity <= 1}
-                            className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="p-3 rounded-lg bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-300 dark:border-white/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         >
-                            <Minus className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                            <Minus className="w-5 h-5 text-slate-700 dark:text-white/70" />
                         </button>
 
                         <input
                             type="number"
                             value={editedQuantity}
                             onChange={handleInputChange}
-                            className="w-24 text-center text-2xl font-bold text-slate-800 dark:text-white bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 no-spinners"
+                            className="w-24 text-center text-2xl font-bold text-slate-800 dark:text-white bg-white dark:bg-[#1E1E1E] border-2 border-slate-300 dark:border-white/20 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 no-spinners"
                             min="1"
                             max={maxQty}
                         />
@@ -107,9 +107,9 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
                             type="button"
                             onClick={handleIncrement}
                             disabled={editedQuantity >= maxQty}
-                            className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="p-3 rounded-lg bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-300 dark:border-white/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         >
-                            <Plus className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                            <Plus className="w-5 h-5 text-slate-700 dark:text-white/70" />
                         </button>
                     </div>
                 </div>
@@ -117,7 +117,7 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
                 {/* Total Display */}
                 <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Total:</span>
+                        <span className="text-sm font-medium text-slate-600 dark:text-white/50">Total:</span>
                         <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
                             ₱{(item.price * editedQuantity).toLocaleString()}
                         </span>
@@ -129,7 +129,7 @@ function EditItemModal({ isOpen, onClose, item, onSave }) {
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                        className="px-4 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                     >
                         Cancel
                     </button>

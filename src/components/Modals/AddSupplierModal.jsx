@@ -86,35 +86,35 @@ function AddSupplierModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-2 items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 flex py-2 items-center justify-center overflow-y-auto">
             <div 
-                className="flex flex-col h-auto max-h-[80vh] bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl mx-2 border border-slate-200 dark:border-slate-800" 
+                className="flex flex-col h-auto max-h-[80vh] bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl mx-2 border border-slate-200 dark:border-white/10" 
                 onClick={e => e.stopPropagation()}
             >
-                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Supplier</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
-                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group">
+                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-slate-200 cursor-pointer"/>
                     </button>
                 </div>
 
                 <form onSubmit={handleFormSubmit} id = "addSupplierForm" className="flex-grow overflow-y-auto space-y-9 md:pr-2 pb-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-85 md:max-w-full">
                         <div className="relative max-w-81 md:w-full">
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier Name</label>
-                            <input type="text" name="supplier" value={formValues.supplier} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Supplier Name</label>
+                            <input type="text" name="supplier" value={formValues.supplier} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
                         <div className="relative max-w-81 md:w-full">
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Contact Number</label>
-                            <input type="text" name="contactNumber" value={formValues.contactNumber} maxLength={11} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Contact Number</label>
+                            <input type="text" name="contactNumber" value={formValues.contactNumber} maxLength={11} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
                         <div className="md:max-w-full max-w-81 md:col-span-2">
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Address</label>
-                            <input type="text" name="address" autocomplete = "off" value={formValues.address} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Address</label>
+                            <input type="text" name="address" autocomplete = "off" value={formValues.address} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                         </div>
                         <div className="max-w-81 md:max-w-full md:col-span-2">
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
-                            <textarea name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"></textarea>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Remarks</label>
+                            <textarea name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"></textarea>
                         </div>
                     </div>
 
@@ -126,9 +126,9 @@ function AddSupplierModal({ isOpen, onClose }) {
                                 <span>Add Item</span>
                             </button>
                         </div>
-                        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10">
                             <table className="w-full">
-                                <thead className="bg-slate-100 dark:bg-slate-800">
+                                <thead className="bg-slate-100 dark:bg-[#1E1E1E]">
                                     <tr>
                                         <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
                                         <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Net Unit Price</th>
@@ -138,7 +138,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                                 <tbody>
                                     {purchaseItems.length > 0 ? (
                                         purchaseItems.map((item) => (
-                                            <tr key={item.id} className="border-b border-slate-200 dark:border-slate-800 text-center transition-colors">
+                                            <tr key={item.id} className="border-b border-slate-200 dark:border-white/10 text-center transition-colors">
                                                 <td className="p-4 text-center text-sm text-slate-700 dark:text-slate-200">{item.name}</td>
                                                 <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.price.toLocaleString()}</td>
                                                 <td className="p-4 text-center">
@@ -150,7 +150,7 @@ function AddSupplierModal({ isOpen, onClose }) {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="3" className="p-8 text-center text-sm text-slate-400 italic">No products added yet.</td>
+                                            <td colSpan="3" className="p-8 text-center text-sm text-slate-400 dark:text-white/50 italic">No products added yet.</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -158,8 +158,8 @@ function AddSupplierModal({ isOpen, onClose }) {
                         </div>
                     </div>
                 </form>
-                    <div className="mt-1 pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0 pr-5 md:pr-0">
-                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    <div className="mt-1 pt-6 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0 pr-5 md:pr-0">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                             Cancel
                         </button>
                         <button 

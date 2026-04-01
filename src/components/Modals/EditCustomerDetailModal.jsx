@@ -109,7 +109,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
             case "Fully Paid":   return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400";
             case "With Balance": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400";
             case "Unpaid":       return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400";
-            default:             return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+            default:             return "bg-slate-100 text-slate-700 dark:bg-[#1E1E1E] dark:text-white/50";
         }
     };
 
@@ -119,16 +119,16 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
 
     return (
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-7xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[95vh]">
+            <div className="bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-7xl border border-slate-200 dark:border-white/10 flex flex-col max-h-[95vh]">
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <div>
                         <h2 className="text-xl font-bold text-slate-800 dark:text-white">Customer Details</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">{customerData.full_name}</p>
+                        <p className="text-sm text-slate-500 dark:text-white/50">{customerData.full_name}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all">
-                        <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all">
+                        <X className="w-5 h-5 text-slate-500 dark:text-white/50" />
                     </button>
                 </div>
 
@@ -136,20 +136,20 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                 <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
 
                     {/* LEFT PANEL — Edit Form */}
-                    <div className="w-full md:w-85 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
+                    <div className="w-full md:w-85 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10 overflow-y-auto">
                         <form onSubmit={handleSubmit} className="p-6 space-y-4 h-full flex flex-col">
 
                             {/* Full Name */}
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Full Name</label>
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">Full Name</label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
                                     <input
                                         type="text"
                                         name="full_name"
                                         value={formData.full_name}
                                         onChange={handleInputChange}
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         required
                                     />
                                 </div>
@@ -157,16 +157,16 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
 
                             {/* Contact Number */}
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Contact Number</label>
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">Contact Number</label>
                                 <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
                                     <input
                                         type="tel"
                                         name="contact_number"
                                         maxLength={11}
                                         value={formData.contact_number}
                                         onChange={handleInputChange}
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                             </div>
@@ -175,13 +175,13 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                             <div>
                                 <label className="block text-sm font-semibold text-red-600 dark:text-red-500 mb-2">Remaining Balance</label>
                                 <div className="relative">
-                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
                                     <input
                                         type="text"
                                         name="remaining_balance"
                                         value={formData.remaining_balance}
                                         onChange={handleInputChange}
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         autoComplete="off"
                                     />
                                 </div>
@@ -191,13 +191,13 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                             <div>
                                 <label className="block text-sm font-semibold text-orange-600 dark:text-orange-500 mb-2">Credit Limit</label>
                                 <div className="relative">
-                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
                                     <input
                                         type="text"
                                         name="credit_limit"
                                         value={formData.credit_limit}
                                         onChange={handleInputChange}
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         autoComplete="off"
                                     />
                                 </div>
@@ -205,7 +205,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
 
                             {/* ✅ Payment Terms Date */}
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-2">
                                     Payment Terms Date
                                     {overdue && (
                                         <span className="ml-2 text-[10px] font-bold text-red-500 uppercase tracking-wide">
@@ -219,11 +219,11 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                             ? 'border-red-400 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
                                             : formData.payment_terms_date
                                                 ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300'
-                                                : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400'
+                                                : 'border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-400'
                                     }`}>
                                         <div className="flex items-center gap-2">
-                                            <Calendar className={`w-4 h-4 flex-shrink-0 ${overdue ? 'text-red-500' : 'text-slate-400'}`} />
-                                            <span className="truncate">
+                                            <Calendar className={`w-4 h-4 flex-shrink-0 ${overdue ? 'text-red-500' : 'text-slate-400 dark:text-white/70'}`} />
+                                            <span className="truncate dark:text-white/50">
                                                 {formData.payment_terms_date
                                                     ? formatDateDisplay(formData.payment_terms_date)
                                                     : 'No due date set'}
@@ -234,7 +234,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                                 type="button"
                                                 onMouseDown={e => e.preventDefault()}
                                                 onClick={() => setFormData(prev => ({ ...prev, payment_terms_date: '' }))}
-                                                className="pointer-events-auto p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                                                className="pointer-events-auto p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
                                             >
                                                 <X className="w-3.5 h-3.5 text-slate-400" />
                                             </button>
@@ -248,7 +248,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
                                 </div>
-                                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                                <p className="text-[10px] text-slate-400 dark:text-white/50 mt-1">
                                     If set and overdue with no payment, new sales will be blocked for this customer.
                                 </p>
                             </div>
@@ -258,7 +258,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                                 >
                                     Close
                                 </button>
@@ -277,9 +277,9 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
 
                     {/* RIGHT PANEL — Order History */}
                     <div className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
-                            <p className="text-md font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order History</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
+                            <p className="text-md font-semibold uppercase tracking-wider text-slate-500 dark:text-white/80">Order History</p>
+                            <p className="text-xs text-slate-500 dark:text-white/50 mt-0.5">
                                 {ordersLoading ? 'Loading...' : `${orders.length} order${orders.length !== 1 ? 's' : ''} found`}
                             </p>
                         </div>
@@ -296,23 +296,23 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                             ) : (
                                 <table className="w-full text-left border-separate border-spacing-0">
                                     <thead>
-                                        <tr className="sticky top-0 bg-slate-50 dark:bg-slate-800 z-10">
-                                            <th className="p-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Order ID</th>
-                                            <th className="p-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Items</th>
-                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Total</th>
-                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Paid</th>
-                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Balance</th>
-                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Date</th>
-                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
+                                        <tr className="sticky top-0 bg-slate-50 dark:bg-[#1E1E1E] z-10">
+                                            <th className="p-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/50 whitespace-nowrap">Order ID</th>
+                                            <th className="p-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/50">Items</th>
+                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/50 whitespace-nowrap">Total</th>
+                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/50 whitespace-nowrap">Paid</th>
+                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/50 whitespace-nowrap">Balance</th>
+                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/50 whitespace-nowrap">Date</th>
+                                            <th className="p-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/50">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {orders.map((order) => (
-                                            <tr key={order.order_id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                            <tr key={order.order_id} className="hover:bg-slate-50 dark:hover:bg-white/2 transition-colors">
                                                 <td className="p-3 text-sm font-medium text-blue-600 dark:text-blue-400 whitespace-nowrap">
                                                     {`ORD-${order.order_id.toString().padStart(4, '0')}`}
                                                 </td>
-                                                <td className="p-3 text-sm text-slate-700 dark:text-slate-300">
+                                                <td className="p-3 text-sm text-slate-700 dark:text-white/70">
                                                     <p className="max-w-[180px] truncate">{order.purchased_items}</p>
                                                 </td>
                                                 <td className="p-3 text-center text-sm font-semibold text-slate-700 dark:text-white whitespace-nowrap">
@@ -324,7 +324,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                                 <td className="p-3 text-center text-sm font-semibold text-red-500 whitespace-nowrap">
                                                     {formatCurrency(order.remaining_balance)}
                                                 </td>
-                                                <td className="p-3 text-center text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                <td className="p-3 text-center text-sm text-slate-600 dark:text-white/50 whitespace-nowrap">
                                                     {formatDateTimeShort(order.created_at)}
                                                 </td>
                                                 <td className="p-3 text-center">
