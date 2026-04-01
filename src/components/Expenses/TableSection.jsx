@@ -140,8 +140,8 @@ function TableSection() {
             case "Stock Expense":   return "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400";
             case "Electrical Bill": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400";
             case "Water Bill":      return "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400";
-            case "Miscellaneous":   return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
-            default:                return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+            case "Miscellaneous":   return "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-white/70";
+            default:                return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white/70";
         }
     };
 
@@ -151,7 +151,7 @@ function TableSection() {
             case 'Just Ordered': return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400';
             case 'Received':     return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400';
             case 'Paid':         return 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400';
-            default:             return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400';
+            default:             return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white/70';
         }
     };
 
@@ -161,7 +161,7 @@ function TableSection() {
                 <div className="flex items-center justify-between w-full py-2">
                     <div>
                         <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Expenses</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-slate-500 dark:text-white/70">
                             {loading ? 'Loading...' : `Total: ${filteredExpenses.length} entries`}
                         </p>
                     </div>
@@ -169,7 +169,7 @@ function TableSection() {
                     <div className="flex items-center gap-2 relative" ref={filterRef}>
                         <div className="relative hidden xl:block w-72">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-slate-400" />
+                                <Search className="h-4 w-4 text-slate-400 dark:text-white/60" />
                             </div>
                             <input type="text" placeholder="Search by type, status, amount..."
                                 className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-[#111] text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
@@ -214,7 +214,7 @@ function TableSection() {
                 {/* Mobile search */}
                 <div className="relative flex xl:hidden">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-4 w-4 text-slate-400" />
+                        <Search className="h-4 w-4 text-slate-400 dark:text-white/60" />
                     </div>
                     <input type="text" placeholder="Search by type, status, amount..."
                         className="block w-full pl-9 pr-8 py-2 text-sm border border-slate-200 dark:border-white/10 rounded-xl bg-white dark:bg-[#090909] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/80 transition-all"
@@ -231,14 +231,14 @@ function TableSection() {
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-[#191919]">
-                            <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ID</th>
-                            {visibleColumns['RECORDED BY'] && <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Recorded By</th>}
-                            {visibleColumns['EXPENSE TYPE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>}
-                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
-                            {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
-                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
-                            {visibleColumns['REMARKS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>}
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
+                            <th className="p-4 md:pl-7 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">ID</th>
+                            {visibleColumns['RECORDED BY'] && <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Recorded By</th>}
+                            {visibleColumns['EXPENSE TYPE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Type</th>}
+                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Amount</th>}
+                            {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Date</th>}
+                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Status</th>}
+                            {visibleColumns['REMARKS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Remarks</th>}
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Actions</th>
                         </tr>
                     </thead>
 
@@ -252,7 +252,7 @@ function TableSection() {
                                         EXP-{item.expense_id.toString().padStart(4, '0')}
                                     </td>
                                     {visibleColumns['RECORDED BY'] && (
-                                        <td className="p-4 text-center text-sm font-medium text-slate-700 dark:text-slate-300">{item.recorded_by || 'N/A'}</td>
+                                        <td className="p-4 text-center text-sm font-medium text-slate-700 dark:text-white/90">{item.recorded_by || 'N/A'}</td>
                                     )}
                                     {visibleColumns['EXPENSE TYPE'] && (
                                         <td className="p-4 text-center">
@@ -262,10 +262,10 @@ function TableSection() {
                                         </td>
                                     )}
                                     {visibleColumns['AMOUNT'] && (
-                                        <td className="p-4 text-center text-sm font-semibold">{formatCurrency(item.amount)}</td>
+                                        <td className="p-4 text-center text-sm font-semibold text-emerald-500">{formatCurrency(item.amount)}</td>
                                     )}
                                     {visibleColumns['DATE'] && (
-                                        <td className="p-4 text-center text-sm">{formatDisplayDateTime(item.created_at)}</td>
+                                        <td className="p-4 text-center text-sm text-slate-600 dark:text-white/70">{formatDisplayDateTime(item.created_at)}</td>
                                     )}
                                     {/* ✅ Colored status badge instead of plain italic text */}
                                     {visibleColumns['STATUS'] && (
@@ -276,7 +276,7 @@ function TableSection() {
                                         </td>
                                     )}
                                     {visibleColumns['REMARKS'] && (
-                                        <td className="p-4 text-center text-sm italic text-slate-500 dark:text-slate-400">{item.remarks || 'N/A'}</td>
+                                        <td className="p-4 text-center text-sm italic text-slate-500 dark:text-white/70">{item.remarks || 'N/A'}</td>
                                     )}
                                     <td className="p-4 text-center">
                                         <button onClick={() => handleViewExpense(item)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
@@ -287,7 +287,7 @@ function TableSection() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7" className="p-10 text-center text-slate-500 dark:text-slate-400">
+                                <td colSpan="7" className="p-10 text-center text-slate-500 dark:text-white/70">
                                     <div className="flex flex-col items-center justify-center py-4">
                                         <p className="text-lg font-medium">No records found</p>
                                         <p className="text-sm">Try adjusting your filters or add an expense.</p>

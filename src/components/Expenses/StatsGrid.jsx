@@ -46,7 +46,7 @@ function StatsGrid() {
                 >
                     <div className="flex items-start justify-between">
                         <div className="flex-1 ">
-                            <p className="text-sm font-medium text-slate-600 dark:text-slate-400 tracking-tight">
+                            <p className="text-sm font-normal text-slate-600 dark:text-white/70" id="grid-title">
                                 {item.title}
                             </p>
                             <h3 className="text-lg lg:text-3xl font-bold mt-1 text-slate-900/90 dark:text-white">

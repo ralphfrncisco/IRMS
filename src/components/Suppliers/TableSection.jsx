@@ -19,7 +19,7 @@ function TableSection() {
     
     const iconProps = { 
       size: 16, 
-      className: darkMode ? "text-slate-400" : "text-slate-500" 
+      className: darkMode ? "text-slate-400" : "text-white/50" 
     };
 
     // --- UNIFIED STATE MANAGEMENT ---
@@ -127,7 +127,7 @@ function TableSection() {
                 <div className="flex items-center justify-between w-full py-2">
                     <div className="space-y-1">
                         <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Suppliers List</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-slate-500 dark:text-white/60">
                             {loading ? 'Loading...' : `Total: ${filteredSuppliers.length} entries`}
                         </p>
                     </div>
@@ -170,11 +170,11 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-[#191919]">
-                            <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Supplier</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Address</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
+                            <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/60">Supplier</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/60">Contact Number</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/60">Address</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/60">Remarks</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/60">Actions</th>
                         </tr>
                     </thead>
 
@@ -182,17 +182,17 @@ function TableSection() {
                         {loading ? (
                             <tr><td colSpan="5" className="p-10 text-center text-slate-400">Loading suppliers...</td></tr>
                         ) : filteredSuppliers.map((supplier) => (
-                            <tr key={supplier.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
+                            <tr key={supplier.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/2 transition-colors group">
                                 <td className="p-4 md:pl-7 text-sm font-semibold text-blue-500 dark:text-blue-400">
                                     {supplier.supplierName}
                                 </td>
-                                <td className="p-4 text-center text-sm">
+                                <td className="p-4 text-center text-sm dark:text-white/90">
                                     {supplier.contactNumber}
                                 </td>
-                                <td className="p-4 text-center text-sm font-normal max-w-xs truncate">
+                                <td className="p-4 text-center text-sm font-normal max-w-xs truncate dark:text-white/80">
                                     {supplier.address}
                                 </td>
-                                <td className="p-4 text-center text-sm font-normal italic text-slate-400">
+                                <td className="p-4 text-center text-sm font-normal italic text-slate-400 dark:text-white/70">
                                     {supplier.remarks}
                                 </td>
                                 <td className="p-4 text-center">
@@ -222,7 +222,7 @@ function TableSection() {
                 {/* Empty State Handler */}
                 {!loading && filteredSuppliers.length === 0 && (
                     <div className="py-20 text-center">
-                        <p className="text-slate-500 dark:text-slate-400">No records found.</p>
+                        <p className="text-slate-500 dark:text-white/70">No records found.</p>
                     </div>
                 )}
             </div>

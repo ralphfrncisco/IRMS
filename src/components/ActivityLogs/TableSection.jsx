@@ -70,7 +70,7 @@ function TableSection() {
                 <div className="flex items-center justify-between w-full py-2">
                     <div className="space-y-1">
                         <h3 className="text-xl font-bold text-slate-800 dark:text-white">Activity Records</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Records of all the activity across the app</p>
+                        <p className="text-sm text-slate-500 dark:text-white/60">Records of all the activity across the app</p>
                     </div>
                 </div>
             </div>
@@ -79,10 +79,10 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-[#191919]">
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Activity</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">User</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Description</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Time</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Activity</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">User</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Description</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Time</th>
                         </tr>
                     </thead>
 
@@ -98,10 +98,10 @@ function TableSection() {
                         ) : (
                             logs.map((activity) => (
                                 <tr key={activity.db_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                    <td className="p-4 text-center text-sm font-semibold text-blue-500 dark:text-blue-400">{activity.activity}</td>
-                                    <td className="p-4 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">{activity.user}</td>
-                                    <td className="p-4 text-center text-sm">{activity.description}</td>
-                                    <td className="p-4 text-center text-sm font-normal">
+                                    <td className="p-4 text-center text-sm font-semibold text-blue-500 dark:text-blue/50">{activity.activity}</td>
+                                    <td className="p-4 text-center text-sm font-medium text-slate-500 dark:text-white/80">{activity.user}</td>
+                                    <td className="p-4 text-center text-sm dark:text-white/70 italic">{activity.description}</td>
+                                    <td className="p-4 text-center text-sm font-normal dark:text-white">
                                         {formatDateTime(activity.datetime || activity.created_at)}
                                     </td>
                                 </tr>

@@ -142,7 +142,7 @@ function TableSection() {
                         <div className = "flex items-center justify-between w-full">
                             <div>
                                 <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">Customer List</h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                <p className="text-sm text-slate-500 dark:text-white/60">
                                     {loading ? 'Loading...' : `Total: ${filteredCustomers.length} entries`}
                                 </p>
                             </div>
@@ -205,12 +205,12 @@ function TableSection() {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50 dark:bg-[#191919]">
-                            <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Name</th>
-                            <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Number</th>
-                            <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Address</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Balance</th>
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Credit Limit</th>  
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
+                            <th className="p-4 md:pl-6 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Name</th>
+                            <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Contact Number</th>
+                            <th className="p-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Address</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Balance</th>
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Credit Limit</th>  
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Actions</th>
                         </tr>
                     </thead>
 
@@ -222,11 +222,11 @@ function TableSection() {
                                 <td className="p-4 md:pl-7 text-sm font-semibold text-blue-500 dark:text-blue-400">
                                     {customer.full_name}
                                 </td>
-                                <td className="p-4 text-left text-sm">
+                                <td className="p-4 text-left text-sm dark:text-white/90">
                                     {customer.contact_number}
                                 </td>
                                 <td className="p-4 text-left text-sm">
-                                    <span className={!customer.address ? "text-slate-400 italic" : ""}>
+                                    <span className={!customer.address ? "text-slate-400 dark:text-white/50 italic" : ""}>
                                         {customer.address || 'No data available'}
                                     </span>
                                 </td>
@@ -263,7 +263,7 @@ function TableSection() {
                 {/* Empty State Handler */}
                 {!loading && filteredCustomers.length === 0 && (
                     <div className="py-20 text-center">
-                        <p className="text-slate-500 dark:text-slate-400">No customers found.</p>
+                        <p className="text-slate-500 dark:text-white/70">No customers found.</p>
                     </div>
                 )}
             </div>

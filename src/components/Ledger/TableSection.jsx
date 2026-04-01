@@ -140,7 +140,7 @@ function TableSection() {
                     <div className="flex items-center justify-between w-full py-2">
                         <div>
                             <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Salary Ledger</h3>
-                            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            <p className="text-xs md:text-sm text-slate-500 dark:text-white/60 mt-1">
                                 {isLoading ? 'Loading...' : `Total: ${filteredSalary.length} entries`}
                             </p>
                         </div>
@@ -149,7 +149,7 @@ function TableSection() {
                             {/* Desktop search */}
                             <div className="relative hidden xl:block w-72">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Search className="h-4 w-4 text-slate-400" />
+                                    <Search className="h-4 w-4 text-slate-400 dark:text-white/60" />
                                 </div>
                                 <input
                                     type="text"
@@ -201,7 +201,7 @@ function TableSection() {
                     {/* Mobile search */}
                     <div className="relative flex xl:hidden">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-4 w-4 text-slate-400" />
+                            <Search className="h-4 w-4 text-slate-400 dark:text-white/60" />
                         </div>
                         <input
                             type="text"
@@ -225,9 +225,9 @@ function TableSection() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50 dark:bg-[#191919]">
-                                {visibleColumns['EMPLOYEE'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Employee Name</th>}
-                                {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</th>}
-                                {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
+                                {visibleColumns['EMPLOYEE'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Employee Name</th>}
+                                {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Amount</th>}
+                                {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Date</th>}
                             </tr>
                         </thead>
 
@@ -261,7 +261,7 @@ function TableSection() {
                                             </td>
                                         )}
                                         {visibleColumns['DATE'] && (
-                                            <td className="p-4 text-center text-sm">{formatDate(entry.date)}</td>
+                                            <td className="p-4 text-center text-sm dark:text-white/80">{formatDate(entry.date)}</td>
                                         )}
                                     </tr>
                                 ))

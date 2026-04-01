@@ -50,7 +50,7 @@ export default function TableSection() {
     
     const iconProps = { 
         size: 16, 
-        className: darkMode ? "text-slate-400" : "text-slate-500" 
+        className: darkMode ? "text-slate-400" : "text-white/50" 
     };
 
     const [visibleColumns, setVisibleColumns] = useState({
@@ -185,7 +185,7 @@ export default function TableSection() {
             case "With Balance": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400";
             case "Unpaid":       return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400";
             case "Fully Paid":   return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400";
-            default:             return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+            default:             return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white/70";
         }
     };
 
@@ -195,7 +195,7 @@ export default function TableSection() {
                 <div className="flex items-center justify-between w-full py-2">
                     <div>
                         <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Outstanding Accounts</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-slate-500 dark:text-white/60">
                             {loading ? 'Loading...' : `Total: ${filteredOrders.length} entries`}
                         </p>
                     </div>
@@ -204,7 +204,7 @@ export default function TableSection() {
                         {/* Desktop search */}
                         <div className="relative hidden xl:block w-72">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-slate-400" />
+                                <Search className="h-4 w-4 text-slate-400 dark:text-white/60" />
                             </div>
                             <input
                                 type="text"
@@ -253,7 +253,7 @@ export default function TableSection() {
                 {/* Mobile search */}
                 <div className="relative flex xl:hidden">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-4 w-4 text-slate-400" />
+                        <Search className="h-4 w-4 text-slate-400 dark:text-white/60" />
                     </div>
                     <input
                         type="text"
@@ -277,13 +277,13 @@ export default function TableSection() {
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-[#191919]">
-                            {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>}
-                            {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
-                            {visibleColumns['PURCHASED ITEMS'] && <th className="w-[80px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
-                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remaining Balance</th>}
-                            {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
-                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
-                            {visibleColumns['ACTIONS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>}
+                            {visibleColumns['ORDER ID'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Order ID</th>}
+                            {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Customer</th>}
+                            {visibleColumns['PURCHASED ITEMS'] && <th className="w-[80px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Purchased Items</th>}
+                            {visibleColumns['AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Remaining Balance</th>}
+                            {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Date</th>}
+                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Status</th>}
+                            {visibleColumns['ACTIONS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Actions</th>}
                         </tr>
                     </thead>
 
@@ -307,10 +307,10 @@ export default function TableSection() {
                                             {`ORD-${order.order_id?.toString().padStart(4, '0')}`}
                                         </td>
                                     )}
-                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
+                                    {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm dark:text-white/80">{order.customer_full_name}</td>}
                                     {visibleColumns['PURCHASED ITEMS'] && (
                                         <td className="p-4 text-sm">
-                                            <p className="w-full max-w-[100px] lg:max-w-[200px] xl:max-w-[400px] truncate">{order.purchased_items}</p>
+                                            <p className="w-full max-w-[100px] lg:max-w-[200px] xl:max-w-[400px] truncate dark:text-white/80">{order.purchased_items}</p>
                                         </td>
                                     )}
                                     {visibleColumns['AMOUNT'] && (
@@ -319,7 +319,7 @@ export default function TableSection() {
                                         </td>
                                     )}
                                     {visibleColumns['DATE'] && (
-                                        <td className="p-4 text-center text-sm">{formatDisplayDateTime(order.created_at)}</td>
+                                        <td className="p-4 text-center text-sm dark:text-white/80">{formatDisplayDateTime(order.created_at)}</td>
                                     )}
                                     {visibleColumns['STATUS'] && (
                                         <td className="p-4 text-center">
