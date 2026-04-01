@@ -148,7 +148,7 @@ function StatsGrid() {
                 {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="p-6 py-6 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
                         <div className="flex items-center justify-center h-20">
-                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                            <Loader2 className="w-8 h-8 animate-spin text-slate-400 dark:text-blue-500/80" />
                         </div>
                     </div>
                 ))}
@@ -165,7 +165,7 @@ function StatsGrid() {
                 >
                     <div className="flex md:flex-col lg:flex-row items-start justify-between">
                         <div className="flex-1 order-1 md:order-2 lg:order-1 mt-0 md:mt-2 lg:mt-0">
-                            <p className="text-md font-medium text-slate-600 dark:text-slate-400">
+                            <p className="text-sm font-medium text-slate-600 dark:text-white/70" id = "grid-title">
                                 {item.title}
                             </p>
                             <h3 className="text-2xl lg:text-3xl xl:text-xl 2xl:text-3xl font-bold mt-2 text-slate-900 dark:text-white truncate" title={item.value}>

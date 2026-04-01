@@ -288,7 +288,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                           ${isCollapsed ? 'justify-center' : 'justify-start'}
                           ${isOpen || isChildActive
                             ? 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white'
-                            : 'text-slate-600/90 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10'
+                            : 'text-slate-600/90 dark:text-white/65 hover:bg-slate-100 dark:hover:bg-white/10'
                           }`}
                       >
                         <span className="relative inline-flex">

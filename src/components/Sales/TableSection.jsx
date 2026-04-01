@@ -191,7 +191,7 @@ function TableSection() {
                     <div className="flex items-center justify-between w-full py-2">
                         <div>
                             <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Recent Sales</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <p className="text-sm text-slate-500 dark:text-white/60">
                                 {loading ? 'Loading...' : `Total: ${filteredOrders.length} entries`}
                             </p>
                         </div>
@@ -201,7 +201,7 @@ function TableSection() {
                             {/* Desktop search — inlined to prevent remount focus loss */}
                             <div className="relative hidden xl:block w-72">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Search className="h-4 w-4 text-slate-400" />
+                                    <Search className="h-4 w-4 text-slate-400 dark:text-white/60" />
                                 </div>
                                 <input
                                     type="text"
@@ -245,7 +245,7 @@ function TableSection() {
                                 </div>
                             )}
 
-                            <button onClick={() => setIsModalOpen(true)} className="block cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                            <button onClick={() => setIsModalOpen(true)} className="block cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-600 transition-all">
                                 <Plus className="w-4 h-4" />
                                 <span className="text-sm font-medium">Add <span className="hidden md:inline">Purchase</span></span>
                             </button>
@@ -280,14 +280,14 @@ function TableSection() {
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-[#191919]">
-                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Order ID</th>
-                            {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Customer</th>}
-                            {visibleColumns['PURCHASED ITEMS'] && <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Purchased Items</th>}
-                            {visibleColumns['PAID AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Paid Amount</th>}
-                            {visibleColumns['TOTAL'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total</th>}
-                            {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date</th>}
-                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>}
-                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
+                            <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Order ID</th>
+                            {visibleColumns['CUSTOMER'] && <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Customer</th>}
+                            {visibleColumns['PURCHASED ITEMS'] && <th className="w-[100px] p-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Purchased Items</th>}
+                            {visibleColumns['PAID AMOUNT'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Paid Amount</th>}
+                            {visibleColumns['TOTAL'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Total</th>}
+                            {visibleColumns['DATE'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Date</th>}
+                            {visibleColumns['STATUS'] && <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Status</th>}
+                            <th className="p-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70">Actions</th>
                         </tr>
                     </thead>
 
@@ -308,11 +308,11 @@ function TableSection() {
                                 <td className="p-4 text-sm font-medium text-blue-600 dark:text-blue-500">
                                     {`ORD-${order.order_id.toString().padStart(4, '0')}`}
                                 </td>
-                                {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm">{order.customer_full_name}</td>}
-                                {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className="w-[200px] lg:w-full md:max-w-[400px] truncate">{order.purchased_items}</p></td>}
+                                {visibleColumns['CUSTOMER'] && <td className="p-4 text-sm dark:text-white/80">{order.customer_full_name}</td>}
+                                {visibleColumns['PURCHASED ITEMS'] && <td className="p-4 text-sm"><p className="w-[200px] lg:w-full md:max-w-[400px] truncate dark:text-white/80">{order.purchased_items}</p></td>}
                                 {visibleColumns['PAID AMOUNT'] && <td className="p-4 text-center text-sm font-semibold text-emerald-700 dark:text-emerald-500">{formatCurrency(order.paid_amount)}</td>}
-                                {visibleColumns['TOTAL'] && <td className="p-4 text-center text-sm font-semibold text-blue-700 dark:text-blue-500">{formatCurrency(order.total_amount)}</td>}
-                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm">{formatDisplayDateTime(order.created_at)}</td>}
+                                {visibleColumns['TOTAL'] && <td className="p-4 text-center text-sm font-semibold text-blue-700 dark:text-white">{formatCurrency(order.total_amount)}</td>}
+                                {visibleColumns['DATE'] && <td className="p-4 text-center text-sm dark:text-white/80">{formatDisplayDateTime(order.created_at)}</td>}
                                 {visibleColumns['STATUS'] && (
                                     <td className="p-4 text-center">
                                         <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusColor(order.status)}`}>
