@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle, CheckCircle, UserPlus, Phone } from 'lucide-react';
+import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle, CheckCircle, UserPlus, Phone, ShoppingCart } from 'lucide-react';
 import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
@@ -30,7 +30,7 @@ function OverpaymentModal({ isOpen, onConfirm, onDecline, extraAmount, customerN
                 <div className="flex gap-3 pt-2">
                     <button
                         onClick={onDecline}
-                        className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                     >
                         No, skip it
                     </button>
@@ -529,24 +529,24 @@ function AddPurchaseModal({ isOpen, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex py-4 items-center justify-center">
-            <div className="flex flex-col h-full lg:max-h-[100vh] 2xl:max-h-[110vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div className="w-full flex items-center justify-between px-4 md:px-6 pt-4 md:pt-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 mb-0">
-                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Purchase</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all group">
-                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 cursor-pointer"/>
+        <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
+            <div className="flex flex-col h-full lg:max-h-[100vh] 2xl:max-h-[110vh] bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden">
+                <div className="w-full flex items-center justify-between px-4 md:px-6 pt-4 md:pt-6 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0 mb-0">
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><ShoppingCart />New Purchase</h2>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group">
+                        <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-white/70 cursor-pointer"/>
                     </button>
                 </div>
 
                 <form id="purchaseForm" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto space-y-8 custom-scrollbar px-4 md:px-6 py-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div>
-                            <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">PO No.</label>
-                            <input type="text" id="PONumber" name="PONumber" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none" />
+                            <label htmlFor="PONumber" className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">PO No.</label>
+                            <input type="text" id="PONumber" name="PONumber" value={formValues.PONumber} readOnly className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed outline-none" />
                         </div>
 
                         <div className="relative">
-                            <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Name</label>
+                            <label htmlFor="CustomerName" className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Customer Name</label>
                             <input
                                 type="text"
                                 id="CustomerName"
@@ -557,11 +557,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
                                 placeholder={loadingCustomers ? 'Loading customers...' : 'Select a customer'}
                                 autoComplete="off"
-                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                             />
 
                             {isDropdownOpen && filteredCustomers.length > 0 && (
-                                <ul onMouseDown={e => e.preventDefault()} className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
+                                <ul onMouseDown={e => e.preventDefault()} className="absolute z-30 w-full mt-1 bg-white dark:bg-[#1E1E1E] border border-slate-200 dark:border-white/5 rounded-xl shadow-xl max-h-60 overflow-y-auto py-2 custom-scrollbar">
                                     {filteredCustomers.map((customer) => (
                                         <li
                                             key={customer.customer_id}
@@ -586,7 +586,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                             )}
 
                             {isDropdownOpen && formValues.customer && filteredCustomers.length === 0 && !loadingCustomers && (
-                                <div onMouseDown={e => e.preventDefault()} className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50">
+                                <div onMouseDown={e => e.preventDefault()} className="absolute z-30 w-full mt-2 bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/5 rounded-xl shadow-xl z-50">
                                     {!showNewCustomerForm ? (
                                         <div className="p-3">
                                             <p className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3">
@@ -605,13 +605,13 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                         <div className="p-4 space-y-3">
                                             <div className="flex items-center justify-between mb-1">
                                                 <p className="text-sm font-bold text-slate-700 dark:text-white">New Customer</p>
-                                                <button type="button" onClick={() => setShowNewCustomerForm(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
-                                                    <X className="w-3.5 h-3.5 text-slate-500" />
+                                                <button type="button" onClick={() => setShowNewCustomerForm(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg">
+                                                    <X className="w-3.5 h-3.5 text-slate-500 dark:text-white/50" />
                                                 </button>
                                             </div>
-                                            <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
-                                                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{formValues.customer}</p>
-                                                <p className="text-[10px] text-slate-400 mt-0.5">Credit limit: ₱20,000 (default)</p>
+                                            <div className="p-2.5 bg-slate-50 dark:bg-[#111] dark:border-white/10 rounded-lg border border-slate-200">
+                                                <p className="text-md font-semibold text-slate-700 dark:text-slate-200 truncate">{formValues.customer}</p>
+                                                <p className="text-[13px] text-white/50 mt-0.5">Credit limit: ₱20,000 (default)</p>
                                             </div>
                                             {/* Contact number */}
                                             <div className="relative">
@@ -623,7 +623,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                     onChange={(e) => setNewCustomerForm(prev => ({ ...prev, contact_number: e.target.value }))}
                                                     onMouseDown={e => e.stopPropagation()}
                                                     onFocus={e => e.stopPropagation()}
-                                                    className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                    className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#111] text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
                                                 />
                                             </div>
                                             {/* Address */}
@@ -634,7 +634,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                 onChange={(e) => setNewCustomerForm(prev => ({ ...prev, address: e.target.value }))}
                                                 onMouseDown={e => e.stopPropagation()}
                                                 onFocus={e => e.stopPropagation()}
-                                                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#111] text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
                                             />
                                             <button
                                                 type="button"
@@ -653,23 +653,23 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Transaction Date</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Transaction Date</label>
                             <div className="relative h-10 w-full group">
-                                <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
+                                <div className="absolute inset-0 flex items-center justify-between px-3 rounded-lg border border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-sm text-slate-700 dark:text-slate-200 overflow-hidden">
                                     <span className={`truncate mr-2 ${formValues.transactionDate ? "text-slate-700 dark:text-slate-200" : "text-slate-400"}`}>
                                         {formValues.transactionDate ? formatDateDisplay(formValues.transactionDate) : "Select Date"}
                                     </span>
                                     <div className="flex items-center gap-2 flex-shrink-0">
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); setToday(); }} className="relative z-20 px-2 py-1 text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-700 text-slate-600 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm whitespace-nowrap">Today</button>
-                                        <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); setToday(); }} className="relative z-20 px-2 py-1 text-[10px] font-black uppercase bg-slate-100 dark:bg-[#000]/50 dark:text-white/30 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm whitespace-nowrap">Today</button>
+                                        <Calendar className="w-4 h-4 text-slate-400 dark:text-white/50 flex-shrink-0" />
                                     </div>
                                 </div>
                                 <input type="date" name="transactionDate" value={formValues.transactionDate} onChange={handleInputChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Payment Terms
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">
+                                Payment Term/s
                                 {formValues.paymentTermsDate && (() => {
                                     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
                                     return formValues.paymentTermsDate < today
@@ -683,10 +683,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                         ? 'border-red-400 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
                                         : formValues.paymentTermsDate
                                             ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300'
-                                            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400'
+                                            : 'border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-400 dark:text-white/50'
                                 }`}>
                                     <div className="flex items-center gap-2">
-                                        <Calendar className="w-4 h-4 flex-shrink-0 text-slate-400" />
+                                        <Calendar className="w-4 h-4 flex-shrink-0 text-slate-400 dark:text-white/50" />
                                         <span className="truncate text-sm">
                                             {formValues.paymentTermsDate
                                                 ? new Date(formValues.paymentTermsDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -755,9 +755,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 <Plus className="w-5 h-5" /> <span>Add Item</span>
                             </button>
                         </div>
-                        <div className="block overflow-x-auto mb-1 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div className="block overflow-x-auto mb-1 border-t border-b border-slate-200 dark:border-white/5">
                             <table className="w-full">
-                                <thead className="bg-slate-100 dark:bg-slate-800">
+                                <thead className="bg-black/3 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 backdrop-blur-xs">
                                     <tr>
                                         <th className="p-4 md:pl-10 text-left text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
                                         <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Unit Price</th>
@@ -770,7 +770,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                     {purchaseItems.length > 0 ? (
                                         <>
                                             {purchaseItems.map((item) => (
-                                                <tr key={item.id} className="border-b border-slate-200 dark:border-slate-800 text-center transition-colors">
+                                                <tr key={item.id} className="border-b border-slate-200 dark:border-white/5 text-center transition-colors">
                                                     <td className="p-4 md:pl-10 text-left text-sm text-slate-700 dark:text-slate-200">{item.name}</td>
                                                     <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.price.toLocaleString()}</td>
                                                     <td className="p-4 text-sm text-slate-700 dark:text-slate-200">{item.quantity}</td>
@@ -785,14 +785,14 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                     </td>
                                                 </tr>
                                             ))}
-                                            <tr className="bg-blue-50/50 dark:bg-blue-900/10 font-bold">
-                                                <td colSpan="3" className="p-4 text-right text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Grand Total:</td>
+                                            <tr className="bg-blue-50/50 dark:bg-transparent font-bold">
+                                                <td colSpan="3" className="p-4 text-right text-slate-600 dark:text-white uppercase text-xs tracking-wider">Grand Total:</td>
                                                 <td className="p-4 text-center text-blue-600 dark:text-blue-400 text-lg">₱{totalAmount.toLocaleString()}</td>
                                                 <td></td>
                                             </tr>
                                         </>
                                     ) : (
-                                        <tr><td colSpan="5" className="p-8 text-center text-sm text-slate-400 italic">No products added yet.</td></tr>
+                                        <tr><td colSpan="5" className="p-8 text-center text-sm text-slate-400 dark:text-white/60 italic">No products added yet.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -801,20 +801,20 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-4">
                         <div className="space-y-1">
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="file_input">Upload Receipt</label>
-                            <div className="relative flex rounded-lg overflow-hidden w-full bg-white border border-slate-300 dark:bg-slate-700 dark:border-slate-600 hover:border-blue-400 shadow-xs">
-                                <span className="bg-slate-400/20 dark:bg-slate-600/90 text-slate-600/80 dark:text-slate-400/80 px-3 py-2 text-sm font-medium flex items-center select-none cursor-pointer">Choose File</span>
-                                <span className="text-slate-500 dark:text-slate-400 px-4 py-2 text-sm flex items-center truncate min-w-0">{receiptFileName}</span>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-white/70" htmlFor="file_input">Upload Receipt</label>
+                            <div className="relative flex rounded-lg overflow-hidden w-full bg-white border border-slate-300 dark:bg-white/10 dark:border-white/5 hover:border-blue-400 shadow-xs">
+                                <span className="bg-slate-400/20 dark:bg-[#1c1c1c] text-slate-600/80 dark:text-white/80 px-3 py-2 text-sm font-medium flex items-center select-none cursor-pointer">Choose File</span>
+                                <span className="text-slate-500 dark:text-white/60 px-4 py-2 text-sm flex items-center truncate min-w-0">{receiptFileName}</span>
                                 <input type="file" id="file_input" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleFileChange}/>
                             </div>
                         </div>
                         <div className="md:col-span-2 space-y-5">
                             <div className="flex flex-col md:flex-row items-center gap-4">
                                 <div className="relative w-full">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount Paid</label>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Amount Paid</label>
                                     {/* Tooltip wrapper */}
                                     <div className="relative">
-                                        <PhilippinePeso className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${overpaymentAmount > 0 ? 'text-emerald-500' : 'text-slate-500 dark:text-slate-400'}`} />
+                                        <PhilippinePeso className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${overpaymentAmount > 0 ? 'text-emerald-500' : 'text-slate-500 dark:text-white/50'}`} />
                                         <input
                                             type="text"
                                             name="amount"
@@ -825,7 +825,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                             className={`w-full pl-9 pr-3 py-1.5 h-10 rounded-lg border outline-none transition-all ${
                                                 overpaymentAmount > 0
                                                     ? 'border-emerald-400 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 focus:ring-2 focus:ring-emerald-400/30'
-                                                    : 'border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
+                                                    : 'border-slate-300 dark:border-white/5 dark:bg-white/10 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
                                             }`}
                                         />
                                         {/*  Persistent tooltip — stays until overpaymentAmount drops to 0 */}
@@ -838,23 +838,23 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                     </div>
                                 </div>
                                 <div className="relative w-full">
-                                    <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remaining Balance</label>
+                                    <label htmlFor="remainingBalance" className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Remaining Balance</label>
                                     <div className="relative">
-                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                        <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 cursor-not-allowed outline-none font-medium" />
+                                        <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
+                                        <input type="text" id="remainingBalance" name="remainingBalance" value={formValues.remainingBalance} readOnly placeholder='0.00' className="w-full text-red-500 dark:text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-white/10 cursor-not-allowed outline-none font-medium" />
                                     </div>
                                 </div>
                             </div>
                             <div>
-                                <label htmlFor="remarks" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Remarks</label>
-                                <textarea id="remarks" name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add transaction notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
+                                <label htmlFor="remarks" className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Remarks</label>
+                                <textarea id="remarks" name="remarks" rows="3" value={formValues.remarks} onChange={handleInputChange} placeholder="Add transaction notes..." className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-white/10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" />
                             </div>
                         </div>
                     </div>
                 </form>
 
-                <div className="px-4 md:px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3 flex-shrink-0">
-                    <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
+                <div className="px-4 md:px-6 py-4 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
+                    <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Cancel</button>
                     <button type="submit" form="purchaseForm" disabled={purchaseItems.length === 0 || !formValues.customerId || isSaving} className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                         {isSaving ? "Saving..." : "Save Purchase"}
                     </button>
