@@ -134,7 +134,7 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                             className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 md:h-72 border-2 border-dashed rounded-2xl transition-all
                                 ${isDragging 
                                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                                    : 'border-slate-300 dark:border-white/20 hover:border-slate-400 dark:hover:border-blue-500/50 bg-slate-50 dark:bg-[#1E1E1E]'
+                                    : 'border-slate-300 dark:border-white/20 hover:border-slate-400 dark:hover:border-blue-500/50 bg-slate-50 dark:bg-[#111]'
                                 } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" disabled={loading} />
@@ -142,7 +142,7 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                                 <img src={previewUrl} alt="Preview" className="w-full h-full object-contain rounded-xl p-2" />
                             ) : (
                                 <div className="flex flex-col items-center p-4">
-                                    <div className="p-4 bg-white dark:bg-[#121212] rounded-full shadow-sm mb-3">
+                                    <div className="p-4 bg-white dark:bg-white/5 rounded-full shadow-sm mb-3">
                                         <Upload className="w-6 h-6 text-blue-500" />
                                     </div>
                                     <p className="text-sm font-medium text-slate-700 dark:text-slate-200 text-center">Click to upload or drag and drop</p>
