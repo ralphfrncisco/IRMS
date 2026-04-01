@@ -232,7 +232,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"
                         >
                             Cancel
                         </button>
@@ -240,7 +240,7 @@ function AddItemModal({ isOpen, onClose, onAdd }) {
                             type="submit"
                             disabled={Object.keys(selectedItems).length === 0}
                             form="add-item-form"
-                            className="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed transition-colors shadow-md"
+                            className="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-blue-500/70 disabled:cursor-not-allowed transition-colors shadow-md"
                         >
                             Add to List
                         </button>

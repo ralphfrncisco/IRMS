@@ -179,7 +179,7 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                 </form>
 
                 <div className="pt-5 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3">
-                    <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-slate-600 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg">Cancel</button>
+                    <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-slate-600 text-sm font-medium dark:text-white/70 dark:bg-[#1E1E1E] hover:bg-slate-100 dark:hover:bg-white/20 rounded-lg">Cancel</button>
                     <button form="addAccountForm" type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold flex items-center">
                         {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</> : 'Create'}
                     </button>

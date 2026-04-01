@@ -311,7 +311,7 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
 
                 {/* Footer */}
                 <div className="p-4 md:p-6 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
-                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 transition-colors cursor-pointer">Close</button>
+                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-white/20 transition-colors cursor-pointer">Close</button>
                     <button type="submit" form="expense-edit-form" className="px-6 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer">Save Changes</button>
                 </div>
             </div>

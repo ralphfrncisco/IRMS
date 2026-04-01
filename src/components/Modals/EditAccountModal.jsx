@@ -133,7 +133,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
                             className={`relative group cursor-pointer flex flex-col items-center justify-center w-full h-64 md:h-72 border-2 border-dashed rounded-2xl transition-all
                                 ${isDragging 
                                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                                    : 'border-slate-300 dark:border-white/5 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-[#1E1E1E]'
+                                    : 'border-slate-300 dark:border-white/30 hover:border-slate-400 dark:hover:border-blue-500 bg-slate-50 dark:bg-[#1E1E1E]'
                                 } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" disabled={loading} />
@@ -196,8 +196,8 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
                 </form>
 
                 <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3 flex-shrink-0">
-                    <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-slate-600 dark:text-white/50 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg">
-                        Cancel
+                    <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-slate-600 text-sm font-medium dark:text-white/70 dark:bg-[#1E1E1E] hover:bg-slate-100 dark:hover:bg-white/20 rounded-lg">
+                        Close
                     </button>
                     <button 
                         form="edit-account-form"

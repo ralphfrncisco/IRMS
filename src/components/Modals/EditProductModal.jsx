@@ -373,7 +373,7 @@ function EditProductModal({ isOpen, onClose, product }) {
                     </div>
 
                     <div className="pt-5 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3 flex-shrink-0">
-                        <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50">
+                        <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] rounded-lg hover:bg-slate-200 dark:hover:bg-white/20 transition-colors disabled:opacity-50">
                             Cancel
                         </button>
                         <button type="submit" disabled={loading} className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[140px]">

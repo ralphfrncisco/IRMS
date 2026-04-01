@@ -192,7 +192,7 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
                         <div className="relative w-full">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Contact Number</label>
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-white/50" />
                                 <input type="text" name="contactNumber" value={formValues.contactNumber} maxLength={11} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 pl-10 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                             </div>
                         </div>
@@ -201,7 +201,7 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
                     <div className="w-full">
                         <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Address</label>
                         <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-white/50" />
                             <input type="text" name="address" value={formValues.address} onChange={handleInputChange} className="w-full text-slate-700 dark:text-slate-200 pl-10 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                         </div>
                     </div>
@@ -228,10 +228,10 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
                                         <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                                     {purchaseItems.length > 0 ? (
                                         purchaseItems.map((item) => (
-                                            <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-white/10/30 transition-colors">
+                                            <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-white/1 transition-colors">
                                                 <td className="p-4 text-sm text-slate-700 dark:text-slate-200 font-medium">{item.name}</td>
                                                 <td className="p-4 text-sm font-bold text-green-600 dark:text-green-400">₱ {item.price?.toLocaleString() || 0}</td>
                                                 <td className="p-4 text-center">
@@ -254,7 +254,7 @@ function EditSupplierDetailModal({ isOpen, onClose, supplierData }) {
 
                 {/* Footer */}
                 <div className="p-4 md:p-6 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
-                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 transition-colors">Close</button>
+                    <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-white/20 transition-colors">Close</button>
                     <button type="submit" form="supplier-edit-form" className="px-6 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg active:scale-95 transition-all">Update Supplier</button>
                 </div>
             </div>
