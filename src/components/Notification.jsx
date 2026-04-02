@@ -87,13 +87,13 @@ function Notification() {
       {notifications.map((notification, index) => (
         <div
           key={notification.id}
-          className={`notification-item w-[300px] md:w-[330px] p-4 rounded-xl border shadow-sm pointer-events-auto border-slate-300 dark:border-slate-700 ${
+          className={`notification-item w-[300px] md:w-[330px] p-4 rounded-xl border shadow-sm pointer-events-auto border-slate-300 dark:border-white/15 ${
             notification.isExiting ? 'exiting' : ''
           } ${
             // ✅ Low Stock gets a red-tinted border to stand out visually
             notification.keyword === 'Low Stock'
-              ? 'bg-white dark:bg-slate-800 border-red-300 dark:border-red-800'
-              : 'bg-white dark:bg-slate-800'
+              ? 'bg-white dark:bg-[#141414] border-red-300 dark:border-red-800'
+              : 'bg-white dark:bg-[#141414]'
           }`}
           style={{ animationDelay: notification.isExiting ? '0s' : `${index * 0.1}s` }}
         >
@@ -105,7 +105,7 @@ function Notification() {
               <h4 className="text-md font-semibold text-slate-800 dark:text-white">
                 {notification.activity}
               </h4>
-              <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 break-words whitespace-pre-line">
+              <p className="mt-2 text-xs text-slate-600 dark:text-white/70 break-words whitespace-pre-line">
                 {notification.description}
               </p>
               <p className="text-[10px] text-blue-500 mt-3 font-medium">
@@ -119,9 +119,9 @@ function Notification() {
             </div>
             <button
               onClick={() => handleDismiss(notification.id)}
-              className="flex-shrink-0 p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              className="flex-shrink-0 p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors"
             >
-              <X className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+              <X className="w-4 h-4 text-slate-500 dark:text-white/70" />
             </button>
           </div>
         </div>
