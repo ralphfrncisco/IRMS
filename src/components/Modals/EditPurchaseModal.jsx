@@ -308,10 +308,10 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 {loading ? (
                     <div className="flex-grow flex flex-col items-center justify-center">
                         <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-                        <p className="text-slate-500 text-sm">Loading Order Data...</p>
+                        <p className="text-slate-500 dark:text-white/50 text-sm">Loading Order Data...</p>
                     </div>
                 ) : (
-                    <form id="purchase-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8">
+                    <form id="purchase-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
                         {/* Top Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>

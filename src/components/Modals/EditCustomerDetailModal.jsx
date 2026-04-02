@@ -136,7 +136,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                 <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
 
                     {/* LEFT PANEL — Edit Form */}
-                    <div className="w-full md:w-85 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10 overflow-y-auto">
+                    <div className="w-full md:w-85 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10 overflow-y-auto custom-scrollbar">
                         <form onSubmit={handleSubmit} className="p-6 space-y-4 h-full flex flex-col">
 
                             {/* Full Name */}
@@ -254,7 +254,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                             </div>
 
                             {/* Buttons */}
-                            <div className="flex gap-3 pt-2 mt-auto">
+                            <div className="flex gap-3 py-2 pb-4 mt-auto">
                                 <button
                                     type="button"
                                     onClick={onClose}

@@ -60,10 +60,10 @@ input[type="number"] {
     }
 } */
 
+/* 1. Increase the total width to include your desired "gap" */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  
+  width: 12px; /* Increased from 6px */
+  height: 12px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -71,22 +71,26 @@ input[type="number"] {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* slate-300 */
-  border-radius: 3px;
+  background-clip: padding-box; 
+  
+  border: 3px solid transparent; 
+  
+  background-color: #cbd5e1; /* slate-300 */
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* slate-400 */
-  cursor: pointer;
+  background-color: #94a3b8; /* slate-400 */
 }
 
 /* Dark Mode support */
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #47494b; /* slate-700 */
+  background-color: #47494bc8;
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #47494b; /* slate-600 */
+  background-color: #47494b; /* slate-600 - slightly lighter for hover effect */
 }
 
 @keyframes slideInFromRight {
