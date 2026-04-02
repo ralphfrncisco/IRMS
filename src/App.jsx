@@ -125,18 +125,18 @@ function App() {
 
       {showWarning && session && (
         <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8 max-w-sm w-full text-center space-y-4">
+          <div className="bg-white dark:bg-[#141414] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/15 p-8 max-w-sm w-full text-center space-y-4">
             <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-              Still there?
+              Are you still there?
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-white/70">
               You've been inactive for 4 minutes. You'll be automatically logged out in
             </p>
             <p className="text-4xl font-bold text-amber-500">{countdown}s</p>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={handleLogout}
-                className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
               >
                 Log Out
               </button>
