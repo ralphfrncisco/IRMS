@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Pencil, Trash, Search, Plus, AlertTriangle } from 'lucide-react'
+import { Pencil, Trash, Search, Plus, Loader2 } from 'lucide-react'
 import { supabase } from "../../lib/supabase";
 
 import NoImage from './../../assets/no_image.jpg'
@@ -10,11 +10,12 @@ import DeleteConfirmModal from '../Modals/DeleteConfirmModal';
 export default function ProductGrid() {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     
-    // New states for deletion
+    // States for deletion
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -25,29 +26,38 @@ export default function ProductGrid() {
         if (!path) return NoImage;
         if (path.startsWith('http') && path.includes('token=')) return path;
         if (signedUrlCache.current[path]) return signedUrlCache.current[path];
+        
         const filePath = path.startsWith('http') ? path.split('/product-images/').pop() : path;
         const { data, error } = await supabase.storage
             .from('product-images')
             .createSignedUrl(filePath, 3600);
+            
         const resolved = error ? NoImage : data.signedUrl;
         signedUrlCache.current[path] = resolved;
         return resolved;
     };
 
-    const fetchProducts = async () => {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('id', { ascending: true })
+    const fetchProducts = async (isInitialLoad = false) => {
+        if (isInitialLoad) setIsLoading(true);
+        try {
+            const { data, error } = await supabase
+              .from('products')
+              .select('*')
+              .order('id', { ascending: true });
 
-        if (!error) {
-            const productsWithSignedUrls = await Promise.all(
-                data.map(async (p) => ({
-                    ...p,
-                    image: await resolveImageUrl(p.image)
-                }))
-            );
-            setProducts(productsWithSignedUrls);
+            if (!error && data) {
+                const productsWithSignedUrls = await Promise.all(
+                    data.map(async (p) => ({
+                        ...p,
+                        image: await resolveImageUrl(p.image)
+                    }))
+                );
+                setProducts(productsWithSignedUrls);
+            }
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -64,6 +74,8 @@ export default function ProductGrid() {
             
             setIsDeleteModalOpen(false);
             setSelectedProduct(null);
+            // Realtime will trigger the refresh, but we update locally for speed
+            setProducts(prev => prev.filter(p => p.id !== selectedProduct.id));
         } catch (error) {
             alert("Something went wrong. Please try again.");
         } finally {
@@ -71,11 +83,8 @@ export default function ProductGrid() {
         }
     };
 
-    // Image URLs are pre-resolved as signed URLs during fetchProducts
-    const getImageUrl = (path) => path || NoImage;
-    
     useEffect(() => {
-        fetchProducts()
+        fetchProducts(true);
     
         const channel = supabase
           .channel('products-realtime')
@@ -87,29 +96,23 @@ export default function ProductGrid() {
           .subscribe()
     
         return () => { supabase.removeChannel(channel) }
-      }, [])
+    }, [])
 
-    const pelletProducts = products.filter(p => 
-        p.category === 'Hog Pellets' && 
+    // Filters
+    const filteredProducts = products.filter(p => 
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const medicationProducts = products.filter(p => 
-        (p.category === 'Medication' || p.category === 'Medications') && 
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const equipmentProducts = products.filter(p => 
-        (p.category === 'Equipments' || p.category === 'Equipment') && 
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const pelletProducts = filteredProducts.filter(p => p.category === 'Hog Pellets');
+    const medicationProducts = filteredProducts.filter(p => p.category === 'Medication' || p.category === 'Medications');
+    const equipmentProducts = filteredProducts.filter(p => p.category === 'Equipments' || p.category === 'Equipment');
 
     const ProductCard = ({ item }) => (
         <div className="relative group p-5 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/5 hover:border-white/10 transition-all">
             <div className="flex items-start justify-between mb-4">
                 <div className="bg-slate-100 dark:bg-white/5 p-2 rounded-xl w-16 h-16 flex items-center justify-center overflow-hidden">
                     <img 
-                        src={getImageUrl(item.image)} 
+                        src={item.image || NoImage} 
                         alt={item.name} 
                         className="w-full h-full object-cover rounded-lg" 
                         onError={(e) => { e.target.src = NoImage }}
@@ -163,9 +166,10 @@ export default function ProductGrid() {
 
     return (
         <div className="space-y-10 px-2 pb-10 mb-15">
+            {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">Product Inventory</h2>
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">Product Inventory</h2>
                     <button 
                         onClick={() => setIsModalOpen(true)}
                         className="flex md:hidden cursor-pointer items-center justify-center space-x-2 py-2 px-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shrink-0 whitespace-nowrap">
@@ -197,37 +201,64 @@ export default function ProductGrid() {
                 </div>
             </div>
 
-            <section className = "space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="h-6 w-1 bg-blue-500 rounded-full"></div>
-                    <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Hog Pellets</h2>
+            {/* Main Content Area */}
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+                    <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                    <p className="text-slate-500 dark:text-white/50 animate-pulse">Loading inventory...</p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
-                    {pelletProducts.map(item => <ProductCard key={item.id} item={item} />)}
+            ) : filteredProducts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-3xl">
+                    <p className="text-slate-500">No products found matching your criteria.</p>
                 </div>
-            </section>
+            ) : (
+                <>
+                    {/* Hog Pellets */}
+                    {pelletProducts.length > 0 && (
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-1 bg-blue-500 rounded-full"></div>
+                                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Hog Pellets</h2>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                                {pelletProducts.map(item => <ProductCard key={item.id} item={item} />)}
+                            </div>
+                        </section>
+                    )}
 
-            <section className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="h-6 w-1 bg-emerald-500 rounded-full"></div>
-                    <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Medications</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
-                    {medicationProducts.map(item => <ProductCard key={item.id} item={item} />)}
-                </div>
-            </section>
+                    {/* Medications */}
+                    {medicationProducts.length > 0 && (
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-1 bg-emerald-500 rounded-full"></div>
+                                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Medications</h2>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                                {medicationProducts.map(item => <ProductCard key={item.id} item={item} />)}
+                            </div>
+                        </section>
+                    )}
 
-            <section className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="h-6 w-1 bg-rose-500 rounded-full"></div>
-                    <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Equipments</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
-                    {equipmentProducts.map(item => <ProductCard key={item.id} item={item} />)}
-                </div>
-            </section>
+                    {/* Equipments */}
+                    {equipmentProducts.length > 0 && (
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-1 bg-rose-500 rounded-full"></div>
+                                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Equipments</h2>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                                {equipmentProducts.map(item => <ProductCard key={item.id} item={item} />)}
+                            </div>
+                        </section>
+                    )}
+                </>
+            )}
 
-            <AddProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            {/* Modals */}
+            <AddProductModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
 
             <EditProductModal 
                 isOpen={isEditModalOpen} 
