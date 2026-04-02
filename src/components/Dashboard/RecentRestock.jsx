@@ -119,7 +119,7 @@ function RecentRestock() {
                 </div>
 
                 <div className = "flex flex-col items-end space-y-1">
-                  <p className="text-sm font-medium text-green-500 dark:text-green-400">
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-500">
                     {formatCurrency(expense.amount)}
                   </p>
 
