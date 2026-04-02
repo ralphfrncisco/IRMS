@@ -211,7 +211,7 @@ function LedgerHistoryTable() {
               <>
                 {ledgerData.map((week) => (
                   <tr key={week.id} className="hover:bg-slate-50 dark:hover:bg-white/5 border-b border-slate-200 dark:border-white/10 transition-colors">
-                    <td className="py-4 px-6 text-sm text-slate-700 dark:text-white/70">
+                    <td className="py-4 px-6 text-sm text-slate-700 dark:text-white/80">
                       {formatDateRange(week.week_start, week.week_end)}
                     </td>
                     <td className="py-4 px-6 text-sm text-center font-semibold text-slate-900 dark:text-white">
