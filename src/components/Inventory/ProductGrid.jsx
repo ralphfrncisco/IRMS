@@ -145,14 +145,14 @@ export default function ProductGrid() {
 
             <div className="flex items-center justify-between mt-4">
                 <div>
-                    <p className="text-[10px] uppercase font-semibold text-slate-500">Price</p>
+                    <p className="text-[10px] uppercase font-semibold text-slate-500 dark:text-white/50">Price</p>
                     <p className="text-sm font-bold text-blue-600 dark:text-blue-400">₱{Number(item.price).toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-[10px] uppercase font-semibold text-slate-500">Stock</p>
+                    <p className="text-[10px] uppercase font-semibold text-slate-500 dark:text-white/50">Stock</p>
                     <p className={`text-sm font-bold ${
                         Number(item.quantity) <= 10 ? 'text-red-500' : 
-                        Number(item.quantity) < 20 ? 'text-amber-500' : 'text-slate-700 dark:text-slate-400'
+                        Number(item.quantity) < 20 ? 'text-amber-500' : 'text-slate-700 dark:text-white/70'
                     }`}>
                         {item.quantity} units
                     </p>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useLocation } from 'react-router-dom';
-import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User } from 'lucide-react';
+import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User, ShoppingCart, BanknoteArrowDown, BanknoteArrowUp, Package, TriangleAlert } from 'lucide-react';
 import { supabase } from "../lib/supabase";
 import noProfile from "../assets/no-profile.png";
 import AccountSettingsModal from './../components/Modals/AccountSettingsModal';
@@ -185,16 +185,57 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const getActivityColor = (activity) => {
+        switch (activity) {
+            case "New Sale Recorded":
+            case "Payment Received":
+                return "text-emerald-600 dark:text-emerald-400";
+
+            case "New Expense Recorded":
+                return "text-orange-500 dark:text-amber-400";
+
+            case "Low Stock":
+                return "text-rose-600 dark:text-rose-500";
+
+            case "Inventory Update":
+                return "text-blue-600 dark:text-sky-400";
+
+            default:
+                return "text-blue-600 dark:text-blue-500";
+        }
+    };
+
+    const getIcon = (iconNotif) => {
+        switch (iconNotif) {
+            case "New Sale Recorded":
+                return <ShoppingCart className="inline mr-2" size={16} />;
+
+            case "Payment Received":
+                return <BanknoteArrowDown className="inline mr-2" size={16} />;
+
+            case "New Expense Recorded":
+                return <BanknoteArrowUp className="inline mr-2" size={16} />;
+
+            case "Inventory Update":
+                return <Package className = "inline mr-2" size={16}/>;
+
+            case "Low Stock":
+                return <TriangleAlert className="inline mr-2" size={16} />;
+            default:
+                return null; 
+        }
+    };
+
     return (
         <>
             <div className="sticky top-0 z-50 w-full flex items-center justify-between p-4 py-5 gap-2 border-b transition-colors duration-300 bg-white border-slate-200 dark:bg-[#111] dark:border-white/10">
 
                 <div className="flex items-center gap-3">
                     <button
-                        className="hidden md:block p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-white/5"
+                        className="hidden md:block p-2 mt-1 rounded-lg transition-all duration-200 text-black/50 hover:bg-gray-200/50 dark:text-white dark:hover:bg-white/5 border border-black/10 dark:border-white/10"
                         onClick={onToggleSidebar}
                     >
-                        <Menu className="w-5 h-5" />
+                        <Menu className="w-4 h-4 text-black/60 dark:text-white/60" />
                     </button>
 
                     <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
@@ -218,7 +259,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                     <div className="relative" ref={notifRef}>
                         <button
                             onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
-                            className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-slate-800' : 'hover:bg-gray-200/50 dark:hover:bg-white/5'}`}
+                            className={`relative p-2.5 rounded-xl transition-colors text-black/50 dark:text-white ${isNotifMenuOpen ? 'bg-gray-200/50 dark:bg-white/10' : 'hover:bg-gray-200/50 dark:hover:bg-white/5'}`}
                         >
                             <Bell className="w-5 h-5" />
                             {unreadCount > 0 && (
@@ -244,16 +285,17 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                         notifications.map((notif) => (
                                             <div 
                                                 key={notif.id}
-                                                className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                                                className="p-4 border-b border-black/10 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
                                             >
-                                                <p className="text-sm font-semibold text-slate-800 dark:text-white">
-                                                    {notif.activity}
+                                                <p className={`text-sm font-semibold ${getActivityColor(notif.activity)}`}>
+                                                    {getIcon(notif.activity)}
+                                                    <span>{notif.activity}</span>
                                                 </p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 whitespace-pre-line">
-                                                    {notif.description}
-                                                </p>
-                                                <p className="text-[10px] text-blue-500 dark:text-blue-400 mt-2 font-medium">
+                                                <p className="text-[10px] text-gray-700/80 dark:text-white/60 mt-0.5 font-medium">
                                                     {notif.user} • {formatNotificationTime(notif.datetime)} 
+                                                </p>
+                                                <p className="mt-3 p-2 bg-slate-300/10 rounded-lg text-xs font-medium dark:font-normal text-black/70 dark:text-white/80 mt-1 whitespace-pre-line">
+                                                    {notif.description}
                                                 </p>
                                             </div>
                                         ))
@@ -291,7 +333,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                             <p className="text-sm font-medium text-slate-700 dark:text-white">
                               {isLoading ? "Fetching..." : (profile?.full_name || "Guest User")}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-xs text-slate-500 dark:text-white/40">
                               {isLoading ? "Please wait" : (profile?.role || "Staff")}
                             </p>
                           </div>
@@ -305,9 +347,9 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                         setIsAccountSettingsOpen(true);
                                         setIsUserMenuOpen(false);
                                     }}
-                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-white/5 rounded-lg transition-colors"
+                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-white/80 hover:bg-gray-200/50 dark:hover:bg-white/5 rounded-lg transition-colors"
                                 >
-                                    <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    <User className="w-4 h-4 text-slate-500 dark:text-white/60" />
                                     Account Settings
                                 </button>
                                 <button 
@@ -315,9 +357,9 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                         setIsChangePasswordOpen(true);
                                         setIsUserMenuOpen(false);
                                     }}
-                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-white/5 rounded-lg transition-colors"
+                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-white/80 hover:bg-gray-200/50 dark:hover:bg-white/5 rounded-lg transition-colors"
                                 >
-                                    <KeyRound className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                    <KeyRound className="w-4 h-4 text-slate-500 dark:text-white/60" />
                                     Change Password
                                 </button>
                                 <div className="my-1 border-t border-slate-100 dark:border-white/10" />

@@ -23,7 +23,7 @@ const MainLayout = () => {
           onRoleLoaded={(role) => setUserRole(role)}
         />
 
-        <main className="p-4 pt-5 pb-20 sm:pb-4 h-full overflow-auto">
+        <main className="p-4 pt-5 pb-20 sm:pb-4 h-full overflow-auto custom-scrollbar">
           <Outlet context={{ darkMode }} /> 
         </main>
       </div>

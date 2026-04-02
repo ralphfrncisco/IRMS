@@ -112,7 +112,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
             onClick={onClose}
         >
             <div 
-                className="flex flex-col h-auto md:max-h-[70vh] mt-20 md:mt-0 space-y-4 bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-white/10 animate-in fade-in zoom-in duration-200 overflow-y-auto" 
+                className="flex flex-col h-auto md:max-h-[70vh] mt-20 md:mt-0 space-y-4 bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-white/10 animate-in fade-in zoom-in duration-200" 
                 onClick={e => e.stopPropagation()}
             >
                 <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
@@ -122,7 +122,7 @@ function EditAccountModal({ isOpen, onClose, account, onSuccess }) {
                     </button>
                 </div>
 
-                <form id="edit-account-form" onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:pr-2">
+                <form id="edit-account-form" onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:pr-2 overflow-y-auto custom-scrollbar">
                     <div className="w-full space-y-2">
                         <label className="block text-sm font-semibold text-slate-700 dark:text-white/70">Profile Image</label>
                         <div
