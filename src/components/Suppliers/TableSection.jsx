@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye, Trash2 } from 'lucide-react';
+import { Plus, Eye, Trash2, Loader2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 
 import CustomerFilter from '../Filters/CustomerFilter';
@@ -180,7 +180,7 @@ function TableSection() {
 
                     <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                         {loading ? (
-                            <tr><td colSpan="5" className="p-10 text-center text-slate-400">Loading suppliers...</td></tr>
+                            <tr><td colSpan="5" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
                         ) : filteredSuppliers.map((supplier) => (
                             <tr key={supplier.id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/2 transition-colors group">
                                 <td className="p-4 md:pl-7 text-sm font-semibold text-blue-500 dark:text-blue-400">
