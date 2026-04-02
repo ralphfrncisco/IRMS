@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import noProfile from '../../assets/no-profile.png';
 import AddAccountModal from '../Modals/AddAccountModal';
 import EditAccountModal from '../Modals/EditAccountModal';
+import DeleteConfirmModal from '../Modals/DeleteConfirmModal';
 
 function AccountsGrid() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -12,12 +13,16 @@ function AccountsGrid() {
     const [accounts, setAccounts] = useState([]); // Dynamic state
     const [isLoading, setIsLoading] = useState(true);
     const [selectedAccount, setSelectedAccount] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // --- RESOLVE SIGNED AVATAR URL ---
     const resolveAvatarUrl = async (avatar_url) => {
         if (!avatar_url) return null;
         if (avatar_url.includes('token=')) return avatar_url;
-        const filename = avatar_url.split('/avatars/').pop();
+        const filename = avatar_url.startsWith('http')
+            ? avatar_url.split('/avatars/').pop()
+            : avatar_url;
         const { data, error } = await supabase.storage
             .from('avatars')
             .createSignedUrl(filename, 3600);
@@ -59,6 +64,32 @@ function AccountsGrid() {
         setIsEditModalOpen(true);
     };
 
+    const handleDeleteClick = (acc) => {
+        setSelectedAccount(acc);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleDelete = async () => {
+        if (!selectedAccount) return;
+        setIsDeleting(true);
+        try {
+            const { error } = await supabase
+                .from('account')
+                .delete()
+                .eq('user_id', selectedAccount.user_id);
+
+            if (error) throw error;
+
+            setIsDeleteModalOpen(false);
+            setSelectedAccount(null);
+            fetchAccounts();
+        } catch (err) {
+            alert("Something went wrong. Please try again.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <div>
             <div className="flex justify-between items-center">
@@ -85,7 +116,7 @@ function AccountsGrid() {
                                     <img 
                                         src={acc.avatar_url || noProfile} 
                                         alt={acc.full_name} 
-                                        className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover" 
+                                        className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800" 
                                     />
                                 </div>
                                 
@@ -104,7 +135,7 @@ function AccountsGrid() {
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
-                                        <button className="p-2 text-red-600 bg-red-500/20 dark:bg-red-500/10 rounded-md hover:bg-red-600 hover:text-white transition-all">
+                                        <button onClick={() => handleDeleteClick(acc)} className="p-2 text-red-600 bg-red-500/20 dark:bg-red-500/10 rounded-md hover:bg-red-600 hover:text-white transition-all">
                                             <Trash className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -124,7 +155,21 @@ function AccountsGrid() {
                 isOpen={isEditModalOpen} 
                 onClose={() => setIsEditModalOpen(false)} 
                 account={selectedAccount}
-                onSuccess={fetchAccounts} // Refresh list after editing
+                onSuccess={fetchAccounts}
+            />
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setSelectedAccount(null);
+                }}
+                onConfirm={handleDelete}
+                itemName={selectedAccount?.full_name}
+                loading={isDeleting}
+                title="Delete Account"
+                typeLabel="account"
+                showId={false}
+                breakLine={true}
             />
         </div>
     )

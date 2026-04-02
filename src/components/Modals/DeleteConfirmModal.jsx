@@ -1,7 +1,18 @@
 import React from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
-const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, itemId, itemName, loading }) => {
+const DeleteConfirmModal = ({ 
+    isOpen, 
+    onClose, 
+    onConfirm, 
+    itemId, 
+    itemName, 
+    loading,
+    title = "Confirm Deletion",
+    showId = true,
+    typeLabel = "entry",
+    breakLine = false
+}) => {
     if (!isOpen) return null;
 
     return (
@@ -12,6 +23,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, itemId, itemName, load
                     disabled={loading}
                     className="absolute right-4 top-4 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
                 >
+                    <X className="w-5 h-5 text-slate-400 dark:text-white/50" />
                 </button>
 
                 <div className="flex flex-col items-center text-center">
@@ -20,11 +32,17 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, itemId, itemName, load
                     </div>
                     
                     <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                        Confirm Deletion
+                        {title}
                     </h3>
                     
                     <p className="text-xs sm:text-sm text-slate-500 dark:text-white/50 mb-5">
-                        Are you sure you want to delete this entry: <span className="font-mono font-bold text-red-600 dark:text-red-400"><br></br>(ID:{itemId}) <u>{itemName}</u></span>? 
+                        Are you sure you want to delete this {typeLabel}: 
+                        <span className="font-bold text-red-600 dark:text-red-400">
+                            {showId && itemId && <><br />(ID: {itemId})</>}
+                            {/* If breakLine is true, we add the <br /> here */}
+                            {breakLine ? <br /> : <>&nbsp;</>}
+                            <u className="font-sans">{itemName}</u>
+                        </span>? 
                     </p>
                     
                     <div className="flex flex-col gap-3 w-full">
@@ -44,7 +62,9 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, itemId, itemName, load
                         </button>
                     </div>
 
-                    <p className="text-xs text-slate-500 dark:text-white/50 mt-6">This action is permanent and will not be undone.</p>
+                    <p className="text-xs text-slate-500 dark:text-white/50 mt-6">
+                        This action is permanent and cannot be undone.
+                    </p>
                 </div>
             </div>
         </div>
