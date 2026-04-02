@@ -150,10 +150,10 @@ function EditExpenseModal({ isOpen, onClose, expenseData }) {
                 {loading ? (
                     <div className="flex-grow flex flex-col items-center justify-center p-20">
                         <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-                        <p className="text-slate-500 text-sm">Fetching records...</p>
+                        <p className="text-slate-500 dark:text-white/50 text-sm">Fetching records...</p>
                     </div>
                 ) : (
-                    <form id="expense-edit-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 mt-[-0.70rem]">
+                    <form id="expense-edit-form" onSubmit={handleFormSubmit} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Left Column */}
