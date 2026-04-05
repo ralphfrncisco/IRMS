@@ -111,7 +111,7 @@ function PaymentHistoryModal({ isOpen, onClose, orderData }) {
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                                         {paymentHistory.map((payment, index) => (
-                                            <tr key={payment.id} className="hover:bg-slate-50 dark:hover:bg-white/10/30 transition-colors">
+                                            <tr key={payment.id} className="hover:bg-slate-50 dark:hover:bg-white/2 transition-colors">
                                                 <td className="p-3 text-center text-sm font-medium text-slate-600 dark:text-white/50">
                                                     {index + 1}
                                                 </td>

@@ -119,7 +119,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
 
     return (
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-7xl border border-slate-200 dark:border-white/10 flex flex-col max-h-[95vh]">
+            <div className="bg-white dark:bg-[#111] rounded-2xl shadow-2xl h-full lg:max-h-[100vh] 2xl:max-h-[110vh] w-full max-w-7xl border border-slate-200 dark:border-white/10 flex flex-col max-h-[95vh]">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
@@ -133,11 +133,11 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                 </div>
 
                 {/* Body */}
-                <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+                <div className="flex flex-col md:flex-row flex-1 overflow-y-auto">
 
                     {/* LEFT PANEL — Edit Form */}
-                    <div className="w-full md:w-85 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10 overflow-y-auto custom-scrollbar">
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4 h-full flex flex-col">
+                    <div className="w-full md:w-[340px] md:flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10 custom-scrollbar">
+                        <form id = "edit-customer-details-form" onSubmit={handleSubmit} className="p-6 space-y-4 h-full flex flex-col">
 
                             {/* Full Name */}
                             <div>
@@ -254,7 +254,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                             </div>
 
                             {/* Buttons */}
-                            <div className="flex gap-3 py-2 pb-4 mt-auto">
+                            <div className="hidden md:flex gap-3 py-2 pb-4 mt-auto">
                                 <button
                                     type="button"
                                     onClick={onClose}
@@ -276,7 +276,7 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                     </div>
 
                     {/* RIGHT PANEL — Order History */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex-1 flex flex-col min-h-[400px] md:min-h-0 overflow-x-auto">
                         <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                             <p className="text-md font-semibold uppercase tracking-wider text-slate-500 dark:text-white/80">Order History</p>
                             <p className="text-xs text-slate-500 dark:text-white/50 mt-0.5">
@@ -337,8 +337,31 @@ function EditCustomerDetailModal({ isOpen, onClose, customerData }) {
                                     </tbody>
                                 </table>
                             )}
+
                         </div>
                     </div>
+
+
+                </div>
+
+                <div className="flex md:hidden gap-3 px-4 py-2 pb-4 border-t border-slate-400 dark:border-white/10">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"
+                    >
+                        Close
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isUpdating}
+                        form = "edit-customer-details-form"
+                        className="flex-1 px-4 py-2.5 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-500 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                    >
+                        {isUpdating ? (
+                            <><Loader2 className="w-4 h-4 animate-spin" />Updating...</>
+                        ) : 'Save Changes'}
+                    </button>
                 </div>
             </div>
         </div>

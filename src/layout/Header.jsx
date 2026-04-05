@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useLocation } from 'react-router-dom';
-import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User, ShoppingCart, BanknoteArrowDown, BanknoteArrowUp, Package, TriangleAlert } from 'lucide-react';
+import { Menu, ChevronDown, Bell, Sun, Moon, LogOut, KeyRound, User, ShoppingCart, BanknoteArrowDown, BanknoteArrowUp, Package, PackagePlus, TriangleAlert } from 'lucide-react';
 import { supabase } from "../lib/supabase";
 import noProfile from "../assets/no-profile.png";
 import AccountSettingsModal from './../components/Modals/AccountSettingsModal';
@@ -189,7 +189,8 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
         switch (activity) {
             case "New Sale Recorded":
             case "Payment Received":
-                return "text-emerald-600 dark:text-emerald-400";
+            case "New Product Added":case "New Product Added":
+                return "text-emerald-700 dark:text-emerald-500";
 
             case "New Expense Recorded":
                 return "text-orange-500 dark:text-amber-400";
@@ -198,7 +199,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                 return "text-rose-600 dark:text-rose-500";
 
             case "Inventory Update":
-                return "text-blue-600 dark:text-sky-400";
+                return "text-blue-600 dark:text-blue-500";
 
             default:
                 return "text-blue-600 dark:text-blue-500";
@@ -218,6 +219,8 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
 
             case "Inventory Update":
                 return <Package className = "inline mr-2" size={16}/>;
+            case "New Product Added":
+                return <PackagePlus className = "inline mr-2" size = {16}/>;
 
             case "Low Stock":
                 return <TriangleAlert className="inline mr-2" size={16} />;
@@ -285,7 +288,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                         notifications.map((notif) => (
                                             <div 
                                                 key={notif.id}
-                                                className="p-4 border-b border-black/10 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                                                className="p-4 border-b border-black/10 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
                                             >
                                                 <p className={`text-sm font-semibold ${getActivityColor(notif.activity)}`}>
                                                     {getIcon(notif.activity)}
@@ -308,10 +311,7 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
                                 </div>
                                 
                                 {notifications.length > 0 && (
-                                    <div className="p-3 border-t border-slate-100 dark:border-slate-700 text-center">
-                                        <button className="text-xs font-medium text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                                            View All Notifications
-                                        </button>
+                                    <div className="p-3 border-t border-slate-100 dark:border-white/10 text-center">
                                     </div>
                                 )}
                             </div>
