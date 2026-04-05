@@ -1,6 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, Eye, EyeClosed, Loader2 } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
+import CustomFormSelect from './../Filters/CustomFormSelect';
+
+const roleOptions = [
+    { label: 'Staff', value: 'Staff' },
+    { label: 'Administrator', value: 'Administrator' },
+];
 
 function AddAccountModal({ isOpen, onClose, onSuccess }) {
     const fileInputRef = useRef(null);
@@ -10,12 +16,14 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
     const [isDragging, setIsDragging] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [selectedRole, setSelectedRole] = useState('');
 
     // Form States
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    
 
     if (!isOpen) return null;
 
@@ -77,7 +85,7 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                     email_address: String(email).trim(), 
                     full_name: String(fullName).trim(),
                     avatar_url: avatarUrl,
-                    role: 'Administrator' 
+                    role: selectedRole
                 }]);
 
             if (profileError) throw profileError;
@@ -161,6 +169,15 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Email</label>
                             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="juan@example.com" className="w-full text-slate-700 text-sm dark:text-slate-200 px-3 py-2 rounded-lg border dark:bg-[#1E1E1E] border-slate-300 dark:border-slate-100/20 outline-none focus:border-blue-500" />
                         </div>
+                        <div>
+                            <CustomFormSelect
+                                label="Role"
+                                name="selectedRole"
+                                options={roleOptions}
+                                initialValue={selectedRole}
+                                onSelect={(value, name) => setSelectedRole(value)}
+                            />
+                        </div>
                         <div className="relative">
                             <label className="block text-sm font-semibold mb-1 text-slate-700 dark:text-white/90 mb-2">Password</label>
                             <div className="flex items-center px-3 py-1.5 rounded-lg border dark:bg-[#1E1E1E] border-slate-300 dark:border-slate-100/20">
@@ -179,7 +196,8 @@ function AddAccountModal({ isOpen, onClose, onSuccess }) {
                 </form>
 
                 <div className="pt-5 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3">
-                    <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-slate-600 text-sm font-medium dark:text-white/70 dark:bg-[#1E1E1E] hover:bg-slate-100 dark:hover:bg-white/20 rounded-lg">Cancel</button>
+                    <button type="button" onClick={onClose} disabled={loading}
+                    className="px-6 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Cancel</button>
                     <button form="addAccountForm" type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold flex items-center">
                         {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</> : 'Create'}
                     </button>

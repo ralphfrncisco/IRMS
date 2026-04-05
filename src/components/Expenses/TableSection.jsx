@@ -262,7 +262,7 @@ function TableSection() {
                                         </td>
                                     )}
                                     {visibleColumns['AMOUNT'] && (
-                                        <td className="p-4 text-center text-sm font-semibold text-emerald-500">{formatCurrency(item.amount)}</td>
+                                        <td className="p-4 text-center text-sm font-semibold text-emerald-700 dark:text-emerald-500">{formatCurrency(item.amount)}</td>
                                     )}
                                     {visibleColumns['DATE'] && (
                                         <td className="p-4 text-center text-sm text-slate-600 dark:text-white/70">{formatDisplayDateTime(item.created_at)}</td>
