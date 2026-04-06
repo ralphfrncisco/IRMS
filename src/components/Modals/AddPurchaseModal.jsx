@@ -1,52 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle, CheckCircle, UserPlus, Phone, ShoppingCart } from 'lucide-react';
+import { X, Calendar, Plus, Trash2, PhilippinePeso, Pencil, AlertTriangle, UserPlus, Phone, ShoppingCart } from 'lucide-react';
 import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
 
-// ─── Overpayment Confirmation Modal ───────────────────────────────────────────
-function OverpaymentModal({ isOpen, onConfirm, onDecline, extraAmount, customerName }) {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
-                        <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Overpayment Detected</h3>
-                </div>
-
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    The amount paid has an extra of{' '}
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                        ₱{extraAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>{' '}
-                    beyond the total amount. Would you like to apply this to reduce{' '}
-                    <span className="font-semibold text-slate-800 dark:text-white">{customerName}</span>'s
-                    overall remaining balance?
-                </p>
-
-                <div className="flex gap-3 pt-2">
-                    <button
-                        onClick={onDecline}
-                        className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                    >
-                        No, skip it
-                    </button>
-                    <button
-                        onClick={onConfirm}
-                        className="flex-1 px-4 py-2.5 text-sm font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
-                    >
-                        Yes, apply it
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// ─── Main Modal ───────────────────────────────────────────────────────────────
 function AddPurchaseModal({ isOpen, onClose }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -55,11 +12,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    //  Overpayment modal state
-    const [showOverpaymentModal, setShowOverpaymentModal] = useState(false);
-    const [pendingSavePayload, setPendingSavePayload] = useState(null);
-    //  Payment terms block state
-    const [paymentTermsBlock, setPaymentTermsBlock] = useState(null); // { dueDate, customerName, balance }
+    // Payment terms block state
+    const [paymentTermsBlock, setPaymentTermsBlock] = useState(null);
 
     const [receiptFile, setReceiptFile] = useState(null);
     const [receiptFileName, setReceiptFileName] = useState('No file chosen');
@@ -67,7 +21,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const [customerList, setCustomerList] = useState([]);
     const [loadingCustomers, setLoadingCustomers] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
-    //  New customer inline registration
+
+    // New customer inline registration
     const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
     const [newCustomerForm, setNewCustomerForm] = useState({ contact_number: '', address: '' });
     const [isRegisteringCustomer, setIsRegisteringCustomer] = useState(false);
@@ -123,7 +78,26 @@ function AddPurchaseModal({ isOpen, onClose }) {
         return purchaseItems.reduce((sum, item) => sum + item.total, 0);
     }, [purchaseItems]);
 
-    //  Fixed: handle overpayment (negative balance) properly
+    // ─── Amount paid input: capped at totalAmount ─────────────────────────────
+    // Parses the raw input, clamps it to totalAmount, then formats for display.
+    const handleAmountChange = (e) => {
+        const raw = e.target.value.replace(/,/g, '');
+
+        // Allow empty input
+        if (raw === '' || raw === '.') {
+            setFormValues(prev => ({ ...prev, amount: raw === '.' ? '0.' : '' }));
+            return;
+        }
+
+        const numeric = parseFloat(raw);
+        if (isNaN(numeric)) return;
+
+        // ✅ Cap: never allow more than the grand total
+        const capped = Math.min(numeric, totalAmount);
+        setFormValues(prev => ({ ...prev, amount: formatInputCurrency(capped.toString()) }));
+    };
+
+    // Compute remaining balance display from amount paid vs total
     useEffect(() => {
         const rawAmountString = formValues.amount.toString().replace(/,/g, '');
         const payment = parseFloat(rawAmountString) || 0;
@@ -135,19 +109,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }
 
         if (balance <= 0) {
-            // Overpaid or exact — remaining balance for THIS order is 0
             setFormValues(prev => ({ ...prev, remainingBalance: '0' }));
         } else {
             setFormValues(prev => ({ ...prev, remainingBalance: formatInputCurrency(balance.toString()) }));
         }
     }, [totalAmount, formValues.amount]);
-
-    //  Derived: extra amount paid beyond total (only positive when overpaid)
-    const overpaymentAmount = useMemo(() => {
-        const payment = parseFloat(formValues.amount.toString().replace(/,/g, '')) || 0;
-        const extra = payment - totalAmount;
-        return extra > 0 ? extra : 0;
-    }, [formValues.amount, totalAmount]);
 
     const filteredCustomers = useMemo(() => {
         return customerList.filter(customer =>
@@ -179,14 +145,13 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         amount: '',
                         remainingBalance: '',
                         currentCustomerBalance: 0,
-                        creditLimit: 0
+                        creditLimit: 0,
+                        paymentTermsDate: ''
                     });
                     setPurchaseItems([]);
                     setSelectedCustomer(null);
                     setReceiptFile(null);
                     setReceiptFileName('No file chosen');
-                    setShowOverpaymentModal(false);
-                    setPendingSavePayload(null);
                     setShowNewCustomerForm(false);
                     setNewCustomerForm({ contact_number: '', address: '' });
                     setPaymentTermsBlock(null);
@@ -247,10 +212,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'amount') {
-            setFormValues(prev => ({ ...prev, [name]: formatInputCurrency(value) }));
-            return;
-        }
         setFormValues(prev => ({ ...prev, [name]: value }));
     };
 
@@ -282,43 +243,22 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }));
         setIsDropdownOpen(false);
 
-        //  Payment terms block check
-        // Block if: has balance + terms date is set + terms date is past + no payment on most recent sale
+        // ✅ Block if due date has passed AND customer still has a balance.
         if (customer.remaining_balance > 0 && customer.payment_terms_date) {
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
             if (customer.payment_terms_date < today) {
-                // Check if any payment has been made on their most recent sale
-                const { data: recentSale } = await supabase
-                    .from('SalesTable')
-                    .select('order_id, remaining_balance')
-                    .eq('customer_id', customer.customer_id)
-                    .gt('remaining_balance', 0)
-                    .order('created_at', { ascending: false })
-                    .limit(1);
-
-                if (recentSale && recentSale.length > 0) {
-                    const { data: payments } = await supabase
-                        .from('paymentHistory')
-                        .select('payment_amount')
-                        .eq('order_id', recentSale[0].order_id)
-                        .limit(1);
-
-                    const hasNoPayment = !payments || payments.length === 0;
-                    if (hasNoPayment) {
-                        setPaymentTermsBlock({
-                            dueDate: customer.payment_terms_date,
-                            customerName: customer.full_name,
-                            balance: customer.remaining_balance
-                        });
-                        return;
-                    }
-                }
+                setPaymentTermsBlock({
+                    dueDate: customer.payment_terms_date,
+                    customerName: customer.full_name,
+                    balance: customer.remaining_balance
+                });
+                return;
             }
         }
         setPaymentTermsBlock(null);
     };
 
-    //  Register a brand new customer and auto-select them
+    // Register a brand new customer and auto-select them
     const registerNewCustomer = async () => {
         if (!formValues.customer.trim()) return;
         setIsRegisteringCustomer(true);
@@ -340,7 +280,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
             if (error) throw error;
 
-            // Auto-select the newly created customer
             setSelectedCustomer(data);
             setFormValues(prev => ({
                 ...prev,
@@ -348,7 +287,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 currentCustomerBalance: data.remaining_balance,
                 creditLimit: data.credit_limit
             }));
-            // Refresh customer list
             setCustomerList(prev => [...prev, data].sort((a, b) => a.full_name.localeCompare(b.full_name)));
             setShowNewCustomerForm(false);
             setIsDropdownOpen(false);
@@ -374,19 +312,19 @@ function AddPurchaseModal({ isOpen, onClose }) {
         }
     };
 
-    // ─── Core save logic (called after overpayment decision) ──────────────────
-    const executeSave = async (applyOverpaymentToBalance = false) => {
+    // ─── Core save logic ──────────────────────────────────────────────────────
+    const executeSave = async () => {
         setIsSaving(true);
         try {
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
 
             const totalAmount_value = totalAmount;
             const paidAmount_value = parseNum(formValues.amount);
-            //  This order's remaining balance is always 0 if fully/over paid
+            // Amount is already capped at input time, but clamp defensively
             const remainingBalance_value = Math.max(0, totalAmount_value - paidAmount_value);
 
-            // Credit limit check
-            if (remainingBalance_value > 0 && formValues.currentCustomerBalance > 0) {
+            // ✅ Credit limit check runs for ALL customers
+            if (remainingBalance_value > 0) {
                 const { data: creditCheck, error: creditError } = await supabase
                     .rpc('check_customer_credit_limit', {
                         p_customer_id: formValues.customerId,
@@ -396,7 +334,8 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 if (creditError) throw creditError;
 
                 if (!creditCheck.allowed) {
-                    const message = `❌ Credit Limit Exceeded!\n\n` +
+                    const message =
+                        `❌ Credit Limit Exceeded!\n\n` +
                         `Customer: ${formValues.customer}\n` +
                         `Credit Limit: ₱${creditCheck.credit_limit?.toLocaleString()}\n` +
                         `Current Balance: ₱${creditCheck.current_balance?.toLocaleString()}\n` +
@@ -473,7 +412,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
             const { error: itemsError } = await supabase.from('purchasedItems').insert(itemsToInsert);
             if (itemsError) throw new Error(`ItemsTable Error: ${itemsError.message}`);
 
-            // Insert payment history
+            // Insert payment history if something was paid upfront
             if (paidAmount_value > 0) {
                 await supabase.from('paymentHistory').insert([{
                     order_id: saleData.order_id,
@@ -482,16 +421,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 }]);
             }
 
-            //  Update customer balance:
-            // - Always add this order's remaining balance
-            // - If user confirmed overpayment, also subtract the extra from their overall balance
-            const balanceToAdd = remainingBalance_value;
-            const balanceToSubtract = applyOverpaymentToBalance ? overpaymentAmount : 0;
-            const netBalanceChange = balanceToAdd - balanceToSubtract;
-
+            // Update customer balance — add only this order's remaining balance.
             const { error: balanceError } = await supabase.rpc('update_customer_balance', {
                 p_customer_id: formValues.customerId,
-                p_new_balance: netBalanceChange
+                p_new_balance: remainingBalance_value
             });
 
             if (balanceError) throw new Error(`Failed to update customer balance: ${balanceError.message}`);
@@ -501,12 +434,10 @@ function AddPurchaseModal({ isOpen, onClose }) {
             alert("Failed to save: " + err.message);
         } finally {
             setIsSaving(false);
-            setShowOverpaymentModal(false);
-            setPendingSavePayload(null);
         }
     };
 
-    // ─── Form submit: check for overpayment first ─────────────────────────────
+    // ─── Form submit ──────────────────────────────────────────────────────────
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
@@ -515,18 +446,15 @@ function AddPurchaseModal({ isOpen, onClose }) {
             return;
         }
 
-        //  Hard block if payment terms are overdue with no payment
+        // Hard block if payment terms are overdue with outstanding balance
         if (paymentTermsBlock) return;
 
-        //  If amount paid > total AND customer has existing balance, show overpayment modal
-        if (overpaymentAmount > 0 && formValues.currentCustomerBalance > 0) {
-            setShowOverpaymentModal(true);
-            return;
-        }
-
-        // Otherwise proceed directly
-        await executeSave(false);
+        await executeSave();
     };
+
+    // Derived: is the amount field at max (fully paid)?
+    const amountPaid = parseFloat(formValues.amount.toString().replace(/,/g, '')) || 0;
+    const isAtMaxAmount = totalAmount > 0 && amountPaid >= totalAmount;
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
@@ -613,7 +541,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                 <p className="text-md font-semibold text-slate-700 dark:text-slate-200 truncate">{formValues.customer}</p>
                                                 <p className="text-[13px] text-white/50 mt-0.5">Credit limit: ₱20,000 (default)</p>
                                             </div>
-                                            {/* Contact number */}
                                             <div className="relative">
                                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                                                 <input
@@ -626,7 +553,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                     className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#111] text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
                                                 />
                                             </div>
-                                            {/* Address */}
                                             <input
                                                 type="text"
                                                 placeholder="Address (optional)"
@@ -667,6 +593,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 <input type="date" name="transactionDate" value={formValues.transactionDate} onChange={handleInputChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             </div>
                         </div>
+
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">
                                 Payment Term/s
@@ -715,7 +642,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         </div>
                     </div>
 
-                    {/*  Payment Terms Hard Block Banner */}
+                    {/* Payment Terms Hard Block Banner */}
                     {paymentTermsBlock && (
                         <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 rounded-lg">
                             <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
@@ -725,13 +652,13 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                     <span className="font-semibold">{paymentTermsBlock.customerName}</span> has an outstanding balance of{' '}
                                     <span className="font-semibold">₱{paymentTermsBlock.balance.toLocaleString()}</span> and their payment terms due date{' '}
                                     (<span className="font-semibold">{new Date(paymentTermsBlock.dueDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>){' '}
-                                    has passed with no recorded payment. Please collect a payment on their most recent order before creating a new sale.
+                                    has passed. Please collect the outstanding balance before creating a new sale.
                                 </p>
                             </div>
                         </div>
                     )}
 
-                    {/*  Yellow warning — outstanding balance but terms not overdue */}
+                    {/* Yellow warning — outstanding balance but terms not overdue */}
                     {selectedCustomer && selectedCustomer.remaining_balance > 0 && !paymentTermsBlock && (
                         <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
@@ -755,9 +682,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                 <Plus className="w-5 h-5" /> <span>Add Item</span>
                             </button>
                         </div>
-                        <div className="block overflow-x-auto mb-1 border-t border-b border-slate-200 dark:border-white/5">
+                        <div className="block overflow-x-auto mb-1 border border-slate-200 dark:border-white/10 rounded-lg">
                             <table className="w-full">
-                                <thead className="bg-black/3 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 backdrop-blur-xs">
+                                <thead className="bg-black/1 dark:bg-transparent border-b border-slate-200 dark:border-white/10">
                                     <tr>
                                         <th className="p-4 md:pl-10 text-left text-sm font-semibold text-slate-600 dark:text-slate-200">Product</th>
                                         <th className="p-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-200">Unit Price</th>
@@ -770,11 +697,11 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                     {purchaseItems.length > 0 ? (
                                         <>
                                             {purchaseItems.map((item) => (
-                                                <tr key={item.id} className="border-b border-slate-200 dark:border-white/5 text-center transition-colors">
+                                                <tr key={item.id} className="border-b border-slate-200 dark:bg-transparent dark:border-white/10 text-center transition-colors">
                                                     <td className="p-4 md:pl-10 text-left text-sm text-slate-700 dark:text-slate-200">{item.name}</td>
-                                                    <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.price.toLocaleString()}</td>
+                                                    <td className="p-4 text-sm text-emerald-700 dark:text-emerald-500 font-semibold">₱{item.price.toLocaleString()}</td>
                                                     <td className="p-4 text-sm text-slate-700 dark:text-slate-200">{item.quantity}</td>
-                                                    <td className="p-4 text-sm text-slate-700 dark:text-slate-200">₱{item.total.toLocaleString()}</td>
+                                                    <td className="p-4 text-sm text-blue-600 dark:text-blue-600 font-bold">₱{item.total.toLocaleString()}</td>
                                                     <td className="p-4 text-center">
                                                         <button type="button" onClick={() => handleEditItem(item.id)} className="text-blue-500 hover:text-blue-700 p-1 cursor-pointer">
                                                             <Pencil className="w-4 h-4" />
@@ -785,9 +712,9 @@ function AddPurchaseModal({ isOpen, onClose }) {
                                                     </td>
                                                 </tr>
                                             ))}
-                                            <tr className="bg-blue-50/50 dark:bg-transparent font-bold">
+                                            <tr className="font-bold">
                                                 <td colSpan="3" className="p-4 text-right text-slate-600 dark:text-white uppercase text-xs tracking-wider">Grand Total:</td>
-                                                <td className="p-4 text-center text-blue-600 dark:text-blue-400 text-lg">₱{totalAmount.toLocaleString()}</td>
+                                                <td className="p-4 text-center text-blue-600 dark:text-blue-500 text-lg font-bold">₱{totalAmount.toLocaleString()}</td>
                                                 <td></td>
                                             </tr>
                                         </>
@@ -811,30 +738,31 @@ function AddPurchaseModal({ isOpen, onClose }) {
                         <div className="md:col-span-2 space-y-5">
                             <div className="flex flex-col md:flex-row items-center gap-4">
                                 <div className="relative w-full">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Amount Paid</label>
-                                    {/* Tooltip wrapper */}
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">
+                                        Amount Paid
+                                        {/* ✅ Hint: shows the max allowed when items are added */}
+                                        {totalAmount > 0 && (
+                                            <span className="ml-2 text-[10px] font-medium text-slate-400 dark:text-white/30 normal-case">
+                                                max ₱{totalAmount.toLocaleString()}
+                                            </span>
+                                        )}
+                                    </label>
                                     <div className="relative">
-                                        <PhilippinePeso className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${overpaymentAmount > 0 ? 'text-emerald-500' : 'text-slate-500 dark:text-white/50'}`} />
+                                        <PhilippinePeso className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isAtMaxAmount ? 'text-emerald-500' : 'text-slate-500 dark:text-white/50'}`} />
                                         <input
                                             type="text"
                                             name="amount"
                                             value={formValues.amount}
-                                            onChange={handleInputChange}
+                                            onChange={handleAmountChange}
                                             placeholder="0.00"
                                             autoComplete="off"
+                                            disabled={totalAmount <= 0}
                                             className={`w-full pl-9 pr-3 py-1.5 h-10 rounded-lg border outline-none transition-all ${
-                                                overpaymentAmount > 0
-                                                    ? 'border-emerald-400 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 focus:ring-2 focus:ring-emerald-400/30'
+                                                isAtMaxAmount
+                                                    ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 focus:ring-2 focus:ring-emerald-400/30'
                                                     : 'border-slate-300 dark:border-white/5 bg-white dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
-                                            }`}
+                                            } disabled:cursor-not-allowed disabled:opacity-50`}
                                         />
-                                        {/*  Persistent tooltip — stays until overpaymentAmount drops to 0 */}
-                                        {overpaymentAmount > 0 && (
-                                            <div className="absolute bottom-full left-0 mb-2 z-50 w-max max-w-[220px] px-3 py-2 rounded-lg bg-emerald-600 dark:bg-emerald-700 text-white text-xs font-medium shadow-lg pointer-events-none">
-                                                ₱{overpaymentAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} over the total — you'll be asked to apply this to the customer's balance.
-                                                <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-emerald-600 dark:border-t-emerald-700" />
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                                 <div className="relative w-full">
@@ -855,7 +783,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
                 <div className="px-4 md:px-6 py-4 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-md text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" form="purchaseForm" disabled={purchaseItems.length === 0 || !formValues.customerId || isSaving} className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                    <button type="submit" form="purchaseForm" disabled={purchaseItems.length === 0 || !formValues.customerId || isSaving || !!paymentTermsBlock} className="px-4 py-2 text-sm font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                         {isSaving ? "Saving..." : "Save Purchase"}
                     </button>
                 </div>
@@ -863,15 +791,6 @@ function AddPurchaseModal({ isOpen, onClose }) {
 
             <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
             <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
-
-            {/*  Overpayment confirmation modal */}
-            <OverpaymentModal
-                isOpen={showOverpaymentModal}
-                extraAmount={overpaymentAmount}
-                customerName={formValues.customer}
-                onConfirm={() => executeSave(true)}
-                onDecline={() => executeSave(false)}
-            />
         </div>
     );
 }

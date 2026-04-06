@@ -7,7 +7,7 @@ import LedgerHistoryTable from './LedgerHistoryTable';
 import DateRangeFilter from '../Filters/DateRangeFilter';
 import CustomerFilter from '../Filters/CustomerFilter'; 
 import ColumnFilter from '../Filters/SortByFilter';
-import { formatDate } from '../../utils/dateTimeFormatter';
+import { formatDateTimeShort } from '../../utils/dateTimeFormatter';
 
 import AddSalaryModal from '../Modals/AddSalaryModal';
 
@@ -57,7 +57,7 @@ function TableSection() {
         const { data, error } = await supabase
             .from('salary')
             .select('*')
-            .order('date', { ascending: false });
+            .order('created_at', { ascending: false });
 
         if (!error) setSalaryData(data);
         setIsLoading(false);
@@ -261,7 +261,7 @@ function TableSection() {
                                             </td>
                                         )}
                                         {visibleColumns['DATE'] && (
-                                            <td className="p-4 text-center text-sm dark:text-white/80">{formatDate(entry.date)}</td>
+                                            <td className="p-4 text-center text-sm dark:text-white/80">{formatDisplayDateTime(entry.created_at)}</td>
                                         )}
                                     </tr>
                                 ))

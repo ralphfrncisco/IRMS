@@ -2,11 +2,6 @@ import React ,{ useEffect, useState}from 'react';
 import { PhilippinePeso, Users } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
-const statsData = [
-    {title: "Active Debts", value: "3", icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500"},
-    { title: "Account Receivables", value: "₱25,000", icon: PhilippinePeso, bgColor: "bg-yellow-500/10", textColor: "text-yellow-500" },
-];
-
 function StatsGrid() {
     const [balanceData, setBalanceData] = useState([]);
 
@@ -34,7 +29,6 @@ function StatsGrid() {
     const totalReceivables = balanceData.reduce((sum, row) => sum + (Number(row.remaining_balance) || 0), 0);
 
     const statsCards = [
-        {title: "Active Debts", value: balanceData.length.toString(), icon: Users, bgColor: "bg-blue-500/10", textColor: "text-blue-500"},
         { title: "Account Receivables", value: `₱ ${totalReceivables.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: PhilippinePeso, bgColor: "bg-yellow-500/10", textColor: "text-yellow-500" },
     ];
 

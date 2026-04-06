@@ -13,8 +13,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
     const [loading, setLoading] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [receiptPreview, setReceiptPreview] = useState(null);
-    
-    // ✅ Store original values (NEVER modified)
+
+    // Store original values (NEVER modified after load)
     const [originalValues, setOriginalValues] = useState({
         paidAmount: 0,
         remainingBalance: 0,
@@ -30,7 +30,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         additionalPayment: '',
     });
 
-    // ✅ Customer info (separate from sale)
+    // Customer info (separate from sale record)
     const [customerInfo, setCustomerInfo] = useState({
         full_name: '',
         total_balance: 0,
@@ -52,46 +52,46 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
     const getImageUrl = (path) => {
         if (!path) return null;
-        if (path.startsWith('http')) return path; 
-        
+        if (path.startsWith('http')) return path;
+
         const { data } = supabase.storage
             .from('receipts')
             .getPublicUrl(path);
-        
+
         return data?.publicUrl || null;
     };
 
-    // ✅ Calculate remaining balance using useMemo
+    // ─── Calculate remaining balance for this sale ────────────────────────────
     const calculatedRemainingBalance = useMemo(() => {
         const parseNum = (val) => {
             if (!val) return 0;
             return parseFloat(val.toString().replace(/,/g, '')) || 0;
         };
-        
+
         const additionalPayment = parseNum(formValues.additionalPayment);
-        
+
         if (formValues.additionalPayment !== '') {
             const newBalance = originalValues.remainingBalance - additionalPayment;
             return Math.max(0, newBalance);
         }
-        
+
         return originalValues.remainingBalance;
     }, [formValues.additionalPayment, originalValues.remainingBalance]);
 
-    // ✅ Calculate total paid using useMemo
+    // ─── Calculate cumulative total paid ─────────────────────────────────────
     const calculatedTotalPaid = useMemo(() => {
         const parseNum = (val) => {
             if (!val) return 0;
             return parseFloat(val.toString().replace(/,/g, '')) || 0;
         };
-        
+
         return originalValues.paidAmount + parseNum(formValues.additionalPayment);
     }, [formValues.additionalPayment, originalValues.paidAmount]);
 
     useEffect(() => {
         const fetchOrderData = async () => {
             if (!orderData?.order_id || !isOpen) return;
-            
+
             try {
                 setLoading(true);
 
@@ -125,7 +125,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     credit_limit: saleData.customers?.credit_limit || 0
                 });
 
-                // ✅ Store original values
+                // Store original values — these are the source of truth
                 setOriginalValues({
                     paidAmount: saleData.paid_amount || 0,
                     remainingBalance: saleData.remaining_balance || 0,
@@ -143,7 +143,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
                 const imageUrl = getImageUrl(saleData.receipt_image);
                 setReceiptPreview(imageUrl);
-                
+
                 setPurchaseItems(items.map(item => ({
                     id: item.id,
                     name: item.product_name,
@@ -196,13 +196,27 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         });
     };
 
+    // ─── Additional payment input: capped at remaining balance ────────────────
+    // The customer cannot overpay — max they can input is exactly what's owed.
+    const handleAdditionalPaymentChange = (e) => {
+        const raw = e.target.value.replace(/,/g, '');
+
+        // Allow empty input
+        if (raw === '' || raw === '.') {
+            setFormValues(prev => ({ ...prev, additionalPayment: raw === '.' ? '0.' : '' }));
+            return;
+        }
+
+        const numeric = parseFloat(raw);
+        if (isNaN(numeric)) return;
+
+        // ✅ Cap: never allow more than what is still owed on this sale
+        const capped = Math.min(numeric, originalValues.remainingBalance);
+        setFormValues(prev => ({ ...prev, additionalPayment: formatInputCurrency(capped.toString()) }));
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'additionalPayment') {
-            setFormValues(prev => ({ ...prev, [name]: formatInputCurrency(value) }));
-            return;
-        }
         setFormValues(prev => ({ ...prev, [name]: value }));
     };
 
@@ -211,10 +225,10 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
         try {
             setIsUpdating(true);
             const parseNum = (val) => parseFloat(val.toString().replace(/,/g, '')) || 0;
-            
+
             const additionalPayment = formValues.additionalPayment === '' ? 0 : parseNum(formValues.additionalPayment);
-            
-            // ✅ Use calculated values
+
+            // Use calculated values derived from originalValues + additionalPayment
             const newTotalPaid = calculatedTotalPaid;
             const newBalance = calculatedRemainingBalance;
 
@@ -225,10 +239,10 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                     paid_amount: newTotalPaid,
                     remaining_balance: newBalance,
                     remarks: formValues.remarks,
-                    status: newBalance <= 0 
-                        ? "Fully Paid" 
-                        : calculatedTotalPaid === 0 
-                            ? "Unpaid" 
+                    status: newBalance <= 0
+                        ? "Fully Paid"
+                        : calculatedTotalPaid === 0
+                            ? "Unpaid"
                             : "With Balance",
                     purchased_items: purchaseItems.map(i => `${i.quantity}x ${i.name}`).join(', ')
                 })
@@ -236,9 +250,12 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
             if (updateError) throw updateError;
 
+            // ✅ VERIFIED FIX: Only insert payment history.
+            // The DB trigger on SalesTable handles customer balance update
+            // when remaining_balance changes — no manual RPC call needed here.
             if (additionalPayment > 0) {
                 const today = new Date().toISOString().split('T')[0];
-                
+
                 const { error: paymentError } = await supabase
                     .from('paymentHistory')
                     .insert([{
@@ -250,20 +267,10 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 if (paymentError) {
                     console.error("❌ Payment history error:", paymentError);
                 }
-
-                // ✅ FIX: Subtract the additional payment from the customer's overall remaining balance
-                const { error: balanceError } = await supabase.rpc('update_customer_balance', {
-                    p_customer_id: formValues.customerId,
-                    p_new_balance: -additionalPayment  // negative = subtract from balance
-                });
-
-                if (balanceError) {
-                    console.error("❌ Balance update error:", balanceError);
-                }
             }
-            
+
             await supabase.from('purchasedItems').delete().eq('order_id', orderData.order_id);
-            
+
             const itemsToInsert = purchaseItems.map(item => ({
                 order_id: orderData.order_id,
                 product_name: item.name,
@@ -271,7 +278,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 quantity: item.quantity
             }));
             await supabase.from('purchasedItems').insert(itemsToInsert);
-            
+
             onClose();
         } catch (err) {
             console.error('Update error:', err);
@@ -283,6 +290,10 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
 
     if (!isOpen) return null;
 
+    // Derived: is the additional payment field at the max (fully paying off this sale)?
+    const additionalPaymentValue = parseFloat(formValues.additionalPayment.toString().replace(/,/g, '')) || 0;
+    const isAtMaxPayment = originalValues.remainingBalance > 0 && additionalPaymentValue >= originalValues.remainingBalance;
+
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
             <div className="flex flex-col h-full md:max-h-[100vh] bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
@@ -293,7 +304,7 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             Reviewing {formValues.PONumber} • Customer: {customerInfo.full_name}
                         </p>
                     </div>
-                    <button 
+                    <button
                         type="button"
                         onClick={(e) => {
                             e.preventDefault();
@@ -320,24 +331,24 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Customer</label>
-                                <input 
-                                    type="text" 
-                                    value={formValues.customer} 
-                                    readOnly 
-                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed" 
+                                <input
+                                    type="text"
+                                    value={formValues.customer}
+                                    readOnly
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed"
                                 />
                                 <p className="text-xs text-slate-500 dark:text-white/50 mt-1">
-                                    Total Balance: <span className = "text-red-500 dark:text-red-500">₱{customerInfo.total_balance.toLocaleString()}</span> | 
-                                     Credit Limit: <span className="text-amber-500 dark:text-amber-500">₱{customerInfo.credit_limit.toLocaleString()}</span>
+                                    Total Balance: <span className="text-red-500 dark:text-red-500">₱{customerInfo.total_balance.toLocaleString()}</span> |{' '}
+                                    Credit Limit: <span className="text-amber-500 dark:text-amber-500">₱{customerInfo.credit_limit.toLocaleString()}</span>
                                 </p>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Date</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={formatDisplayDateTime(formValues.transactionDate)}
                                     readOnly
-                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed" 
+                                    className="w-full text-slate-700 dark:text-slate-200 px-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 cursor-not-allowed"
                                 />
                             </div>
                         </div>
@@ -347,17 +358,17 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                             <div className="flex items-center justify-between">
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Purchased Products</h3>
                             </div>
-                            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10">
+                            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10 rounded-lg">
                                 <table className="w-full">
-                                    <thead className="bg-slate-50 dark:bg-[#1E1E1E]">
-                                        <tr className="text-xs font-bold text-slate-500 dark:text-white/70 uppercase">
+                                    <thead className="bg-black/1 dark:bg-transparent border-b border-slate-200 dark:border-white/10">
+                                        <tr className="text-xs font-bold text-slate-600 dark:text-white/70 uppercase">
                                             <th className="p-3 text-left pl-6">Product</th>
                                             <th className="p-3 text-center">Price</th>
                                             <th className="p-3 text-center">Qty</th>
                                             <th className="p-3 text-center">Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                                         {purchaseItems.map((item) => (
                                             <tr key={item.id || item.name} className="text-sm dark:text-white/70">
                                                 <td className="p-3 pl-6">{item.name}</td>
@@ -366,8 +377,8 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                                 <td className="p-3 text-center font-semibold text-blue-600 dark:text-blue-500">₱{Number(item.total).toLocaleString()}</td>
                                             </tr>
                                         ))}
-                                        <tr className="bg-blue-50/30 dark:bg-[#1E1E1E] font-bold">
-                                            <td colSpan="3" className="p-3 text-right text-xs uppercase text-slate-500 dark:text-white/70 pr-4">Grand Total</td>
+                                        <tr className="font-bold">
+                                            <td colSpan="3" className="p-3 text-right text-xs uppercase text-slate-600 dark:text-white/70 pr-4">Grand Total</td>
                                             <td className="p-3 text-center text-blue-600 dark:text-blue-500">₱{totalAmount.toLocaleString()}</td>
                                             <td></td>
                                         </tr>
@@ -383,14 +394,14 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                 <div className="relative w-85 h-80 md:w-75 md:h-55 rounded-xl border-2 border-dashed border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E] flex items-center justify-center overflow-hidden group">
                                     {receiptPreview ? (
                                         <>
-                                            <img 
-                                                src={receiptPreview} 
-                                                alt="Receipt" 
+                                            <img
+                                                src={receiptPreview}
+                                                alt="Receipt"
                                                 onError={(e) => {
                                                     console.error('Image failed to load:', receiptPreview);
                                                     e.target.style.display = 'none';
                                                 }}
-                                                className="w-full h-full object-cover transition-transform group-hover:scale-105" 
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
                                             />
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                 <button type="button" onClick={handleViewFullImage} className="bg-white text-slate-900 px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:bg-slate-100 transition-all cursor-pointer">
@@ -411,25 +422,37 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <div className="flex items-center justify-between">
-                                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Additional Payment</label>
-                                            <a 
-                                                className="text-blue-500 hover:underline cursor-pointer text-xs mt-[-5px]" 
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">
+                                                Additional Payment
+                                                {/* ✅ Hint: shows the max allowed (what's still owed) */}
+                                                {originalValues.remainingBalance > 0 && (
+                                                    <span className="ml-2 text-[10px] font-medium text-slate-400 dark:text-white/30 normal-case">
+                                                        max ₱{originalValues.remainingBalance.toLocaleString()}
+                                                    </span>
+                                                )}
+                                            </label>
+                                            <a
+                                                className="text-blue-500 hover:underline cursor-pointer text-xs mt-[-5px]"
                                                 onClick={() => setIsPaymentHistoryOpen(true)}
                                             >
                                                 Payment History
                                             </a>
                                         </div>
                                         <div className="relative">
-                                            <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
-                                            <input 
-                                                type="text" 
-                                                name="additionalPayment" 
-                                                value={formValues.additionalPayment} 
-                                                placeholder={originalValues.remainingBalance === 0 ? "Fully paid" : formatInputCurrency(originalValues.paidAmount.toString())}
-                                                onChange={handleInputChange} 
+                                            <PhilippinePeso className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isAtMaxPayment ? 'text-emerald-500' : 'text-slate-500 dark:text-white/50'}`} />
+                                            <input
+                                                type="text"
+                                                name="additionalPayment"
+                                                value={formValues.additionalPayment}
+                                                placeholder={originalValues.remainingBalance === 0 ? "Fully paid" : "0.00"}
+                                                onChange={handleAdditionalPaymentChange}
                                                 autoComplete="off"
                                                 disabled={originalValues.remainingBalance === 0}
-                                                className="w-full text-slate-700 dark:text-white/70 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] outline-none disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-[#1E1E1E]/80" 
+                                                className={`w-full pl-9 pr-3 py-1.5 h-10 rounded-lg border outline-none transition-all ${
+                                                    isAtMaxPayment
+                                                        ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 focus:ring-2 focus:ring-emerald-400/30'
+                                                        : 'border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] text-slate-700 dark:text-white/70'
+                                                } disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-[#1E1E1E]/80`}
                                             />
                                         </div>
                                         <p className="text-xs text-slate-500 dark:text-white/50 mt-2">
@@ -442,21 +465,21 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                                         </label>
                                         <div className="relative">
                                             <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-white/50" />
-                                            <input 
-                                                type="text" 
-                                                value={formatInputCurrency(calculatedRemainingBalance.toString())} 
-                                                readOnly 
-                                                className="w-full text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 font-medium cursor-not-allowed" 
+                                            <input
+                                                type="text"
+                                                value={formatInputCurrency(calculatedRemainingBalance.toString())}
+                                                readOnly
+                                                className="w-full text-red-500 pl-9 pr-3 py-1.5 h-10 rounded-lg border border-slate-300 dark:border-white/5 bg-slate-50 dark:bg-[#1E1E1E]/80 font-medium cursor-not-allowed"
                                             />
                                         </div>
                                     </div>
                                 </div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-white/70 mb-1">Admin Remarks</label>
-                                <textarea 
-                                    name="remarks" 
-                                    rows="4" 
-                                    value={formValues.remarks} 
-                                    onChange={handleInputChange} 
+                                <textarea
+                                    name="remarks"
+                                    rows="4"
+                                    value={formValues.remarks}
+                                    onChange={handleInputChange}
                                     placeholder="The user didn't leave any remarks."
                                     className="w-full text-slate-700 dark:text-slate-200 px-4 py-3 rounded-lg border border-slate-300 dark:border-white/5 dark:bg-[#1E1E1E] outline-none resize-none"
                                 />
@@ -468,9 +491,9 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                 {/* Footer Buttons */}
                 <div className="p-4 md:p-6 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
                     <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-white/20 transition-colors cursor-pointer">Close</button>
-                    <button 
-                        type="submit" 
-                        form="purchase-form" 
+                    <button
+                        type="submit"
+                        form="purchase-form"
                         disabled={isUpdating}
                         className="flex items-center gap-2 px-6 py-2 text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:bg-blue-500 disabled:cursor-not-allowed"
                     >
@@ -482,13 +505,13 @@ function EditPurchaseModal({ isOpen, onClose, orderData }) {
                         ) : (
                             'Update Invoice'
                         )}
-                    </button>                
+                    </button>
                 </div>
             </div>
             <AddItemModal isOpen={isAddItemOpen} onClose={() => setIsAddItemOpen(false)} onAdd={handleAddItem} />
-            <PaymentHistoryModal 
-                isOpen={isPaymentHistoryOpen} 
-                onClose={() => setIsPaymentHistoryOpen(false)} 
+            <PaymentHistoryModal
+                isOpen={isPaymentHistoryOpen}
+                onClose={() => setIsPaymentHistoryOpen(false)}
                 orderData={orderData}
             />
         </div>
