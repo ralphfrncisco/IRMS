@@ -99,9 +99,13 @@ export default function ProductGrid() {
     }, [])
 
     // Filters
-    const filteredProducts = products.filter(p => 
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = products.filter(p => {
+        const term = searchTerm.toLowerCase();
+        return (
+            p.name.toLowerCase().includes(term) ||
+            (p.sub_category && p.sub_category.toLowerCase().includes(term))
+        );
+    });
 
     const pelletProducts = filteredProducts.filter(p => p.category === 'Hog Pellets');
     const medicationProducts = filteredProducts.filter(p => p.category === 'Medication' || p.category === 'Medications');
@@ -141,7 +145,7 @@ export default function ProductGrid() {
             <h3 className="text-lg font-bold text-slate-800 dark:text-white line-clamp-2">{item.name}</h3>
             
             {item.sub_category && (
-                <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#111] text-slate-500 dark:text-white/60 border border-slate-200 dark:border-white/15">
                     {item.sub_category}
                 </span>
             )}
@@ -209,7 +213,7 @@ export default function ProductGrid() {
                 </div>
             ) : filteredProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-3xl">
-                    <p className="text-slate-500">No products found matching your criteria.</p>
+                    <p className="text-slate-500 dark:text-white/60">No products found matching your criteria.</p>
                 </div>
             ) : (
                 <>
