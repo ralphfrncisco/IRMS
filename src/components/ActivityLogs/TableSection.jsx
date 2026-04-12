@@ -88,10 +88,10 @@ function TableSection() {
 
                     <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                         {loading ? (
-                            <tr><td colSpan="5" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
+                            <tr><td colSpan="4" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
                         ) : logs.length === 0 ? (
                             <tr>
-                                <td colSpan="5" className="p-10 text-center text-slate-500">
+                                <td colSpan="4" className="p-10 text-center text-slate-500 dark:text-white/60">
                                     <p className="text-md font-normal">No records found</p>
                                 </td>
                             </tr>

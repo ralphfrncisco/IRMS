@@ -244,7 +244,7 @@ function TableSection() {
 
                     <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                         {loading ? (
-                            <tr><td colSpan="7" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
+                            <tr><td colSpan="8" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
                         ) : filteredExpenses.length > 0 ? (
                             filteredExpenses.map((item) => (
                                 <tr key={item.expense_id} className="text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
@@ -287,7 +287,7 @@ function TableSection() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7" className="p-10 text-center text-slate-500 dark:text-white/70">
+                                <td colSpan="8" className="p-10 text-center text-slate-500 dark:text-white/60">
                                     <div className="flex flex-col items-center justify-center py-4">
                                         <p className="text-lg font-medium">No records found</p>
                                         <p className="text-sm">Try adjusting your filters or add an expense.</p>

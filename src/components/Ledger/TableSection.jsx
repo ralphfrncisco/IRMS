@@ -234,13 +234,13 @@ function TableSection() {
                         <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan="4" className="p-10 text-center">
+                                    <td colSpan="3" className="p-10 text-center">
                                         <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" />
                                     </td>
                                 </tr>
                             ) : filteredSalary.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="p-10 text-center text-slate-500">
+                                    <td colSpan="3" className="p-10 text-center text-slate-500 dark:text-white/60">
                                         <div className="flex flex-col items-center justify-center py-4">
                                             <p className="text-lg font-medium">No records found</p>
                                             <p className="text-sm">Try adjusting your filters or add an entry.</p>
