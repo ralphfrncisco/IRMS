@@ -789,7 +789,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
                 </div>
             </div>
 
-            <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
+            <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} source = "purchase" />
             <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
         </div>
     );

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { X, Plus, Trash2, PhilippinePeso, Calendar, Upload, Pencil } from 'lucide-react';
-import AddExpenseItemModal from './AddExpenseItemModal';
+import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import { supabase } from "../../lib/supabase";
 
@@ -413,7 +413,13 @@ function AddExpenseModal({isOpen, onClose}) {
                 </div>
             </div>
 
-            <AddExpenseItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
+            <AddItemModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                onAdd={handleAddItem}
+                showStockColor={false}
+                source="expense"
+            />
             <EditItemModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} item={itemToEdit} onSave={handleSaveEditedItem} />
         </div>
     );
