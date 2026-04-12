@@ -59,7 +59,7 @@ function RecentRestock() {
             View your recent restock
           </p>
         </div>
-        <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-slate-600 mt-[-10%]">
+        <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-white/50 mt-[-10%]">
           <Package className="w-8 h-8" />
           <p className="text-sm">No restock data available</p>
         </div>

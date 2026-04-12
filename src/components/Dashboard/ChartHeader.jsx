@@ -62,7 +62,7 @@ function ChartHeader({ title, selectedFilter, onFilterChange }) {
                             className={`px-3 py-1.5 transition-colors rounded-md font-normal tracking-wide leading-snug ${
                                 selectedFilter === option.value
                                     ? 'bg-blue-500 text-white dark:bg-blue-600'
-                                    : 'hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                                    : 'hover:bg-slate-200/60 dark:hover:bg-white/10'
                             }`}
                         >
                             {option.label}
