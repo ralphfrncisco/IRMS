@@ -107,9 +107,19 @@ export default function ProductGrid() {
         );
     });
 
-    const pelletProducts = filteredProducts.filter(p => p.category === 'Hog Pellets');
+    const pelletProducts = filteredProducts.filter(p => p.category === 'Hog Pellets' || p.category === 'Feeds');
+    const fertilizerProducts = filteredProducts.filter(p => p.category === 'Fertilizer');
     const medicationProducts = filteredProducts.filter(p => p.category === 'Medication' || p.category === 'Medications');
     const equipmentProducts = filteredProducts.filter(p => p.category === 'Equipments' || p.category === 'Equipment');
+    const otherProducts = filteredProducts.filter(p => 
+        p.category !== 'Hog Pellets' && 
+        p.category !== 'Feeds' && 
+        p.category !== 'Fertilizer' && 
+        p.category !== 'Medication' && 
+        p.category !== 'Medications' && 
+        p.category !== 'Equipments' && 
+        p.category !== 'Equipment'
+    );
 
     const ProductCard = ({ item }) => (
         <div className="relative group p-5 rounded-2xl border bg-white border-slate-200 dark:bg-[#111] dark:border-white/5 hover:border-white/10 transition-all">
@@ -230,6 +240,19 @@ export default function ProductGrid() {
                         </section>
                     )}
 
+                    {/* Fertilization */}
+                    {fertilizerProducts.length > 0 && (
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-1 bg-emerald-500 rounded-full"></div>
+                                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Fertilization</h2>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                                {fertilizerProducts.map(item => <ProductCard key={item.id} item={item} />)}
+                            </div>
+                        </section>
+                    )}
+
                     {/* Medications */}
                     {medicationProducts.length > 0 && (
                         <section className="space-y-4">
@@ -252,6 +275,19 @@ export default function ProductGrid() {
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                                 {equipmentProducts.map(item => <ProductCard key={item.id} item={item} />)}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Other Products */}
+                    {otherProducts.length > 0 && (
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-1 bg-slate-400 dark:bg-slate-600 rounded-full"></div>
+                                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200">Other Products</h2>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                                {otherProducts.map(item => <ProductCard key={item.id} item={item} />)}
                             </div>
                         </section>
                     )}
