@@ -189,9 +189,9 @@ function Header({ onToggleSidebar, onRoleLoaded }) {
         switch (activity) {
             case "New Sale Recorded":
             case "Payment Received":
-            case "New Product Added":case "New Product Added":
+            case "New Product Added":
                 return "text-emerald-700 dark:text-emerald-500";
-
+                
             case "New Expense Recorded":
                 return "text-orange-500 dark:text-amber-400";
 
