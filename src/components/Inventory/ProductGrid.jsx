@@ -129,7 +129,7 @@ export default function ProductGrid() {
                         src={item.image || NoImage} 
                         alt={item.name} 
                         className="w-full h-full object-cover rounded-lg" 
-                        onError={(e) => { e.target.src = NoImage }}
+                        onError={(e) => { e.target.src = NoImage }} loading = "lazy"
                     />
                 </div>
                 <div className="flex gap-1.5">
