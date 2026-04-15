@@ -161,27 +161,61 @@ function AddProductModal({ isOpen, onClose }) {
         setIsSrpDropdownOpen(false);
     };
 
-    const compressImage = (file, maxWidthPx = 800, quality = 0.75) => {
-        return new Promise((resolve) => {
+    const compressImage = (file, maxWidthPx = 600, quality = 0.65) => {
+        return new Promise((resolve, reject) => {
             const img = new Image();
             const url = URL.createObjectURL(file);
+            
             img.onload = () => {
                 URL.revokeObjectURL(url);
                 const canvas = document.createElement('canvas');
                 let { width, height } = img;
+                
+                // Resize for smaller dimensions = better compression
                 if (width > maxWidthPx) {
                     height = Math.round((height * maxWidthPx) / width);
                     width = maxWidthPx;
                 }
+                
                 canvas.width = width;
                 canvas.height = height;
-                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                
+                // Use context to optimize rendering
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
                 canvas.toBlob(
-                    (blob) => resolve(new File([blob], file.name, { type: 'image/webp' })),
+                    (blob) => {
+                        if (!blob) {
+                            reject(new Error('Failed to compress image'));
+                            return;
+                        }
+                        
+                        // Generate WebP filename (strip extension, add .webp)
+                        const webpFileName = file.name.replace(/\.[^/.]+$/, '') + '.webp';
+                        const compressedFile = new File([blob], webpFileName, { 
+                            type: 'image/webp',
+                            lastModified: Date.now()
+                        });
+                        
+                        // Log compression ratio
+                        const originalSize = (file.size / 1024).toFixed(2);
+                        const compressedSize = (compressedFile.size / 1024).toFixed(2);
+                        const ratio = ((1 - compressedFile.size / file.size) * 100).toFixed(1);
+                        console.log(`✅ Image compressed: ${originalSize}KB → ${compressedSize}KB (${ratio}% reduction)`);
+                        
+                        resolve(compressedFile);
+                    },
                     'image/webp',
                     quality
                 );
             };
+            
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                reject(new Error('Failed to load image'));
+            };
+            
             img.src = url;
         });
     };
@@ -189,9 +223,13 @@ function AddProductModal({ isOpen, onClose }) {
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const compressed = await compressImage(file);
-            setSelectedImage(compressed);
-            setPreviewUrl(URL.createObjectURL(compressed));
+            try {
+                const compressed = await compressImage(file);
+                setSelectedImage(compressed);
+                setPreviewUrl(URL.createObjectURL(compressed));
+            } catch (err) {
+                alert('Error processing image: ' + err.message);
+            }
         }
     };
 
@@ -202,9 +240,13 @@ function AddProductModal({ isOpen, onClose }) {
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
         if (file) {
-            const compressed = await compressImage(file);
-            setSelectedImage(compressed);
-            setPreviewUrl(URL.createObjectURL(compressed));
+            try {
+                const compressed = await compressImage(file);
+                setSelectedImage(compressed);
+                setPreviewUrl(URL.createObjectURL(compressed));
+            } catch (err) {
+                alert('Error processing image: ' + err.message);
+            }
         }
     };
 
