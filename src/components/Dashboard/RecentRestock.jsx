@@ -55,7 +55,7 @@ function RecentRestock() {
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">
             Recent Restock
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-white/50">
             View your recent restock
           </p>
         </div>

@@ -159,7 +159,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                       <button
                         onClick={() => toggleMobileSubmenu(item.id)}
                         className={`w-full flex flex-col items-center justify-center p-2 transition-all ${
-                          isActive ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'
+                          isActive ? 'text-emerald-500' : 'text-slate-600 dark:text-white/70'
                         }`}
                       >
                         {/* ✅ Badge on icon */}
@@ -206,7 +206,7 @@ function Sidebar({ collapsed, darkMode, userRole }) {
                       to={item.path}
                       className={({ isActive }) =>
                         `w-full flex flex-col items-center justify-center p-2 transition-all ${
-                          isActive ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-400'
+                          isActive ? 'text-emerald-500' : 'text-slate-600 dark:text-white/70'
                         }`
                       }
                     >

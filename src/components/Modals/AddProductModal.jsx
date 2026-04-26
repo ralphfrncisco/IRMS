@@ -8,6 +8,8 @@ const productTypeOptions = [
     { label: 'Hog Pellets', value: 'Hog Pellets' },
     { label: 'Medication', value: 'Medication' },
     { label: 'Equipments', value: 'Equipments' },
+    { label: 'Fertilizer', value: 'Fertilizer' },
+    {label: 'Feeds', value: 'Feeds'}
 ];
 
 const medicationUsageOptions = [
@@ -261,20 +263,19 @@ function AddProductModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex py-2 items-center justify-center overflow-y-auto">
-            <div 
-                className="flex flex-col max-h-[90vh] bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl shadow-2xl w-full max-w-4xl mx-2 border border-slate-200 dark:border-white/20" 
+        <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
+            <div className="flex flex-col h-full md:h-auto bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="w-full flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-white/20 flex-shrink-0">
+                <div className="w-full flex items-center justify-between px-4 md:px-6 pt-4 md:pt-6 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0 mb-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">New Product</h2>
                     <button onClick={onClose} disabled={loading} className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all group disabled:opacity-50">
                         <X className="w-6 h-6 text-slate-500 group-hover:text-slate-700 dark:text-white/50 dark:group-hover:text-slate-200 cursor-pointer"/>
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
+                <form onSubmit={handleSubmit} id = "add-product-form" className="flex-grow overflow-y-auto space-y-8 custom-scrollbar px-4 md:px-6 py-5">
                     <div className="flex flex-col md:flex-row gap-8 overflow-y-auto pb-6 pr-1">
                         
                         {/* LEFT SIDE: Image Upload */}
@@ -403,17 +404,17 @@ function AddProductModal({ isOpen, onClose }) {
                             </div>
                         </div>
                     </div>
-
-                    {/* Action Buttons */}
-                    <div className="pt-5 border-t border-slate-200 dark:border-white/20 flex justify-end gap-3 flex-shrink-0">
-                        <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] rounded-lg hover:bg-slate-200 dark:hover:bg-white/20 transition-colors disabled:opacity-50">
-                            Cancel
-                        </button>
-                        <button type="submit" disabled={loading} className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[120px]">
-                            {loading ? 'Uploading...' : 'Upload'}
-                        </button>
-                    </div>
                 </form>
+
+                {/* Action Buttons */}
+                <div className="px-4 md:px-6 py-4 border-t border-slate-200 dark:border-white/10 flex justify-end space-x-3 flex-shrink-0">
+                    <button type="button" onClick={onClose} disabled={loading} className="px-7 py-2 text-sm font-medium text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-[#1E1E1E] rounded-lg hover:bg-slate-200 dark:hover:bg-white/20 transition-colors disabled:opacity-50">
+                        Cancel
+                    </button>
+                    <button type="submit" form="add-product-form" disabled={loading} className="px-7 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[120px]">
+                        {loading ? 'Uploading...' : 'Upload'}
+                    </button>
+                </div>
             </div>
         </div>
     )
