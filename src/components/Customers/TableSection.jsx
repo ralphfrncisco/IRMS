@@ -146,14 +146,14 @@ function TableSection() {
                                     {loading ? 'Loading...' : `Total: ${filteredCustomers.length} entries`}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-2 relative" ref={filterRef}>
+                            <div className="flex lg:hidden items-center gap-2 relative" ref={filterRef}>
                                 {/* The Toggle Button */}
                                 <button 
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className={`flex lg:hidden items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
+                                    className={`flex items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
                                         showFilters 
-                                        ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" 
-                                        : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                                        ? "bg-blue-100 text-blue-700 dark:bg-white/10 dark:text-white" 
+                                        : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-200"
                                     }`}
                                 >
                                     <Funnel className="w-4 h-4" />
@@ -162,9 +162,9 @@ function TableSection() {
 
                                 {/* The Dropdown Menu */}
                                 {showFilters && (
-                                    <div className="absolute top-full right-0 mt-2 w-72 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
-                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filter By</h4>
-                                        <CustomerFilter options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
+                                    <div className="absolute top-full right-0 lg:right-37 mt-2 w-50 p-4 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
+                                        <h4 className="text-xs font-bold text-slate-400 dark:text-white uppercase tracking-wider mb-2">Filter By</h4>
+                                        <CustomerFilter className = "w-full" options={customerOptions} initialValue={customerFilter} onSelect={setCustomerFilter} iconProps={iconProps}/>
                                     </div>
                                 )}
 

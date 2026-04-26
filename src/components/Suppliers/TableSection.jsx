@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Eye, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Eye, Trash2, Loader2, Funnel } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 
 import CustomerFilter from '../Filters/CustomerFilter';
@@ -21,6 +21,19 @@ function TableSection() {
         size: 16, 
         className: "text-slate-600 dark:text-white/60" 
     };
+
+    const [showFilters, setShowFilters] = useState(false);
+    const filterRef = React.useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setShowFilters(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     // --- UNIFIED STATE MANAGEMENT ---
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -124,26 +137,44 @@ function TableSection() {
             <div className="p-4 border-b border-slate-100 dark:border-white/10 flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
                 
                 {/* Header Title Section */}
-                <div className="flex items-center justify-between w-full py-2">
+                <div className="flex items-center justify-between w-full">
                     <div className="space-y-1">
                         <h3 className="text-lg lg:text-xl font-bold text-slate-800 dark:text-white">Suppliers List</h3>
                         <p className="text-sm text-slate-500 dark:text-white/60">
                             {loading ? 'Loading...' : `Total: ${filteredSuppliers.length} entries`}
                         </p>
                     </div>
-                    <div>
+                    <div className="flex lg:hidden items-center gap-2 relative" ref={filterRef}>
+                        {/* The Toggle Button */}
                         <button 
-                            onClick={() => setIsAddModalOpen(true)} 
-                            className="block md:hidden w-full md:w-auto cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={`flex items-center cursor-pointer space-x-2 py-2 px-4 rounded-lg transition-all ${
+                                showFilters 
+                                ? "bg-blue-100 text-blue-700 dark:bg-white/10 dark:text-white" 
+                                : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-200"
+                            }`}
                         >
+                            <Funnel className="w-4 h-4" />
+                            <span className="text-sm font-medium">Filters</span>
+                        </button>
+
+                        {/* The Dropdown Menu */}
+                        {showFilters && (
+                            <div className="absolute top-full right-0 lg:right-37 mt-2 w-50 p-4 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl z-50 space-y-3 animate-in fade-in zoom-in duration-200">
+                                <h4 className="text-xs font-bold text-slate-400 dark:text-white uppercase tracking-wider mb-2">Filter By</h4>
+                                <CustomerFilter className = "w-full" options={supplierOptions} initialValue={supplierFilter} onSelect={setSupplierFilter} iconProps={iconProps}/>
+                            </div>
+                        )}
+
+                        <button onClick={() => setIsAddModalOpen(true)} className="block md:hidden cursor-pointer flex items-center justify-center space-x-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                             <Plus className="w-4 h-4" />
-                            <span className="text-sm font-medium truncate">Add</span>
+                            <span className="text-sm font-medium">Add</span>
                         </button>
                     </div>
                 </div>
 
                 {/* Filters Section */}
-                <div className="flex items-center justify-end gap-2 w-full md:w-auto">
+                <div className="hidden lg:flex items-center justify-end gap-2 w-full md:w-auto">
                     <div className="w-40 md:w-auto">
                         <CustomerFilter 
                             options={supplierOptions} 
