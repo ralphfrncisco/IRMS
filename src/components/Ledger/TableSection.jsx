@@ -240,11 +240,8 @@ function TableSection() {
                                 </tr>
                             ) : filteredSalary.length === 0 ? (
                                 <tr>
-<<<<<<< HEAD
-                                    <td colSpan="3" className="p-10 text-center text-slate-500 dark:text-white/60">
-=======
-                                    <td colSpan="4" className="p-10 text-center text-slate-500 dark:text-white/50">
->>>>>>> development
+
+                                    <td colSpan="3" className="p-10 text-center text-slate-500 dark:text-white/50">
                                         <div className="flex flex-col items-center justify-center py-4">
                                             <p className="text-lg font-medium">No records found</p>
                                             <p className="text-sm">Try adjusting your filters or add an entry.</p>
