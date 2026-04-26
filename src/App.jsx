@@ -107,6 +107,17 @@ function App() {
     return () => { if (subscription) subscription.unsubscribe(); };
   }, []);
 
+
+  useEffect(() => {
+    const el = document.createElement("script")
+    el.src = "https://www.tuqlas.com/chatbot.js"
+    el.setAttribute("data-key", "tq_live_0ce8c423b018cb99ef3e9ac84c364d770655ce04")
+    el.setAttribute("data-api", "https://www.tuqlas.com")
+    el.defer = true
+    document.body.appendChild(el)
+    return () => el.remove()
+  }, [])
+
   if (loading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-white dark:bg-slate-900 transition-colors duration-300">

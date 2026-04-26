@@ -82,7 +82,7 @@ function TopProductsSold() {
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Products Sold</h3>
                     <p className="text-sm text-slate-500 dark:text-white/50">Most Purchased Items</p>
                 </div>
-                <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-slate-600 mt-[-10%]">
+                <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-white/20 mt-[-10%]">
                     <Package className="w-8 h-8" />
                     <p className="text-sm">No sales data available</p>
                 </div>

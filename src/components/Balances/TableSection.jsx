@@ -292,7 +292,7 @@ export default function TableSection() {
                             <tr><td colSpan="7" className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" /></td></tr>
                         ) : filteredOrders.length === 0 ? (
                             <tr>
-                                <td colSpan="7" className="p-10 text-center text-slate-500">
+                                <td colSpan="7" className="p-10 text-center text-slate-500 dark:text-white/50">
                                     <div className="flex flex-col items-center justify-center py-4">
                                         <p className="text-lg font-medium">No records found</p>
                                         <p className="text-sm">Try adjusting your filters.</p>
