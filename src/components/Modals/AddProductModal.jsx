@@ -25,7 +25,7 @@ function AddProductModal({ isOpen, onClose }) {
     const fileInputRef = useRef(null);
 
     const [suppliers, setSuppliers] = useState([]); 
-    const [dbProductSrpList, setDbProductSrpList] = useState([]); // Dynamic SRP data
+    const [dbProductSrpList, setDbProductSrpList] = useState([]);
     const [isSupplierDropdownOpen, setIsSupplierDropdownOpen] = useState(false);
     const [isSrpDropdownOpen, setIsSrpDropdownOpen] = useState(false);
     
@@ -45,7 +45,6 @@ function AddProductModal({ isOpen, onClose }) {
             if (!isOpen) return;
             setLoading(true);
             try {
-                // 1. Fetch real suppliers
                 const { data: supplierData } = await supabase
                     .from('supplier')
                     .select('id, supplierName')
@@ -55,7 +54,6 @@ function AddProductModal({ isOpen, onClose }) {
                     setSuppliers(supplierData.map(s => ({ id: s.id, name: s.supplierName })));
                 }
 
-                // 2. Fetch retailProducts joined with supplier to get the names for SRP suggestions
                 const { data: retailData } = await supabase
                     .from('retailProducts')
                     .select(`
@@ -105,7 +103,6 @@ function AddProductModal({ isOpen, onClose }) {
         ).sort((a, b) => a.name.localeCompare(b.name));
     }, [formValues.supplierName, suppliers]);
 
-    // Updated to use the dynamic dbProductSrpList
     const srpSuggestions = useMemo(() => {
         if (!formValues.productName) return [];
         return dbProductSrpList.filter(item => 
@@ -161,37 +158,56 @@ function AddProductModal({ isOpen, onClose }) {
         setIsSrpDropdownOpen(false);
     };
 
-    const compressImage = (file, maxWidthPx = 800, quality = 0.75) => {
-        return new Promise((resolve) => {
+    // ✅ CHANGED: Tighter compression — 600px max width, 60% quality, fixed .webp filename, added error handling
+    const compressImage = (file, maxWidthPx = 600, quality = 0.60) => {
+        return new Promise((resolve, reject) => {
             const img = new Image();
             const url = URL.createObjectURL(file);
+
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                reject(new Error("Failed to load image. The file may be corrupted or unsupported."));
+            };
+
             img.onload = () => {
                 URL.revokeObjectURL(url);
                 const canvas = document.createElement('canvas');
                 let { width, height } = img;
+
                 if (width > maxWidthPx) {
                     height = Math.round((height * maxWidthPx) / width);
                     width = maxWidthPx;
                 }
+
                 canvas.width = width;
                 canvas.height = height;
                 canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
                 canvas.toBlob(
-                    (blob) => resolve(new File([blob], file.name, { type: 'image/webp' })),
+                    (blob) => {
+                        if (!blob) return reject(new Error("Image compression failed. Please try a different file."));
+                        // ✅ FIXED: Rename extension to .webp so filename matches actual format
+                        const newName = file.name.replace(/\.[^.]+$/, '.webp');
+                        resolve(new File([blob], newName, { type: 'image/webp' }));
+                    },
                     'image/webp',
                     quality
                 );
             };
+
             img.src = url;
         });
     };
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        if (file) {
+        if (!file) return;
+        try {
             const compressed = await compressImage(file);
             setSelectedImage(compressed);
             setPreviewUrl(URL.createObjectURL(compressed));
+        } catch (err) {
+            alert(err.message);
         }
     };
 
@@ -201,10 +217,13 @@ function AddProductModal({ isOpen, onClose }) {
         e.preventDefault();
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
-        if (file) {
+        if (!file) return;
+        try {
             const compressed = await compressImage(file);
             setSelectedImage(compressed);
             setPreviewUrl(URL.createObjectURL(compressed));
+        } catch (err) {
+            alert(err.message);
         }
     };
 
@@ -216,8 +235,8 @@ function AddProductModal({ isOpen, onClose }) {
             let imagePath = null;
 
             if (selectedImage) {
-                const fileExt = selectedImage.name.split('.').pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+                // ✅ CHANGED: Use selectedImage.name which is now correctly .webp
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${selectedImage.name}`;
                 
                 const { data: uploadData, error: uploadError } = await supabase.storage
                     .from('product-images')
