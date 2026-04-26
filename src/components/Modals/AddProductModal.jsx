@@ -8,6 +8,8 @@ const productTypeOptions = [
     { label: 'Hog Pellets', value: 'Hog Pellets' },
     { label: 'Medication', value: 'Medication' },
     { label: 'Equipments', value: 'Equipments' },
+    { label: 'Fertilizer', value: 'Fertilizer' },
+    {label: 'Feeds', value: 'Feeds'}
 ];
 
 const medicationUsageOptions = [
@@ -281,7 +283,7 @@ function AddProductModal({ isOpen, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
-            <div className="flex flex-col h-full md:max-h-[69vh] bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden"
+            <div className="flex flex-col h-full md:h-auto bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}

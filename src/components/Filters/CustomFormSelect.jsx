@@ -45,7 +45,7 @@ function CustomFormSelect({ label, name, options, initialValue, onSelect, placeh
         <div className="relative w-full " ref={selectRef}>
             
             {/* Label */}
-            <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-white/70">
                 {label}
             </label>
 
