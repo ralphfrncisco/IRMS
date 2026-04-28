@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { PiggyBank, Eye, EyeClosed, Loader2, Moon, Sun } from 'lucide-react';
+import { Eye, EyeClosed, Loader2, Moon, Sun } from 'lucide-react';
 import { supabase } from "../../lib/supabase";
 
 const MAX_ATTEMPTS = 5;
@@ -46,7 +46,6 @@ function Login() {
     }
   }, [darkMode]);
 
-
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -58,7 +57,6 @@ function Login() {
         setAttempts(storedAttempts);
         setIsError(true);
       } else {
-        // Lockout expired while page was closed — clear it
         localStorage.removeItem(STORAGE_KEY);
       }
     }
@@ -66,7 +64,6 @@ function Login() {
 
   useEffect(() => {
     if (!lockedOut) return;
-
     countdownRef.current = setInterval(() => {
       setLockCountdown(prev => {
         if (prev <= 1) {
@@ -81,7 +78,6 @@ function Login() {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(countdownRef.current);
   }, [lockedOut]);
 
@@ -97,21 +93,17 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (loading || lockedOut) return;
-
     setLoading(true);
     setIsError(false);
-
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password.trim(),
       });
-
       if (error) {
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
         setIsError(true);
-
         if (error.message.toLowerCase().includes('rate') || error.message.toLowerCase().includes('too many')) {
           setErrorMessage('Too many attempts. Please wait before trying again.');
           triggerLockout(newAttempts);
@@ -144,79 +136,101 @@ function Login() {
   const isDisabled = loading || lockedOut;
 
   return (
-    <div id="loginForm" className="fixed inset-0 h-screen bg-slate-100 dark:bg-[#1E1E1E] flex items-center justify-center px-3 lg:p-4 transition-all duration-500 ease-in-out">
-      
-      <button
+    // 1. Background: dark gradient bottom → top, staying close to your #1E1E1E palette
+    <div className="fixed inset-0 h-screen bg-gradient-to-t from-[#08090d] via-[#0f1118] to-[#181c26] flex items-center justify-center px-3 lg:p-4 transition-all duration-500 ease-in-out">
+
+      {/* Dark mode toggle — unchanged */}
+
+      {/* <button
         onClick={() => setDarkMode(!darkMode)}
-        className="p-2.5 rounded-xl transition-all duration-300 hover:bg-gray-200/50 dark:text-white dark:hover:bg-slate-800 absolute top-5 right-5 z-10"
+        className="p-2.5 rounded-xl transition-all duration-300 hover:bg-white/5 absolute top-5 right-5 z-10"
       >
         {darkMode ? (
-          <Moon className="w-5 h-5 text-blue-500 animate-in fade-in zoom-in duration-300" />
+          <Moon className="w-5 h-5 text-blue-400 animate-in fade-in zoom-in duration-300" />
         ) : (
           <Sun className="w-5 h-5 text-yellow-400 animate-in fade-in zoom-in duration-300" />
         )}
-      </button>
+      </button> */}
 
-      <div className={`max-w-md w-full rounded-2xl md:rounded-xl bg-white dark:bg-[#111] mt-[-25%] md:mt-0 p-8 py-17 shadow-sm md:shadow-xl transition-all duration-500 ease-in-out ${isError ? 'animate-shake' : ''}`}>
+      {/* 2. Card: liquid glass — backdrop blur + translucent bg + subtle border highlight */}
+      <div className={`
+        max-w-md w-full mt-[-25%] md:mt-0 p-8 py-17 rounded-2xl md:rounded-xl
+        bg-white/[0.05]
+        backdrop-blur-2xl
+        border border-white/[0.09]
+        shadow-[0_8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.07)]
+        transition-all duration-500 ease-in-out
+        ${isError ? 'animate-shake' : ''}
+      `}>
+
+        {/* Header */}
         <div className="flex flex-col items-center justify-center space-y-2 mb-10">
-          {/* <PiggyBank className="w-9 h-9 transition-colors duration-500 text-black dark:text-white"/> */}
-
-          <img src = "/logo.png" alt="Talaan" className="w-12 h-13 transition-colors duration-500 text-black dark:text-white" />
-          <h2 className="text-3xl text-center text-gray-900 dark:text-white transition-colors duration-500" id = "brand-name">Talaan</h2>
-          <small className={`text-xs text-center transition-colors duration-500 ${isError ? 'text-red-500 font-medium' : 'text-slate-500 dark:text-white/60'}`}>
+          <img src="/logo.png" alt="Talaan" className="w-12 h-13" />
+          <h2 className="text-3xl text-center text-white transition-colors duration-500" id="brand-name">Talaan</h2>
+          <small className={`text-xs text-center transition-colors duration-500 ${isError ? 'text-red-400 font-medium' : 'text-white/40'}`}>
             {lockedOut ? `Locked out. Try again in ${lockCountdown}s` : errorMessage}
           </small>
         </div>
 
         <form className="space-y-6" onSubmit={handleLogin}>
+
+          {/* Email */}
           <div className="w-full">
-            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-500' : 'text-slate-700 dark:text-white/90'}`}>Email</label>
-            <input 
-              type="email" 
+            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-400' : 'text-white/80'}`}>
+              Email
+            </label>
+            <input
+              type="email"
               required
               value={email}
               onChange={handleInputChange(setEmail)}
               disabled={isDisabled}
-              placeholder="" 
-              className={`w-full text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border outline-none transition-all duration-300 ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed
-                ${isError 
-                  ? 'border-red-500 ring-2 ring-red-500/20 dark:bg-red-500/5' 
-                  : 'border-slate-300 dark:border-slate-100/20 dark:bg-black/70 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'}`} 
+              placeholder=""
+              // 3. Inputs: glassy — semi-transparent bg, subtle border
+              className={`w-full text-slate-200 px-3 py-2 rounded-lg border outline-none transition-all duration-300 bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed
+                ${isError
+                  ? 'border-red-500/60 ring-2 ring-red-500/15 bg-red-500/5'
+                  : 'border-white/[0.1] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50'}`}
             />
           </div>
 
+          {/* Password */}
           <div className="w-full">
-            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-500' : 'text-slate-700 dark:text-white/90'}`}>Password</label>
-            <div className={`flex items-center justify-between w-full px-3 py-2 rounded-lg border transition-all duration-300
-                ${isError 
-                  ? 'border-red-500 ring-2 ring-red-500/20 dark:bg-red-500/5' 
-                  : 'border-slate-300 dark:border-slate-100/20 dark:bg-black/70 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500'}
-                ${isDisabled ? 'opacity-50' : ''}
+            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-400' : 'text-white/80'}`}>
+              Password
+            </label>
+            <div className={`flex items-center justify-between w-full px-3 py-2 rounded-lg border transition-all duration-300 bg-white/[0.06]
+              ${isError
+                ? 'border-red-500/60 ring-2 ring-red-500/15 bg-red-500/5'
+                : 'border-white/[0.1] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50'}
+              ${isDisabled ? 'opacity-50' : ''}
             `}>
-              <input 
-                type={showPassword ? "text" : "password"} 
+              <input
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={handleInputChange(setPassword)}
                 disabled={isDisabled}
-                placeholder="" 
-                className="flex-1 bg-transparent text-slate-700 dark:text-slate-200 outline-none disabled:cursor-not-allowed" 
+                placeholder=""
+                className="flex-1 bg-transparent text-slate-200 outline-none disabled:cursor-not-allowed"
               />
-              <button 
+              <button
                 type="button"
                 onClick={togglePasswordVisibility}
                 disabled={isDisabled}
-                className="ml-2 text-slate-500 dark:text-white/80 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-300 disabled:cursor-not-allowed"
+                className="ml-2 text-white/50 hover:text-white/80 transition-colors duration-300 disabled:cursor-not-allowed"
               >
                 {showPassword ? <Eye className="w-5 h-5" /> : <EyeClosed className="w-5 h-5" />}
               </button>
             </div>
           </div>
-          
-          <button 
-            type="submit" 
+
+          {/* Submit */}
+          <button
+            type="submit"
             disabled={isDisabled}
-            className="mt-10 flex items-center justify-center w-full text-white font-semibold rounded-lg p-2.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed bg-black hover:bg-black/90 dark:hover:bg-black/80"
+            // 4. Button: slightly glassier dark — fits the theme without being flat black
+            className="mt-10 flex items-center justify-center w-full text-white font-semibold rounded-lg p-2.5 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed bg-white/7 hover:bg-white/[0.15] border border-white/[0.12] backdrop-blur-sm"
           >
             {loading ? (
               <>
@@ -229,6 +243,7 @@ function Login() {
               'Sign In'
             )}
           </button>
+
         </form>
       </div>
     </div>
