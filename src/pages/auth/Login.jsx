@@ -204,7 +204,7 @@ function Login() {
                   ? 'border-red-500/60 ring-2 ring-red-500/15 bg-red-500/5'
                   : darkMode
                     ? 'bg-white/[0.06] border-white/[0.01] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50'
-                    : 'bg-white/[0.3] border-white/[0.05] focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400/50'
+                    : 'bg-white/[0.3] border-white/[0.25] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50'
                 }`}
             />
           </div>
@@ -220,7 +220,7 @@ function Login() {
                 ? 'border-red-500/60 ring-2 ring-red-500/15 bg-red-500/5'
                 : darkMode
                   ? 'bg-white/[0.06] border-white/[0.01] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50'
-                  : 'bg-white/[0.4] border-white/[0.05] focus-within:ring-2 focus-within:ring-blue-400/20 focus-within:border-blue-400/50'
+                  : 'bg-white/[0.4] border-white/[0.25] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50'
               }
               ${isDisabled ? 'opacity-50' : ''}
             `}>
