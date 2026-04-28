@@ -136,38 +136,60 @@ function Login() {
   const isDisabled = loading || lockedOut;
 
   return (
-    // 1. Background: dark gradient bottom → top, staying close to your #1E1E1E palette
-    <div className="fixed inset-0 h-screen bg-gradient-to-t from-[#08090d] via-[#0f1118] to-[#181c26] flex items-center justify-center px-3 lg:p-4 transition-all duration-500 ease-in-out">
+    <div className={`
+      fixed inset-0 h-screen flex items-center justify-center px-3 lg:p-4 transition-all duration-500 ease-in-out
+      ${darkMode
+        // Dark: blueish-tinted dark gradient, bottom → top
+        ? 'bg-gradient-to-t from-[#08090d] via-[#0f1118] to-[#181c26]'
+        // Light: soft cool-white gradient, bottom → top — airy, not stark
+        : 'bg-gradient-to-t from-[#dde3f0] via-[#e8edf7] to-[#f0f4fc]'
+      }
+    `}>
 
-      {/* Dark mode toggle — unchanged */}
-
-      {/* <button
+      {/* Toggle — restored */}
+      <button
         onClick={() => setDarkMode(!darkMode)}
-        className="p-2.5 rounded-xl transition-all duration-300 hover:bg-white/5 absolute top-5 right-5 z-10"
+        className={`
+          p-2.5 rounded-xl absolute top-5 right-5 z-10 transition-all duration-300
+          ${darkMode ? 'hover:bg-white/5' : 'hover:bg-black/5'}
+        `}
       >
         {darkMode ? (
           <Moon className="w-5 h-5 text-blue-400 animate-in fade-in zoom-in duration-300" />
         ) : (
-          <Sun className="w-5 h-5 text-yellow-400 animate-in fade-in zoom-in duration-300" />
+          <Sun className="w-5 h-5 text-amber-500 animate-in fade-in zoom-in duration-300" />
         )}
-      </button> */}
+      </button>
 
-      {/* 2. Card: liquid glass — backdrop blur + translucent bg + subtle border highlight */}
+      {/* Card */}
       <div className={`
         max-w-md w-full mt-[-25%] md:mt-0 p-8 py-17 rounded-2xl md:rounded-xl
-        bg-white/[0.05]
         backdrop-blur-2xl
-        border border-white/[0.09]
-        shadow-[0_8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.07)]
         transition-all duration-500 ease-in-out
         ${isError ? 'animate-shake' : ''}
+        ${darkMode
+          // Dark card: near-transparent dark glass with bright inner edge
+          ? `bg-white/[0.05]
+             border border-white/[0.09]
+             shadow-[0_8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.07)]`
+          // Light card: near-transparent white glass with a soft shadow and subtle border
+          : `bg-white/[0.55]
+             border border-white/[0.8]
+             shadow-[0_8px_40px_rgba(100,120,180,0.12),inset_0_1px_0_rgba(255,255,255,0.9)]`
+        }
       `}>
 
         {/* Header */}
         <div className="flex flex-col items-center justify-center space-y-2 mb-10">
-          <img src="/logo.png" alt="Talaan" className="w-12 h-13" />
-          <h2 className="text-3xl text-center text-white transition-colors duration-500" id="brand-name">Talaan</h2>
-          <small className={`text-xs text-center transition-colors duration-500 ${isError ? 'text-red-400 font-medium' : 'text-white/40'}`}>
+          <img src="/logo.png" alt="Talaan" className="w-12 h-13 transition-colors duration-500" />
+          <h2 className={`text-3xl text-center transition-colors duration-500 ${darkMode ? 'text-white' : 'text-slate-800'}`} id="brand-name">
+            Talaan
+          </h2>
+          <small className={`text-xs text-center transition-colors duration-500 ${
+            isError
+              ? 'text-red-500 font-medium'
+              : darkMode ? 'text-white/40' : 'text-slate-400'
+          }`}>
             {lockedOut ? `Locked out. Try again in ${lockCountdown}s` : errorMessage}
           </small>
         </div>
@@ -176,7 +198,9 @@ function Login() {
 
           {/* Email */}
           <div className="w-full">
-            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-400' : 'text-white/80'}`}>
+            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${
+              isError ? 'text-red-500' : darkMode ? 'text-white/80' : 'text-slate-700'
+            }`}>
               Email
             </label>
             <input
@@ -186,23 +210,31 @@ function Login() {
               onChange={handleInputChange(setEmail)}
               disabled={isDisabled}
               placeholder=""
-              // 3. Inputs: glassy — semi-transparent bg, subtle border
-              className={`w-full text-slate-200 px-3 py-2 rounded-lg border outline-none transition-all duration-300 bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed
+              className={`w-full px-3 py-2 rounded-lg border outline-none transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
+                ${darkMode ? 'text-slate-200' : 'text-slate-700'}
                 ${isError
                   ? 'border-red-500/60 ring-2 ring-red-500/15 bg-red-500/5'
-                  : 'border-white/[0.1] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50'}`}
+                  : darkMode
+                    ? 'bg-white/[0.06] border-white/[0.1] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50'
+                    : 'bg-white/[0.7] border-slate-200/80 focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400/60'
+                }`}
             />
           </div>
 
           {/* Password */}
           <div className="w-full">
-            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${isError ? 'text-red-400' : 'text-white/80'}`}>
+            <label className={`block text-sm font-semibold mb-1 transition-colors duration-500 ${
+              isError ? 'text-red-500' : darkMode ? 'text-white/80' : 'text-slate-700'
+            }`}>
               Password
             </label>
-            <div className={`flex items-center justify-between w-full px-3 py-2 rounded-lg border transition-all duration-300 bg-white/[0.06]
+            <div className={`flex items-center justify-between w-full px-3 py-2 rounded-lg border transition-all duration-300
               ${isError
                 ? 'border-red-500/60 ring-2 ring-red-500/15 bg-red-500/5'
-                : 'border-white/[0.1] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50'}
+                : darkMode
+                  ? 'bg-white/[0.06] border-white/[0.1] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50'
+                  : 'bg-white/[0.7] border-slate-200/80 focus-within:ring-2 focus-within:ring-blue-400/20 focus-within:border-blue-400/60'
+              }
               ${isDisabled ? 'opacity-50' : ''}
             `}>
               <input
@@ -212,13 +244,15 @@ function Login() {
                 onChange={handleInputChange(setPassword)}
                 disabled={isDisabled}
                 placeholder=""
-                className="flex-1 bg-transparent text-slate-200 outline-none disabled:cursor-not-allowed"
+                className={`flex-1 bg-transparent outline-none disabled:cursor-not-allowed ${darkMode ? 'text-slate-200' : 'text-slate-700'}`}
               />
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
                 disabled={isDisabled}
-                className="ml-2 text-white/50 hover:text-white/80 transition-colors duration-300 disabled:cursor-not-allowed"
+                className={`ml-2 transition-colors duration-300 disabled:cursor-not-allowed ${
+                  darkMode ? 'text-white/50 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'
+                }`}
               >
                 {showPassword ? <Eye className="w-5 h-5" /> : <EyeClosed className="w-5 h-5" />}
               </button>
@@ -229,8 +263,12 @@ function Login() {
           <button
             type="submit"
             disabled={isDisabled}
-            // 4. Button: slightly glassier dark — fits the theme without being flat black
-            className="mt-10 flex items-center justify-center w-full text-white font-semibold rounded-lg p-2.5 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed bg-white/7 hover:bg-white/[0.15] border border-white/[0.12] backdrop-blur-sm"
+            className={`mt-10 flex items-center justify-center w-full font-semibold rounded-lg p-2.5 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed border backdrop-blur-sm
+              ${darkMode
+                ? 'text-white bg-white/[0.07] hover:bg-white/[0.12] border-white/[0.12]'
+                : 'text-white bg-[#1e1e1e] hover:bg-white/[0.8] border-slate-200/80 shadow-sm'
+              }
+            `}
           >
             {loading ? (
               <>
