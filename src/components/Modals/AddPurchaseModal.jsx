@@ -457,7 +457,7 @@ function AddPurchaseModal({ isOpen, onClose }) {
     const isAtMaxAmount = totalAmount > 0 && amountPaid >= totalAmount;
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex py-4 items-center justify-center">
+        <div className="fixed inset-0 bg-black/60 z-[50] flex py-4 items-center justify-center">
             <div className="flex flex-col h-full lg:max-h-[100vh] 2xl:max-h-[110vh] bg-white dark:bg-[#111] rounded-2xl shadow-2xl w-full max-w-5xl mx-2 border border-slate-200 dark:border-white/10 overflow-hidden">
                 <div className="w-full flex items-center justify-between px-4 md:px-6 pt-4 md:pt-6 pb-4 border-b border-slate-200 dark:border-white/10 flex-shrink-0 mb-0">
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2"><ShoppingCart />New Purchase</h2>

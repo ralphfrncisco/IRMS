@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import FloatingNotifications from "../components/Notification";
+// import KulasWidget from '../components/KulasWidget';
 import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {
@@ -79,6 +80,7 @@ const MainLayout = () => {
 
         <main className="p-4 pt-5 pb-20 sm:pb-4 h-full overflow-auto custom-scrollbar">
           <Outlet context={{ darkMode }} /> 
+          {/* <KulasWidget /> */}
         </main>
       </div>
 
